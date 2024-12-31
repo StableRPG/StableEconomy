@@ -1,0 +1,5 @@
+name: Economy
+version: '0.0.1'
+main: me.jeremiah.economy.EconomyPlugin
+loader: me.jeremiah.economy.EconomyPluginLoader
+api-version: '1.21'

@@ -1,0 +1,11 @@
+
+# In seconds
+auto-save-interval: 300
+
+database:
+  type: h2
+  address: localhost
+  port: 3306
+  name: test
+  username: root
+  password: root
