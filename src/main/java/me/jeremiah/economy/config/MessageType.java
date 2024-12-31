@@ -33,7 +33,7 @@ public enum MessageType {
   public void hasRequiredTags(String[] tags) {
     if (requiredTags.length == 0) return;
 
-    if (tags.length < requiredTags.length)
+    if (tags.length / 2 < requiredTags.length)
       throw new IllegalArgumentException("Missing required tags");
 
     outer: for (String req : requiredTags) {
