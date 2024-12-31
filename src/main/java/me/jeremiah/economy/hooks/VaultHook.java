@@ -24,7 +24,7 @@ public class VaultHook implements Economy, Closeable {
     RegisteredServiceProvider<Economy> registeredServiceProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
 
     if (registeredServiceProvider == null)
-      platform.getLogger().severe("Failed to register QualityEconomy with Vault");
+      platform.getLogger().severe("Failed to register with net.milkbowl.vault.economy.Economy.class");
   }
 
   @Override
