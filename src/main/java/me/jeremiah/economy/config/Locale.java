@@ -25,7 +25,7 @@ public interface Locale {
   }
 
   default Component getParsedMessage(@NotNull MessageType id, @NotNull String... tags) {
-    id.hasRequiredTags(tags);
+    id.checkTags(tags);
     return getParsedMessage(getMessage(id), tags);
   }
 

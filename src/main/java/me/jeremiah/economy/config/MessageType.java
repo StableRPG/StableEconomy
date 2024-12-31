@@ -30,7 +30,7 @@ public enum MessageType {
     return key;
   }
 
-  public void hasRequiredTags(String[] tags) {
+  public void checkTags(String[] tags) {
     if (requiredTags.length == 0) return;
 
     if (tags.length / 2 < requiredTags.length)
