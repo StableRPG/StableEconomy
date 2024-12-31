@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public abstract sealed class Database implements Listener, Closeable permits AbstractSQLDatabase, MongoDB, Redis {
+public abstract sealed class Database implements Listener, Closeable permits AbstractSQLDatabase, MongoDB {
 
   public static @NotNull Database of(BasicConfig config) {
     return switch (config.getDatabaseInfo().getDatabaseType()) {
@@ -31,6 +31,7 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
       case MYSQL -> new MySQL(config);
       case MARIADB -> new MariaDB(config);
       case POSTGRESQL -> new PostgreSQL(config);
+      case MONGODB -> new MongoDB(config);
     };
   }
 
