@@ -1,5 +1,6 @@
 package me.jeremiah.economy.storage.databases;
 
+import com.zaxxer.hikari.HikariConfig;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.storage.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ public final class MySQL extends AbstractSQLDatabase {
   }
 
   @Override
-  void processConfig(@NotNull DatabaseInfo databaseInfo) {
+  void processConfig(@NotNull HikariConfig hikariConfig, @NotNull DatabaseInfo databaseInfo) {
     hikariConfig.setJdbcUrl("jdbc:mysql://%s/%s".formatted(databaseInfo.getUrl(), databaseInfo.getName()));
     hikariConfig.setUsername(databaseInfo.getUsername());
     hikariConfig.setPassword(databaseInfo.getPassword());

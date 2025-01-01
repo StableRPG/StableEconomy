@@ -1,5 +1,6 @@
 package me.jeremiah.economy.storage.databases;
 
+import com.zaxxer.hikari.HikariConfig;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.storage.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ public final class SQLite extends AbstractSQLDatabase {
   }
 
   @Override
-  void processConfig(@NotNull DatabaseInfo databaseInfo) {
+  void processConfig(@NotNull HikariConfig hikariConfig, @NotNull DatabaseInfo databaseInfo) {
     hikariConfig.setJdbcUrl("jdbc:sqlite:./plugins/Economy/%s".formatted(databaseInfo.getName()));
   }
 

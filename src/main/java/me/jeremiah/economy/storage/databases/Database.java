@@ -22,7 +22,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public abstract sealed class Database implements Listener, Closeable permits AbstractSQLDatabase, MongoDB {
+public abstract class Database implements Listener, Closeable {
+
+  // TODO: Possibly refactor this class to use a SingleThreadExecutor and CompletableFuture for all methods.
 
   public static @NotNull Database of(BasicConfig config) {
     return switch (config.getDatabaseInfo().getDatabaseType()) {
@@ -35,11 +37,11 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
     };
   }
 
-  final BasicConfig config;
+  protected final BasicConfig config;
 
-  Set<PlayerAccount> entries;
-  Map<UUID, PlayerAccount> entriesByUUID;
-  Map<String, PlayerAccount> entriesByUsername;
+  protected Set<PlayerAccount> entries;
+  protected Map<UUID, PlayerAccount> entriesByUUID;
+  protected Map<String, PlayerAccount> entriesByUsername;
 
   private ScheduledTask autoSave;
 
@@ -47,11 +49,11 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
     this.config = config;
   }
 
-  int lookupEntryCount() {
+  protected int lookupEntryCount() {
     return Bukkit.getOfflinePlayers().length;
   }
 
-  void setup() {
+  protected final void setup() {
     int initialCapacity = lookupEntryCount() * 2;
     entries = ConcurrentHashMap.newKeySet(initialCapacity);
     entriesByUUID = new ConcurrentHashMap<>(initialCapacity);
@@ -62,7 +64,7 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
     Bukkit.getPluginManager().registerEvents(this, config.getPlugin());
   }
 
-  void add(PlayerAccount playerAccount) {
+  protected final void add(PlayerAccount playerAccount) {
     entries.add(playerAccount);
     entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
@@ -87,12 +89,13 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
     return Optional.ofNullable(entriesByUsername.get(username));
   }
 
-  abstract void load();
+  protected abstract void load();
 
-  abstract void save();
+  protected abstract void save();
 
   public void close() {
     autoSave.cancel();
+    autoSave = null;
     save();
     PlayerJoinEvent.getHandlerList().unregister(this);
     entries.clear();
@@ -101,7 +104,7 @@ public abstract sealed class Database implements Listener, Closeable permits Abs
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void onPlayerJoinEvent(PlayerLoginEvent event) {
+  public final void onPlayerJoinEvent(PlayerLoginEvent event) {
     Player player = event.getPlayer();
     getByPlayer(player).ifPresentOrElse(
       playerAccount -> {

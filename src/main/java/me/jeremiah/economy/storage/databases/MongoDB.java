@@ -43,20 +43,26 @@ public final class MongoDB extends Database {
   private final MongoDatabase database;
   private final MongoCollection<Document> accounts;
 
+  protected int lookupEntryCount() {
+    return (int) accounts.countDocuments();
+  }
+
   @Override
-  void load() {
+  protected void load() {
     for (Document document : accounts.find()) {
       UUID uniqueId = document.get("uniqueId", UUID.class);
+      String username = document.getString("username");
       Document balanceDocument = document.get("balances", Document.class);
       HashMap<String, BalanceEntry> balances = new HashMap<>();
-      for (HashMap.Entry<String, Object> entry : balanceDocument.entrySet())
+      for (Map.Entry<String, Object> entry : balanceDocument.entrySet())
         balances.put(entry.getKey(), new BalanceEntry(entry.getKey(), (Double) entry.getValue()));
-      add(new PlayerAccount(uniqueId, document.getString("username"), balances));
+
+      add(new PlayerAccount(uniqueId, username, balances));
     }
   }
 
   @Override
-  void save() {
+  protected void save() {
     List<UpdateOneModel<Document>> writeModels = new ArrayList<>();
 
     for (PlayerAccount account : entries) {

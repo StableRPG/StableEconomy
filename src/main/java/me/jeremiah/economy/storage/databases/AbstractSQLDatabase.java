@@ -13,9 +13,9 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public abstract sealed class AbstractSQLDatabase extends Database permits H2, SQLite, PostgreSQL, MariaDB, MySQL {
+public abstract class AbstractSQLDatabase extends Database {
 
-  protected final HikariConfig hikariConfig = new HikariConfig();
+  private final HikariConfig hikariConfig = new HikariConfig();
   private final HikariDataSource dataSource;
 
   AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull BasicConfig config) {
@@ -27,19 +27,19 @@ public abstract sealed class AbstractSQLDatabase extends Database permits H2, SQ
         throw new RuntimeException("Failed to register SQL driver: " + driver.getName(), exception);
       }
 
-    processConfig(config.getDatabaseInfo());
-
     hikariConfig.setAutoCommit(false);
+
+    processConfig(hikariConfig, config.getDatabaseInfo());
 
     dataSource = new HikariDataSource(hikariConfig);
 
     setup();
   }
 
-  abstract void processConfig(@NotNull DatabaseInfo databaseInfo);
+  abstract void processConfig(@NotNull HikariConfig hikariConfig, @NotNull DatabaseInfo databaseInfo);
 
   @Override
-  int lookupEntryCount() {
+  protected int lookupEntryCount() {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement()) {
       ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM player_entries;");
@@ -52,10 +52,10 @@ public abstract sealed class AbstractSQLDatabase extends Database permits H2, SQ
   }
 
   @Override
-  void load() {
+  protected void load() {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement()) {
-      statement.execute("CREATE TABLE IF NOT EXISTS player_entries(uniqueId BINARY(16) PRIMARY KEY, username VARCHAR(32));");
+      statement.execute("CREATE TABLE IF NOT EXISTS player_entries(uniqueId BINARY(16) PRIMARY KEY, username VARCHAR(16));");
       statement.execute("CREATE TABLE IF NOT EXISTS balance_entries(uniqueId BINARY(16), currency VARCHAR(16), balance DOUBLE, FOREIGN KEY(uniqueId) REFERENCES player_entries(uniqueId), UNIQUE(uniqueId, currency));");
       connection.commit();
 
@@ -100,39 +100,47 @@ public abstract sealed class AbstractSQLDatabase extends Database permits H2, SQ
   }
 
   @Override
-  void save() {
-    try (Connection connection = dataSource.getConnection();
-         PreparedStatement playerStatement = connection.prepareStatement(getSavePlayerStatement());
-         PreparedStatement balanceStatement = connection.prepareStatement(getSaveBalanceStatement())) {
+  protected void save() {
+    try (Connection connection = dataSource.getConnection()) {
+      try (PreparedStatement playerStatement = connection.prepareStatement(getSavePlayerStatement());
+           PreparedStatement balanceStatement = connection.prepareStatement(getSaveBalanceStatement())) {
 
-      for (PlayerAccount playerAccount : entries) {
+        for (PlayerAccount playerAccount : entries) {
 
-        byte[] uniqueId = DataUtils.uuidToBytes(playerAccount.getUniqueId());
+          try {
+            byte[] uniqueId = DataUtils.uuidToBytes(playerAccount.getUniqueId());
 
-        if (playerAccount.isDirty()) {
-          playerStatement.setBytes(1, uniqueId);
-          playerStatement.setString(2, playerAccount.getUsername());
-          playerStatement.addBatch();
+            if (playerAccount.isDirty()) {
+              playerStatement.setBytes(1, uniqueId);
+              playerStatement.setString(2, playerAccount.getUsername());
+              playerStatement.addBatch();
+            }
+
+            for (BalanceEntry balanceEntry : playerAccount.getBalanceEntries()) {
+              if (!balanceEntry.isDirty())
+                continue;
+
+              balanceStatement.setBytes(1, uniqueId);
+              balanceStatement.setString(2, balanceEntry.getCurrency());
+              balanceStatement.setDouble(3, balanceEntry.getUnsavedBalance());
+              balanceStatement.addBatch();
+            }
+
+            playerAccount.markClean();
+            playerAccount.getBalanceEntries().forEach(BalanceEntry::markClean);
+          } catch (SQLException exception) {
+            config.getPlugin().getLogger().log(Level.SEVERE, "Failed to save data for %s (%s)".formatted(playerAccount.getUsername(), playerAccount.getUniqueId()), exception);
+          }
         }
 
-        for (BalanceEntry balanceEntry : playerAccount.getBalanceEntries()) {
-          if (!balanceEntry.isDirty())
-            continue;
+        playerStatement.executeBatch();
+        balanceStatement.executeBatch();
 
-          balanceStatement.setBytes(1, uniqueId);
-          balanceStatement.setString(2, balanceEntry.getCurrency());
-          balanceStatement.setDouble(3, balanceEntry.getUnsavedBalance());
-          balanceStatement.addBatch();
-          balanceEntry.markClean();
-        }
-
-        playerAccount.markClean();
+        connection.commit();
+      } catch (SQLException exception) {
+        connection.rollback();
+        throw exception;
       }
-
-      playerStatement.executeBatch();
-      balanceStatement.executeBatch();
-
-      connection.commit();
     } catch (SQLException exception) {
       config.getPlugin().getLogger().log(Level.SEVERE, "Failed to save data to SQL database.", exception);
     }
