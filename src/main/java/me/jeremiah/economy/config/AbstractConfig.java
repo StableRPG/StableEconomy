@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -37,52 +36,40 @@ abstract class AbstractConfig {
     loadFile(plugin);
   }
 
-  protected void createFile(@NotNull AbstractEconomyPlugin plugin) {
+  private void createFile(@NotNull AbstractEconomyPlugin plugin) {
     if (!file.exists())
       plugin.saveResource(file.getName(), false);
   }
 
-  protected void loadFile(@NotNull AbstractEconomyPlugin plugin) {
+  private void loadFile(@NotNull AbstractEconomyPlugin plugin) {
     try {
       config.load(file);
     } catch (IOException exception) {
-      plugin.getLogger().log(Level.SEVERE, "Failed to load %s".formatted(file.getName()), exception);
+      plugin.getLogger().log(Level.SEVERE, "Failed to load " + file.getName(), exception);
     } catch (InvalidConfigurationException exception) {
       plugin.getLogger().log(Level.SEVERE, "Failed to load %s due to an invalid configuration".formatted(file.getName()), exception);
     }
   }
 
-  protected void update(@NotNull AbstractEconomyPlugin plugin) {
-    boolean save = false;
-    YamlConfiguration internalMessages;
-    try (InputStream inputStream = Objects.requireNonNull(plugin.getResource(file.getName()), "The developer of this plugin is a dumbass...");
-         InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
-      internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
-    } catch (IOException exception) {
-      plugin.getLogger().log(Level.SEVERE, "Failed to load " + file.getName(), exception);
-      return;
-    }
+  private void update(@NotNull AbstractEconomyPlugin plugin) {
+    try {
+      boolean save = false;
+      InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(plugin.getResource(file.getName()), "The developer of this plugin is a dumbass..."));
+      YamlConfiguration internalConfig = YamlConfiguration.loadConfiguration(inputStreamReader);
+      inputStreamReader.close();
 
-    YamlConfiguration messages = YamlConfiguration.loadConfiguration(file);
+      YamlConfiguration messages = YamlConfiguration.loadConfiguration(file);
 
-    for (String key : internalMessages.getKeys(true))
-      if (!messages.contains(key)) {
-        messages.set(key, internalMessages.get(key));
-        save = true;
-      }
-
-    for (String key : messages.getKeys(true)) {
-      if (!internalMessages.contains(key)) {
-        messages.set(key, null);
-        save = true;
-      }
+      for (String key : internalConfig.getKeys(true))
+        if (!messages.contains(key)) {
+          messages.set(key, internalConfig.get(key));
+          save = true;
+        }
 
       if (save)
-        try {
-          messages.save(file);
-        } catch (IOException exception) {
-          plugin.getLogger().log(Level.SEVERE, "Failed to update " + file.getName(), exception);
-        }
+        messages.save(file);
+    } catch (IOException exception) {
+      plugin.getLogger().log(Level.SEVERE, "Failed to update " + file.getName(), exception);
     }
   }
 
