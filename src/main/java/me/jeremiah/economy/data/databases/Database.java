@@ -1,17 +1,10 @@
 package me.jeremiah.economy.data.databases;
 
 import com.google.common.base.Preconditions;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -20,9 +13,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class Database implements Listener, Closeable {
+public abstract class Database implements Closeable {
 
   // TODO: Possibly refactor this class to use a SingleThreadExecutor and CompletableFuture for all methods.
 
@@ -37,13 +32,15 @@ public abstract class Database implements Listener, Closeable {
     };
   }
 
+  private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
   protected final BasicConfig config;
 
   protected Set<PlayerAccount> entries;
   protected Map<UUID, PlayerAccount> entriesByUUID;
   protected Map<String, PlayerAccount> entriesByUsername;
 
-  private ScheduledTask autoSave;
+  private AutoSaveTask autoSaveTask;
 
   protected Database(@NotNull BasicConfig config) {
     this.config = config;
@@ -60,11 +57,11 @@ public abstract class Database implements Listener, Closeable {
     entriesByUsername = new ConcurrentHashMap<>(initialCapacity);
     load();
     long autoSaveInterval = config.getDatabaseInfo().getAutoSaveInterval();
-    autoSave = Bukkit.getAsyncScheduler().runAtFixedRate(config.getPlugin(), task -> save(), autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
-    Bukkit.getPluginManager().registerEvents(this, config.getPlugin());
+    autoSaveTask = new AutoSaveTask(this, TimeUnit.SECONDS.toMillis(autoSaveInterval));
+    executor.execute(autoSaveTask);
   }
 
-  protected final void add(PlayerAccount playerAccount) {
+  public final void add(PlayerAccount playerAccount) {
     entries.add(playerAccount);
     entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
@@ -89,31 +86,61 @@ public abstract class Database implements Listener, Closeable {
     return Optional.ofNullable(entriesByUsername.get(username));
   }
 
+  public void createOrUpdateAccount(@NotNull UUID uniqueId, @NotNull String username) {
+    Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
+    Preconditions.checkNotNull(username, "Username cannot be null");
+    getByUUID(uniqueId).ifPresentOrElse(
+      playerAccount -> {
+        playerAccount.updateUsername(username);
+        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(playerAccount));
+        entriesByUsername.put(username, playerAccount);
+      },
+      () -> add(new PlayerAccount(uniqueId, username))
+    );
+  }
+
   protected abstract void load();
 
   protected abstract void save();
 
   public void close() {
-    autoSave.cancel();
-    autoSave = null;
+    autoSaveTask.close();
+    autoSaveTask = null;
     save();
-    PlayerJoinEvent.getHandlerList().unregister(this);
     entries.clear();
     entriesByUUID.clear();
     entriesByUsername.clear();
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public final void onPlayerJoinEvent(PlayerLoginEvent event) {
-    Player player = event.getPlayer();
-    getByPlayer(player).ifPresentOrElse(
-      playerAccount -> {
-        playerAccount.updateUsername(player.getName());
-        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(playerAccount));
-        entriesByUsername.put(player.getName(), playerAccount);
-      },
-      () -> add(new PlayerAccount(player.getUniqueId(), player.getName()))
-    );
+  private static class AutoSaveTask implements Runnable, Closeable {
+
+    private final Database database;
+    private final long interval;
+
+    private boolean running;
+
+    public AutoSaveTask(Database database, long interval) {
+      this.database = database;
+      this.interval = interval;
+    }
+
+    @Override
+    public void run() {
+      while (running)
+        try {
+          Thread.sleep(interval);
+          database.save();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+    }
+
+    @Override
+    public void close() {
+      running = false;
+    }
+
   }
 
 }

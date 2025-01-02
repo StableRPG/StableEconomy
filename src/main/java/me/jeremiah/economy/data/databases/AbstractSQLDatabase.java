@@ -47,7 +47,7 @@ public abstract class AbstractSQLDatabase extends Database {
       if (resultSet.next())
         return resultSet.getInt(1);
     } catch (SQLException exception) {
-      config.getPlugin().getLogger().log(Level.SEVERE, "Failed to lookup entry count from SQL database.", exception);
+      config.getLogger().log(Level.SEVERE, "Failed to lookup entry count from SQL database.", exception);
     }
     return super.lookupEntryCount();
   }
@@ -88,7 +88,7 @@ public abstract class AbstractSQLDatabase extends Database {
       }
 
     } catch (SQLException exception) {
-      config.getPlugin().getLogger().log(Level.SEVERE, "Failed to load data from SQL database.", exception);
+      config.getLogger().log(Level.SEVERE, "Failed to load data from SQL database.", exception);
     }
   }
 
@@ -130,7 +130,7 @@ public abstract class AbstractSQLDatabase extends Database {
             playerAccount.markClean();
             playerAccount.getBalanceEntries().forEach(BalanceEntry::markClean);
           } catch (SQLException exception) {
-            config.getPlugin().getLogger().log(Level.SEVERE, "Failed to save data for %s (%s)".formatted(playerAccount.getUsername(), playerAccount.getUniqueId()), exception);
+            config.getLogger().log(Level.SEVERE, "Failed to save data for %s (%s)".formatted(playerAccount.getUsername(), playerAccount.getUniqueId()), exception);
           }
         }
 
@@ -143,7 +143,7 @@ public abstract class AbstractSQLDatabase extends Database {
         throw exception;
       }
     } catch (SQLException exception) {
-      config.getPlugin().getLogger().log(Level.SEVERE, "Failed to save data to SQL database.", exception);
+      config.getLogger().log(Level.SEVERE, "Failed to save data to SQL database.", exception);
     }
   }
 

@@ -4,6 +4,8 @@ import me.jeremiah.economy.AbstractEconomyPlugin;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.logging.Logger;
+
 public final class Config extends AbstractConfig implements BasicConfig {
 
   private DatabaseInfo databaseInfo;
@@ -26,6 +28,11 @@ public final class Config extends AbstractConfig implements BasicConfig {
     );
 
     databaseInfo.setAutoSaveInterval(getConfig().getLong("database.auto-save-interval", 300));
+  }
+
+  @Override
+  public @NotNull Logger getLogger() {
+    return getPlugin().getLogger();
   }
 
   public @NotNull DatabaseInfo getDatabaseInfo() {
