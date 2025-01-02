@@ -87,7 +87,7 @@ public class EconomyPlatform implements Listener, Closeable {
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public final void onPlayerJoinEvent(PlayerLoginEvent event) {
+  public final void onPlayerLoginEvent(PlayerLoginEvent event) {
     Player player = event.getPlayer();
     database.createOrUpdateAccount(player.getUniqueId(), player.getName());
   }
