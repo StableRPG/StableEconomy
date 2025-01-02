@@ -12,10 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public abstract class Database implements Closeable {
 
@@ -69,6 +67,39 @@ public abstract class Database implements Closeable {
 
   public Set<PlayerAccount> getEntries() {
     return Set.copyOf(entries);
+  }
+
+  public CompletableFuture<Boolean> updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> {
+      Optional<PlayerAccount> optional = getByPlayer(player);
+      if (optional.isPresent()) {
+        consumer.accept(optional.get());
+        return true;
+      }
+      return false;
+    }, executor);
+  }
+
+  public CompletableFuture<Boolean> updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> {
+      Optional<PlayerAccount> optional = getByUUID(uniqueId);
+      if (optional.isPresent()) {
+        consumer.accept(optional.get());
+        return true;
+      }
+      return false;
+    }, executor);
+  }
+
+  public CompletableFuture<Boolean> updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> {
+      Optional<PlayerAccount> optional = getByUsername(username);
+      if (optional.isPresent()) {
+        consumer.accept(optional.get());
+        return true;
+      }
+      return false;
+    }, executor);
   }
 
   public Optional<PlayerAccount> getByPlayer(@NotNull OfflinePlayer player) {
