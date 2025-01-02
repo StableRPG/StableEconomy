@@ -13,7 +13,7 @@ import java.io.Closeable;
 import java.util.Collections;
 import java.util.List;
 
-public class VaultHook implements Economy, Closeable {
+public final class VaultHook implements Economy, Closeable {
 
   private final EconomyPlatform platform;
   private final Currency currency;

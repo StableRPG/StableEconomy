@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.HashMap;
 
-public class CurrencyLocale implements Locale {
+public final class CurrencyLocale implements Locale {
 
   public static CurrencyLocale of(AbstractEconomyPlugin plugin, File localeFile) {
     return new CurrencyLocale(plugin, localeFile);
