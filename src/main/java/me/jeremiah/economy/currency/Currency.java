@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
+  // TODO: Add support for currency symbols and formatting
+
   private final @NotNull String name;
   private final @NotNull EconomyPlatform platform;
   private final @NotNull Locale locale;
