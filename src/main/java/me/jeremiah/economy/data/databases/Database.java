@@ -149,6 +149,8 @@ public abstract class Database implements Closeable {
     entriesByUsername.clear();
   }
 
+  // TODO: Remove Busy-waiting from AutoSaveTask
+
   private static class AutoSaveTask implements Runnable, Closeable {
 
     private final Database database;
