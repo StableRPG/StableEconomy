@@ -9,6 +9,10 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
   private double savedBalance;
   private double unsavedBalance = 0;
 
+  public BalanceEntry(String currency) {
+    this(currency, 0);
+  }
+
   public BalanceEntry(String currency, double savedBalance) {
     this.currency = currency;
     this.savedBalance = savedBalance;

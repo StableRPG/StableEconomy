@@ -44,7 +44,7 @@ public final class PlayerAccount implements Dirtyable {
   }
 
   public @NotNull BalanceEntry getBalanceEntry(@NotNull String currency) {
-    return balanceEntries.computeIfAbsent(currency, key -> new BalanceEntry(currency, 0));
+    return balanceEntries.computeIfAbsent(currency, BalanceEntry::new);
   }
 
   public double getBalance(@NotNull String currency) {
