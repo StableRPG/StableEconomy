@@ -69,37 +69,43 @@ public abstract class Database implements Closeable {
     return Set.copyOf(entries);
   }
 
-  public CompletableFuture<Boolean> updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> {
+  public boolean updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
       Optional<PlayerAccount> optional = getByPlayer(player);
       if (optional.isPresent()) {
         consumer.accept(optional.get());
         return true;
       }
       return false;
-    }, executor);
   }
 
-  public CompletableFuture<Boolean> updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> {
+  public boolean updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
       Optional<PlayerAccount> optional = getByUUID(uniqueId);
       if (optional.isPresent()) {
         consumer.accept(optional.get());
         return true;
       }
       return false;
-    }, executor);
   }
 
-  public CompletableFuture<Boolean> updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> {
-      Optional<PlayerAccount> optional = getByUsername(username);
-      if (optional.isPresent()) {
-        consumer.accept(optional.get());
-        return true;
-      }
-      return false;
-    }, executor);
+  public boolean updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    Optional<PlayerAccount> optional = getByUsername(username);
+    if (optional.isPresent()) {
+      consumer.accept(optional.get());
+      return true;
+    }
+    return false;
+  }
+
+  public CompletableFuture<Boolean> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), executor);
+  }
+
+  public CompletableFuture<Boolean> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), executor);
+  }
+
+  public CompletableFuture<Boolean> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> updateByUsername(username, consumer), executor);
   }
 
   public Optional<PlayerAccount> getByPlayer(@NotNull OfflinePlayer player) {

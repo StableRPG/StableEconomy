@@ -113,64 +113,64 @@ public class Currency {
     return account.getBalance(name);
   }
 
-  public void setBalance(OfflinePlayer player, double balance) {
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> setBalance(account, balance));
+  public boolean setBalance(OfflinePlayer player, double balance) {
+    return platform.getDatabase().updateByPlayer(player, playerAccount -> playerAccount.setBalance(name, balance));
   }
 
-  public void setBalance(UUID uuid, double balance) {
-    platform.getDatabase().getByUUID(uuid).ifPresent(account -> setBalance(account, balance));
+  public boolean setBalance(UUID uuid, double balance) {
+    return platform.getDatabase().updateByUUID(uuid, account -> account.setBalance(name, balance));
   }
 
-  public void setBalance(String username, double balance) {
-    platform.getDatabase().getByUsername(username).ifPresent(account -> setBalance(account, balance));
+  public boolean setBalance(String username, double balance) {
+    return platform.getDatabase().updateByUsername(username, account -> account.setBalance(name, balance));
   }
 
   public void setBalance(PlayerAccount account, double balance) {
     account.setBalance(name, balance);
   }
 
-  public void addBalance(OfflinePlayer player, double amount) {
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> addBalance(account, amount));
+  public boolean addBalance(OfflinePlayer player, double amount) {
+    return platform.getDatabase().updateByPlayer(player, account -> addBalance(account, amount));
   }
 
-  public void addBalance(UUID uuid, double amount) {
-    platform.getDatabase().getByUUID(uuid).ifPresent(account -> addBalance(account, amount));
+  public boolean addBalance(UUID uuid, double amount) {
+    return platform.getDatabase().updateByUUID(uuid, account -> addBalance(account, amount));
   }
 
-  public void addBalance(String username, double amount) {
-    platform.getDatabase().getByUsername(username).ifPresent(account -> addBalance(account, amount));
+  public boolean addBalance(String username, double amount) {
+    return platform.getDatabase().updateByUsername(username, account -> addBalance(account, amount));
   }
 
   public void addBalance(PlayerAccount account, double amount) {
     account.addBalance(name, amount);
   }
 
-  public void subtractBalance(OfflinePlayer player, double amount) {
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> subtractBalance(account, amount));
+  public boolean subtractBalance(OfflinePlayer player, double amount) {
+    return platform.getDatabase().updateByPlayer(player, account -> subtractBalance(account, amount));
   }
 
-  public void subtractBalance(UUID uuid, double amount) {
-    platform.getDatabase().getByUUID(uuid).ifPresent(account -> subtractBalance(account, amount));
+  public boolean subtractBalance(UUID uuid, double amount) {
+    return platform.getDatabase().updateByUUID(uuid, account -> subtractBalance(account, amount));
   }
 
-  public void subtractBalance(String username, double amount) {
-    platform.getDatabase().getByUsername(username).ifPresent(account -> subtractBalance(account, amount));
+  public boolean subtractBalance(String username, double amount) {
+    return platform.getDatabase().updateByUsername(username, account -> subtractBalance(account, amount));
   }
 
   public void subtractBalance(PlayerAccount account, double amount) {
     account.subtractBalance(name, amount);
   }
 
-  public void resetBalance(OfflinePlayer player) {
-    platform.getDatabase().getByPlayer(player).ifPresent(this::resetBalance);
+  public boolean resetBalance(OfflinePlayer player) {
+    return platform.getDatabase().updateByPlayer(player, this::resetBalance);
   }
 
-  public void resetBalance(UUID uuid) {
-    platform.getDatabase().getByUUID(uuid).ifPresent(this::resetBalance);
+  public boolean resetBalance(UUID uuid) {
+    return platform.getDatabase().updateByUUID(uuid, this::resetBalance);
   }
 
-  public void resetBalance(String username) {
-    platform.getDatabase().getByUsername(username).ifPresent(this::resetBalance);
+  public boolean resetBalance(String username) {
+    return platform.getDatabase().updateByUsername(username, this::resetBalance);
   }
 
   public void resetBalance(PlayerAccount account) {
