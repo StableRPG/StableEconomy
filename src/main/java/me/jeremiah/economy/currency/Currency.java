@@ -10,7 +10,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.Locale;
 import me.jeremiah.economy.config.MessageType;
-import me.jeremiah.economy.storage.PlayerAccount;
+import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -59,6 +59,18 @@ public class Currency {
     return name;
   }
 
+  public boolean isDefaultCurrency() {
+    return name.equals("default");
+  }
+
+  public @NotNull EconomyPlatform getPlatform() {
+    return platform;
+  }
+
+  public @NotNull Locale getLocale() {
+    return locale;
+  }
+
   public void register() {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
@@ -67,7 +79,7 @@ public class Currency {
       leaderboard.clear();
       leaderboard.addAll(platform.getDatabase().getEntries());
       leaderboard.sort(Comparator.comparing(account -> account.getBalanceEntry(name)));
-    }, 5, 5, TimeUnit.MINUTES);
+    }, 0, 5, TimeUnit.MINUTES);
     if (adminCommand != null) adminCommand.register();
   }
 
@@ -81,10 +93,6 @@ public class Currency {
       autoUpdateLeaderboard = null;
     }
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
-  }
-
-  public boolean isDefaultCurrency() {
-    return name.equals("default");
   }
 
   public static class Builder {
@@ -264,7 +272,7 @@ public class Currency {
         throw CommandAPI.failWithString("Player not found");
 
       platform.getDatabase().getByPlayer(target).ifPresent(account -> locale.sendParsedMessage(sender, MessageType.VIEW_OTHER,
-        "player", target.getName(),
+        "player", account.getUsername(),
         "balance", String.valueOf(account.getBalance(currency))));
     }
 
@@ -291,14 +299,14 @@ public class Currency {
             targetAccount.addBalance(currency, amount);
             locale.sendParsedMessage(player, MessageType.TRANSFER_SEND,
               "sender", player.getName(),
-              "receiver", target.getName(),
+              "receiver", account.getUsername(),
               "amount", String.valueOf(amount),
               "balance", String.valueOf(account.getBalance(currency)));
             Player targetPlayer;
             if (target.isOnline() && (targetPlayer = target.getPlayer()) != null)
               locale.sendParsedMessage(targetPlayer, MessageType.TRANSFER_RECEIVE,
                 "sender", player.getName(),
-                "receiver", target.getName(),
+                "receiver", account.getUsername(),
                 "amount", String.valueOf(amount),
                 "balance", String.valueOf(targetAccount.getBalance(currency)));
           });
@@ -353,7 +361,7 @@ public class Currency {
 
       platform.getDatabase().getByPlayer(target).ifPresent(account -> {
         locale.sendParsedMessage(sender, MessageType.ADMIN_SET,
-          "player", target.getName(),
+          "player", account.getUsername(),
           "old-balance", String.valueOf(account.getBalance(currency)),
           "new-balance", String.valueOf(amount));
         account.setBalance(currency, amount);
@@ -371,7 +379,7 @@ public class Currency {
 
       platform.getDatabase().getByPlayer(target).ifPresent(account -> {
         locale.sendParsedMessage(sender, MessageType.ADMIN_ADD,
-          "player", target.getName(),
+          "player", account.getUsername(),
           "old-balance", String.valueOf(account.getBalance(currency)),
           "balance-change", String.valueOf(amount),
           "new-balance", String.valueOf(account.getBalance(currency) + amount));
@@ -390,7 +398,7 @@ public class Currency {
 
       platform.getDatabase().getByPlayer(target).ifPresent(account -> {
         locale.sendParsedMessage(sender, MessageType.ADMIN_REMOVE,
-          "player", target.getName(),
+          "player", account.getUsername(),
           "old-balance", String.valueOf(account.getBalance(currency)),
           "balance-change", String.valueOf(amount),
           "new-balance", String.valueOf(account.getBalance(currency) - amount));
@@ -406,7 +414,7 @@ public class Currency {
 
       platform.getDatabase().getByPlayer(target).ifPresent(account -> {
         locale.sendParsedMessage(sender, MessageType.ADMIN_RESET,
-          "player", target.getName(),
+          "player", account.getUsername(),
           "old-balance", String.valueOf(account.getBalance(currency)));
         account.setBalance(currency, 0);
       });

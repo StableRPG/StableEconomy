@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
+@SuppressWarnings({"UnstableApiUsage", "unused"})
 public final class EconomyPluginLoader implements PluginLoader {
 
   private static final List<String> LIBRARIES = List.of(

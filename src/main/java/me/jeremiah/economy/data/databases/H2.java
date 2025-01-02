@@ -1,8 +1,8 @@
-package me.jeremiah.economy.storage.databases;
+package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
 import me.jeremiah.economy.config.BasicConfig;
-import me.jeremiah.economy.storage.DatabaseInfo;
+import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class H2 extends AbstractSQLDatabase {

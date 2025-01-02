@@ -36,6 +36,9 @@ public enum MessageType {
     if (tags.length / 2 < requiredTags.length)
       throw new IllegalArgumentException("Missing required tags");
 
+    if (tags.length % 2 != 0)
+      throw new IllegalArgumentException("Incomplete tag pairs");
+
     outer: for (String req : requiredTags) {
       for (int i = 0; i < tags.length; i += 2)
         if (req.equals(tags[i])) continue outer;

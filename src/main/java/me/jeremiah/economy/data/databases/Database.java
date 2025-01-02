@@ -1,9 +1,9 @@
-package me.jeremiah.economy.storage.databases;
+package me.jeremiah.economy.data.databases;
 
 import com.google.common.base.Preconditions;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import me.jeremiah.economy.config.BasicConfig;
-import me.jeremiah.economy.storage.PlayerAccount;
+import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

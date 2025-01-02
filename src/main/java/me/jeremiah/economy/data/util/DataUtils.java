@@ -1,4 +1,4 @@
-package me.jeremiah.economy.storage;
+package me.jeremiah.economy.data.util;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

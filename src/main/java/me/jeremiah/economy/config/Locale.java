@@ -1,11 +1,12 @@
 package me.jeremiah.economy.config;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.command.CommandSender;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 public interface Locale {
@@ -16,12 +17,12 @@ public interface Locale {
 
   @NotNull String getMessage(@NotNull MessageType type);
 
-  default void sendParsedMessage(@NotNull CommandSender sender, @NotNull MessageType id, @NotNull String... tags) {
-    sender.sendMessage(getParsedMessage(id, tags));
+  default void sendParsedMessage(@NotNull Audience audience, @NotNull MessageType id, @NotNull String... tags) {
+    audience.sendMessage(getParsedMessage(id, tags));
   }
 
-  default void sendParsedMessage(@NotNull CommandSender sender, @NotNull String message, @NotNull String... tags) {
-    sender.sendMessage(getParsedMessage(message, tags));
+  default void sendParsedMessage(@NotNull Audience audience, @NotNull String message, @NotNull String... tags) {
+    audience.sendMessage(getParsedMessage(message, tags));
   }
 
   default Component getParsedMessage(@NotNull MessageType id, @NotNull String... tags) {
@@ -29,7 +30,7 @@ public interface Locale {
     return getParsedMessage(getMessage(id), tags);
   }
 
-  private Component getParsedMessage(String message, String... tags) {
+  private Component getParsedMessage(String message, @Subst("") String... tags) {
     if (tags.length == 0)
       return MiniMessage.miniMessage().deserialize(message);
     if (tags.length % 2 != 0)

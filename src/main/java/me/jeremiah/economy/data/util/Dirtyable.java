@@ -1,4 +1,4 @@
-package me.jeremiah.economy.storage;
+package me.jeremiah.economy.data.util;
 
 public interface Dirtyable {
 

@@ -1,7 +1,7 @@
 package me.jeremiah.economy.config;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
-import me.jeremiah.economy.storage.DatabaseInfo;
+import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class Config extends AbstractConfig implements BasicConfig {

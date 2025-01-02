@@ -1,5 +1,6 @@
-package me.jeremiah.economy.storage;
+package me.jeremiah.economy.data;
 
+import me.jeremiah.economy.data.util.Dirtyable;
 import org.jetbrains.annotations.NotNull;
 
 public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {

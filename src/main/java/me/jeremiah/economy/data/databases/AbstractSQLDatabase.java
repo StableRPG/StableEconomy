@@ -1,12 +1,12 @@
-package me.jeremiah.economy.storage.databases;
+package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import me.jeremiah.economy.config.BasicConfig;
-import me.jeremiah.economy.storage.BalanceEntry;
-import me.jeremiah.economy.storage.DataUtils;
-import me.jeremiah.economy.storage.DatabaseInfo;
-import me.jeremiah.economy.storage.PlayerAccount;
+import me.jeremiah.economy.data.BalanceEntry;
+import me.jeremiah.economy.data.PlayerAccount;
+import me.jeremiah.economy.data.util.DataUtils;
+import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
@@ -15,7 +15,6 @@ import java.util.logging.Level;
 
 public abstract class AbstractSQLDatabase extends Database {
 
-  private final HikariConfig hikariConfig = new HikariConfig();
   private final HikariDataSource dataSource;
 
   AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull BasicConfig config) {
@@ -26,6 +25,8 @@ public abstract class AbstractSQLDatabase extends Database {
       } catch (Exception exception) {
         throw new RuntimeException("Failed to register SQL driver: " + driver.getName(), exception);
       }
+
+    HikariConfig hikariConfig = new HikariConfig();
 
     hikariConfig.setAutoCommit(false);
 

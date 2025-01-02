@@ -4,8 +4,8 @@ import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.config.Locale;
 import me.jeremiah.economy.currency.Currency;
 import me.jeremiah.economy.currency.CurrencyHolder;
+import me.jeremiah.economy.data.databases.Database;
 import me.jeremiah.economy.hooks.VaultHook;
-import me.jeremiah.economy.storage.databases.Database;
 import org.bukkit.Bukkit;
 
 import java.io.Closeable;
@@ -39,20 +39,19 @@ public class EconomyPlatform implements Closeable {
     currencyConfig.load();
 
     database = Database.of(config);
+    currencyConfig.getCurrencies().forEach(Currency::register);
 
     if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
       vaultHook = new VaultHook(this);
-
-    currencyConfig.getCurrencies().forEach(Currency::register);
   }
 
   @Override
   public void close() {
-    database.close();
-    database = null;
     vaultHook.close();
     vaultHook = null;
     currencyConfig.getCurrencies().forEach(Currency::unregister);
+    database.close();
+    database = null;
   }
 
   public AbstractEconomyPlugin getPlugin() {

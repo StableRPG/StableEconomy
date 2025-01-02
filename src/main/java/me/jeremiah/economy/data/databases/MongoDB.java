@@ -1,4 +1,4 @@
-package me.jeremiah.economy.storage.databases;
+package me.jeremiah.economy.data.databases;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -6,14 +6,13 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import me.jeremiah.economy.config.BasicConfig;
-import me.jeremiah.economy.storage.BalanceEntry;
-import me.jeremiah.economy.storage.DatabaseInfo;
-import me.jeremiah.economy.storage.PlayerAccount;
+import me.jeremiah.economy.data.BalanceEntry;
+import me.jeremiah.economy.data.PlayerAccount;
+import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.jetbrains.annotations.NotNull;
@@ -34,13 +33,11 @@ public final class MongoDB extends Database {
       .build();
 
     client = MongoClients.create(settings);
-    database = client.getDatabase(databaseInfo.getName());
-    accounts = database.getCollection("accounts");
+    accounts = client.getDatabase(databaseInfo.getName()).getCollection("accounts");
     accounts.createIndex(new Document("uniqueId", 1), new IndexOptions().unique(true));
   }
 
   private final MongoClient client;
-  private final MongoDatabase database;
   private final MongoCollection<Document> accounts;
 
   protected int lookupEntryCount() {
@@ -86,6 +83,12 @@ public final class MongoDB extends Database {
     }
 
     accounts.bulkWrite(writeModels);
+  }
+
+  @Override
+  public void close() {
+    super.close();
+    client.close();
   }
 
 }
