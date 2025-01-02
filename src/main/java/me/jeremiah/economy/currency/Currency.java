@@ -14,6 +14,7 @@ import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Currency {
@@ -95,6 +97,86 @@ public class Currency {
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
   }
 
+  public double getBalance(OfflinePlayer player) {
+    return platform.getDatabase().getByPlayer(player).map(account -> account.getBalance(name)).orElse(0.0);
+  }
+
+  public double getBalance(UUID uuid) {
+    return platform.getDatabase().getByUUID(uuid).map(account -> account.getBalance(name)).orElse(0.0);
+  }
+
+  public double getBalance(String username) {
+    return platform.getDatabase().getByUsername(username).map(account -> account.getBalance(name)).orElse(0.0);
+  }
+
+  public double getBalance(PlayerAccount account) {
+    return account.getBalance(name);
+  }
+
+  public void setBalance(OfflinePlayer player, double balance) {
+    platform.getDatabase().getByPlayer(player).ifPresent(account -> setBalance(account, balance));
+  }
+
+  public void setBalance(UUID uuid, double balance) {
+    platform.getDatabase().getByUUID(uuid).ifPresent(account -> setBalance(account, balance));
+  }
+
+  public void setBalance(String username, double balance) {
+    platform.getDatabase().getByUsername(username).ifPresent(account -> setBalance(account, balance));
+  }
+
+  public void setBalance(PlayerAccount account, double balance) {
+    account.setBalance(name, balance);
+  }
+
+  public void addBalance(OfflinePlayer player, double amount) {
+    platform.getDatabase().getByPlayer(player).ifPresent(account -> addBalance(account, amount));
+  }
+
+  public void addBalance(UUID uuid, double amount) {
+    platform.getDatabase().getByUUID(uuid).ifPresent(account -> addBalance(account, amount));
+  }
+
+  public void addBalance(String username, double amount) {
+    platform.getDatabase().getByUsername(username).ifPresent(account -> addBalance(account, amount));
+  }
+
+  public void addBalance(PlayerAccount account, double amount) {
+    account.addBalance(name, amount);
+  }
+
+  public void subtractBalance(OfflinePlayer player, double amount) {
+    platform.getDatabase().getByPlayer(player).ifPresent(account -> subtractBalance(account, amount));
+  }
+
+  public void subtractBalance(UUID uuid, double amount) {
+    platform.getDatabase().getByUUID(uuid).ifPresent(account -> subtractBalance(account, amount));
+  }
+
+  public void subtractBalance(String username, double amount) {
+    platform.getDatabase().getByUsername(username).ifPresent(account -> subtractBalance(account, amount));
+  }
+
+  public void subtractBalance(PlayerAccount account, double amount) {
+    account.subtractBalance(name, amount);
+  }
+
+  public void resetBalance(OfflinePlayer player) {
+    platform.getDatabase().getByPlayer(player).ifPresent(this::resetBalance);
+  }
+
+  public void resetBalance(UUID uuid) {
+    platform.getDatabase().getByUUID(uuid).ifPresent(this::resetBalance);
+  }
+
+  public void resetBalance(String username) {
+    platform.getDatabase().getByUsername(username).ifPresent(this::resetBalance);
+  }
+
+  public void resetBalance(PlayerAccount account) {
+    account.setBalance(name, 0);
+  }
+
   public static class Builder {
 
     private final String currency;
@@ -127,7 +209,34 @@ public class Currency {
     }
 
     public Builder usingYaml(@NotNull YamlConfiguration config) {
-      // TODO: Load currency settings from YAML
+      if (config.contains("view-command")) {
+        ConfigurationSection viewConfig = config.getConfigurationSection("view-command");
+        assert viewConfig != null;
+        viewCommandName = viewConfig.getString("name");
+        viewCommandAliases = viewConfig.getStringList("aliases").toArray(new String[0]);
+        viewCommandPermission = viewConfig.getString("permission");
+      }
+      if (config.contains("transfer-command")) {
+        ConfigurationSection transferConfig = config.getConfigurationSection("transfer-command");
+        assert transferConfig != null;
+        transferCommandName = transferConfig.getString("name");
+        transferCommandAliases = transferConfig.getStringList("aliases").toArray(new String[0]);
+        transferCommandPermission = transferConfig.getString("permission");
+      }
+      if (config.contains("leaderboard-command")) {
+        ConfigurationSection leaderboardConfig = config.getConfigurationSection("leaderboard-command");
+        assert leaderboardConfig != null;
+        leaderboardCommandName = leaderboardConfig.getString("name");
+        leaderboardCommandAliases = leaderboardConfig.getStringList("aliases").toArray(new String[0]);
+        leaderboardCommandPermission = leaderboardConfig.getString("permission");
+      }
+      if (config.contains("admin-command")) {
+        ConfigurationSection adminConfig = config.getConfigurationSection("admin-command");
+        assert adminConfig != null;
+        adminCommandName = adminConfig.getString("name");
+        adminCommandAliases = adminConfig.getStringList("aliases").toArray(new String[0]);
+        adminCommandPermission = adminConfig.getString("permission");
+      }
       return this;
     }
 

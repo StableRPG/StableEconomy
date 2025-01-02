@@ -1,6 +1,7 @@
 package me.jeremiah.economy.hooks;
 
 import me.jeremiah.economy.EconomyPlatform;
+import me.jeremiah.economy.currency.Currency;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -15,11 +16,11 @@ import java.util.List;
 public class VaultHook implements Economy, Closeable {
 
   private final EconomyPlatform platform;
-  private final String defaultCurrency;
+  private final Currency currency;
 
   public VaultHook(EconomyPlatform platform) {
     this.platform = platform;
-    this.defaultCurrency = platform.getCurrencyConfig().getDefaultCurrency().getName();
+    this.currency = platform.getCurrencyConfig().getDefaultCurrency();
     Bukkit.getServicesManager().register(Economy.class, this, platform.getPlugin(), ServicePriority.Highest);
     RegisteredServiceProvider<Economy> registeredServiceProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
 
@@ -81,7 +82,7 @@ public class VaultHook implements Economy, Closeable {
 
   @Override
   public double getBalance(OfflinePlayer player) {
-    return platform.getDatabase().getByPlayer(player).map(account -> account.getBalance(defaultCurrency)).orElse(0.0);
+    return currency.getBalance(player);
   }
 
   @Override
@@ -92,7 +93,7 @@ public class VaultHook implements Economy, Closeable {
   @Override
   public double getBalance(String player) {
     platform.getLogger().warning("Getting the balance of a player by name is not recommended. Please use the UUID of the player instead.");
-    return platform.getDatabase().getByUsername(player).map(account -> account.getBalance(defaultCurrency)).orElse(0.0);
+    return currency.getBalance(player);
   }
 
   @Override
@@ -131,7 +132,7 @@ public class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     if (!has(player, amount))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> account.subtractBalance(defaultCurrency, amount));
+    currency.subtractBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -151,7 +152,7 @@ public class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     if (!has(player, amount))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-    platform.getDatabase().getByUsername(player).ifPresent(account -> account.subtractBalance(defaultCurrency, amount));
+    currency.subtractBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -168,7 +169,7 @@ public class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     if (!hasAccount(player))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> account.addBalance(defaultCurrency, amount));
+    currency.addBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -186,7 +187,7 @@ public class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     if (!hasAccount(player))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    platform.getDatabase().getByUsername(player).ifPresent(account -> account.addBalance(defaultCurrency, amount));
+    currency.addBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 

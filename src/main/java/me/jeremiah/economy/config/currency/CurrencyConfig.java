@@ -47,9 +47,8 @@ public final class CurrencyConfig implements CurrencyHolder {
       File currencyFile = new File(currencyDir, "currency.yml");
       File localeFile = new File(currencyDir, "locale.yml");
 
-      Currency.Builder currencyBuilder = new Currency.Builder(currencyDir.getName().toLowerCase(), platform);
-
-      currencyBuilder.usingYaml(YamlConfiguration.loadConfiguration(currencyFile));
+      Currency.Builder currencyBuilder = new Currency.Builder(currencyDir.getName().toLowerCase(), platform)
+        .usingYaml(YamlConfiguration.loadConfiguration(currencyFile));
 
       if (localeFile.exists())
         currencyBuilder.withLocale(CurrencyLocale.of(plugin, localeFile));
@@ -59,6 +58,9 @@ public final class CurrencyConfig implements CurrencyHolder {
         setupDefaultCurrency(platform, currency);
       currencies.add(currency);
     }
+
+    if (defaultCurrency == null)
+      setupDefaultCurrency(platform, null);
   }
 
   private void setupDefaultCurrency(@NotNull EconomyPlatform platform, @Nullable Currency currency) {
