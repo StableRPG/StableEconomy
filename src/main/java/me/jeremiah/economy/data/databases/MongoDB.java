@@ -21,7 +21,10 @@ import java.util.*;
 
 public final class MongoDB extends Database {
 
-  MongoDB(@NotNull BasicConfig config) {
+  private final MongoClient client;
+  private final MongoCollection<Document> accounts;
+
+  public MongoDB(@NotNull BasicConfig config) {
     super(config);
 
     DatabaseInfo databaseInfo = config.getDatabaseInfo();
@@ -36,9 +39,6 @@ public final class MongoDB extends Database {
     accounts = client.getDatabase(databaseInfo.getName()).getCollection("accounts");
     accounts.createIndex(new Document("uniqueId", 1), new IndexOptions().unique(true));
   }
-
-  private final MongoClient client;
-  private final MongoCollection<Document> accounts;
 
   protected int lookupEntryCount() {
     return (int) accounts.countDocuments();

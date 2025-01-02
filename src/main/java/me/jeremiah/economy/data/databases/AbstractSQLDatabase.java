@@ -17,7 +17,7 @@ public abstract class AbstractSQLDatabase extends Database {
 
   private final HikariDataSource dataSource;
 
-  AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull BasicConfig config) {
+  protected AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull BasicConfig config) {
     super(config);
     if (DriverManager.drivers().noneMatch(driver::isInstance))
       try {

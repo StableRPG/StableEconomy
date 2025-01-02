@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class SQLite extends AbstractSQLDatabase {
 
-  SQLite(@NotNull BasicConfig config) {
+  public SQLite(@NotNull BasicConfig config) {
     super(org.sqlite.JDBC.class, config);
   }
 

@@ -45,7 +45,7 @@ public abstract class Database implements Listener, Closeable {
 
   private ScheduledTask autoSave;
 
-  Database(@NotNull BasicConfig config) {
+  protected Database(@NotNull BasicConfig config) {
     this.config = config;
   }
 

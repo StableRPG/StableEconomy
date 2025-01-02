@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class PostgreSQL extends AbstractSQLDatabase {
 
-  PostgreSQL(@NotNull BasicConfig config) {
+  public PostgreSQL(@NotNull BasicConfig config) {
     super(org.postgresql.Driver.class, config);
   }
 
