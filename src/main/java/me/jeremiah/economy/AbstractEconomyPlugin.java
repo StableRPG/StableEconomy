@@ -1,8 +1,8 @@
 package me.jeremiah.economy;
 
 import me.jeremiah.economy.config.Config;
-import me.jeremiah.economy.config.CurrencyConfig;
-import me.jeremiah.economy.config.MessagesConfig;
+import me.jeremiah.economy.config.currency.CurrencyConfig;
+import me.jeremiah.economy.config.messages.MessagesConfig;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AbstractEconomyPlugin extends JavaPlugin {

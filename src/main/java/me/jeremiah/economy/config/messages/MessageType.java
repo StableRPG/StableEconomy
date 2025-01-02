@@ -1,4 +1,4 @@
-package me.jeremiah.economy.config;
+package me.jeremiah.economy.config.messages;
 
 public enum MessageType {
   

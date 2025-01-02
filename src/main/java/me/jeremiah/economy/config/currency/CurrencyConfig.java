@@ -1,10 +1,8 @@
-package me.jeremiah.economy.config;
+package me.jeremiah.economy.config.currency;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.currency.Currency;
-import me.jeremiah.economy.currency.CurrencyHolder;
-import me.jeremiah.economy.currency.CurrencyLocale;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

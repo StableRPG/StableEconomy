@@ -1,9 +1,9 @@
 package me.jeremiah.economy;
 
 import me.jeremiah.economy.config.BasicConfig;
-import me.jeremiah.economy.config.Locale;
+import me.jeremiah.economy.config.currency.CurrencyHolder;
+import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.currency.Currency;
-import me.jeremiah.economy.currency.CurrencyHolder;
 import me.jeremiah.economy.data.databases.Database;
 import me.jeremiah.economy.hooks.VaultHook;
 import org.bukkit.Bukkit;

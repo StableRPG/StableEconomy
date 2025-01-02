@@ -1,4 +1,4 @@
-package me.jeremiah.economy.config;
+package me.jeremiah.economy.config.messages;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
 import net.kyori.adventure.audience.Audience;

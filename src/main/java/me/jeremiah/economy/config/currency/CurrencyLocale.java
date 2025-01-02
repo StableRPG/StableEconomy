@@ -1,8 +1,8 @@
-package me.jeremiah.economy.currency;
+package me.jeremiah.economy.config.currency;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
-import me.jeremiah.economy.config.Locale;
-import me.jeremiah.economy.config.MessageType;
+import me.jeremiah.economy.config.messages.Locale;
+import me.jeremiah.economy.config.messages.MessageType;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 

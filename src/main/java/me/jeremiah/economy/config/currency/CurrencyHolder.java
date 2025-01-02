@@ -1,4 +1,6 @@
-package me.jeremiah.economy.currency;
+package me.jeremiah.economy.config.currency;
+
+import me.jeremiah.economy.currency.Currency;
 
 import java.util.Set;
 

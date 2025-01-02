@@ -1,6 +1,7 @@
-package me.jeremiah.economy.config;
+package me.jeremiah.economy.config.messages;
 
 import me.jeremiah.economy.AbstractEconomyPlugin;
+import me.jeremiah.economy.config.AbstractConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

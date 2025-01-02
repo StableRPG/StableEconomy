@@ -7,7 +7,6 @@ plugins {
 
 group = 'me.jeremiah'
 version = '0.0.1'
-jar.enabled = false
 
 repositories {
     mavenCentral()
@@ -38,11 +37,15 @@ processResources {
     filter(ReplaceTokens, tokens: [version: version])
 }
 
+jar {
+    enabled = false
+}
+
 shadowJar {
     relocate 'dev.jorel.commandapi', 'me.jeremiah.economy.libraries'
     minimize()
     exclude 'META-INF/**', 'LICENSE', 'module-info.class'
-    archiveFileName = "${rootProject.name}.jar"
+    archiveFileName = "${rootProject.name}-${version}.jar"
     destinationDirectory = file('./.server/plugins/')
 }
 
