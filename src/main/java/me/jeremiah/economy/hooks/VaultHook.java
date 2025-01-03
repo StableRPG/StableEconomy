@@ -132,9 +132,7 @@ public final class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     if (!has(player, amount))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-    boolean result = currency.subtractBalance(player, amount);
-    if (!result)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Failed to withdraw funds.");
+    currency.subtractBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -154,9 +152,7 @@ public final class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     if (!has(player, amount))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-    boolean result = currency.subtractBalance(player, amount);
-    if (!result)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Failed to withdraw funds.");
+    currency.subtractBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -173,9 +169,7 @@ public final class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     if (!hasAccount(player))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    boolean result = currency.addBalance(player, amount);
-    if (!result)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Failed to deposit funds.");
+    currency.addBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
@@ -193,9 +187,7 @@ public final class VaultHook implements Economy, Closeable {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     if (!hasAccount(player))
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    boolean result = currency.addBalance(player, amount);
-    if (!result)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Failed to deposit funds.");
+    currency.addBalance(player, amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
 
