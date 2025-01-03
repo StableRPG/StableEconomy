@@ -46,17 +46,17 @@ public final class VaultHook implements Economy, Closeable {
 
   @Override
   public String format(double amount) {
-    return String.format("$%.2f", amount);
-  }
-
-  @Override
-  public String currencyNamePlural() {
-    return "Dollars";
+    return currency.format(amount);
   }
 
   @Override
   public String currencyNameSingular() {
     return "Dollar";
+  }
+
+  @Override
+  public String currencyNamePlural() {
+    return "Dollars";
   }
 
   @Override

@@ -10,6 +10,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessageType;
+import me.jeremiah.economy.currency.formatting.CurrencyFormatter;
 import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -33,6 +34,8 @@ public class Currency {
   private final @NotNull EconomyPlatform platform;
   private final @NotNull Locale locale;
 
+  private final @NotNull CurrencyFormatter formatter;
+
   private final @Nullable CommandTree viewCommand;
 
   private final @Nullable CommandTree transferCommand;
@@ -44,6 +47,7 @@ public class Currency {
   private final @Nullable CommandTree adminCommand;
 
   private Currency(@NotNull String name, @NotNull EconomyPlatform platform, @Nullable Locale locale,
+                   @NotNull CurrencyFormatter formatter,
                    @Nullable CommandTree viewCommand,
                    @Nullable CommandTree transferCommand,
                    @Nullable CommandTree leaderboardCommand, @Nullable ArrayList<PlayerAccount> leaderboard,
@@ -51,6 +55,7 @@ public class Currency {
     this.name = name;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
+    this.formatter = formatter;
     this.viewCommand = viewCommand;
     this.transferCommand = transferCommand;
     this.leaderboardCommand = leaderboardCommand;
@@ -75,6 +80,18 @@ public class Currency {
     return locale;
   }
 
+  public @NotNull CurrencyFormatter getFormatter() {
+    return formatter;
+  }
+
+  public @NotNull String getPrefix() {
+    return formatter.getPrefix();
+  }
+
+  public @NotNull String getSuffix() {
+    return formatter.getSuffix();
+  }
+
   public void register() {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
@@ -97,6 +114,10 @@ public class Currency {
       autoUpdateLeaderboard = null;
     }
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
+  }
+
+  public String format(double amount) {
+    return formatter.format(amount);
   }
 
   public double getBalance(OfflinePlayer player) {
@@ -186,6 +207,10 @@ public class Currency {
 
     private Locale locale;
 
+    private String formatter = "cool";
+    private String prefix = "";
+    private String suffix = "";
+
     private String viewCommandName;
     private String[] viewCommandAliases = new String[0];
     private String viewCommandPermission;
@@ -239,11 +264,29 @@ public class Currency {
         adminCommandAliases = adminConfig.getStringList("aliases").toArray(new String[0]);
         adminCommandPermission = adminConfig.getString("permission");
       }
+      formatter = config.getString("formatter", "cool");
+      prefix = config.getString("prefix", "");
+      suffix = config.getString("suffix", "");
       return this;
     }
 
     public Builder withLocale(@NotNull Locale locale) {
       this.locale = locale;
+      return this;
+    }
+
+    public Builder withFormatter(@NotNull String formatter) {
+      this.formatter = formatter;
+      return this;
+    }
+
+    public Builder withPrefix(@NotNull String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public Builder withSuffix(@NotNull String suffix) {
+      this.suffix = suffix;
       return this;
     }
 
@@ -373,7 +416,9 @@ public class Currency {
               .executes(this::resetBalance)));
       }
 
-      return new Currency(currency, platform, locale, viewCommand, transferCommand, leaderboardCommand, leaderboard, adminCommand);
+      CurrencyFormatter formatter = CurrencyFormatter.of(this.formatter, prefix, suffix);
+
+      return new Currency(currency, platform, locale, formatter, viewCommand, transferCommand, leaderboardCommand, leaderboard, adminCommand);
     }
 
     private void viewOtherBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {

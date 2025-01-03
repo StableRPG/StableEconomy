@@ -6,6 +6,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
@@ -82,7 +83,7 @@ public final class MongoDB extends Database {
       ));
     }
 
-    accounts.bulkWrite(writeModels);
+    accounts.bulkWrite(writeModels, new BulkWriteOptions().ordered(false));
   }
 
   @Override

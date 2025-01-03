@@ -75,6 +75,10 @@ public abstract class Database implements Closeable {
       return false;
   }
 
+  public CompletableFuture<Boolean> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), scheduler);
+  }
+
   public boolean updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
       Optional<PlayerAccount> optional = getByUUID(uniqueId);
       if (optional.isPresent()) {
@@ -84,6 +88,10 @@ public abstract class Database implements Closeable {
       return false;
   }
 
+  public CompletableFuture<Boolean> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
+  }
+
   public boolean updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
     Optional<PlayerAccount> optional = getByUsername(username);
     if (optional.isPresent()) {
@@ -91,14 +99,6 @@ public abstract class Database implements Closeable {
       return true;
     }
     return false;
-  }
-
-  public CompletableFuture<Boolean> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), scheduler);
-  }
-
-  public CompletableFuture<Boolean> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
   }
 
   public CompletableFuture<Boolean> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
