@@ -8,10 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -62,10 +59,6 @@ public abstract class Database implements Closeable {
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
   }
 
-  public Set<PlayerAccount> getEntries() {
-    return Set.copyOf(entries);
-  }
-
   public boolean updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
       Optional<PlayerAccount> optional = getByPlayer(player);
       if (optional.isPresent()) {
@@ -103,6 +96,16 @@ public abstract class Database implements Closeable {
 
   public CompletableFuture<Boolean> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
     return CompletableFuture.supplyAsync(() -> updateByUsername(username, consumer), scheduler);
+  }
+
+  public List<PlayerAccount> sortedByBalance() {
+    return sortedByBalance(config.getPlugin().getEconomyPlatform().getCurrencyConfig().getDefaultCurrency().getName());
+  }
+
+  public List<PlayerAccount> sortedByBalance(String currency) {
+    ArrayList<PlayerAccount> sorted = new ArrayList<>(entries);
+    sorted.sort(Comparator.comparing(playerAccount -> playerAccount.getBalanceEntry(currency), Comparator.reverseOrder()));
+    return sorted;
   }
 
   public Optional<PlayerAccount> getByPlayer(@NotNull OfflinePlayer player) {

@@ -3,6 +3,7 @@ package me.jeremiah.economy.config.currency;
 import me.jeremiah.economy.AbstractEconomyPlugin;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.currency.Currency;
+import me.jeremiah.economy.currency.formatting.Formatters;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,6 +68,8 @@ public final class CurrencyConfig implements CurrencyHolder {
     if (currency == null)
       currency = new Currency.Builder("default", platform)
         .withLocale(platform.getDefaultLocale())
+        .withPrefix("$")
+        .withFormatter(Formatters.COOL)
         .withViewCommandName("balance")
         .withViewCommandAliases("bal")
         .withTransferCommandName("pay")

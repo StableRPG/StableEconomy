@@ -15,9 +15,8 @@ public class SuffixFormatter extends CurrencyFormatter {
   @Override
   public String format(double amount) {
     int index;
-    for (index = 0; index < SUFFIXES.size() - 1 && amount >= 1000; index++) {
+    for (index = 0; index < SUFFIXES.size() - 1 && amount >= 1000; index++)
       amount /= 1000;
-    }
     return DECIMAL_FORMAT.format(amount) + SUFFIXES.get(index);
   }
 

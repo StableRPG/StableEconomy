@@ -46,7 +46,6 @@ shadowJar {
     minimize()
     exclude 'META-INF/**', 'LICENSE', 'module-info.class'
     archiveFileName = "${rootProject.name}-${version}.jar"
-    destinationDirectory = file('./.server/plugins/')
 }
 
 assemble {

@@ -2,13 +2,12 @@ package me.jeremiah.economy.currency.formatting;
 
 public abstract class CurrencyFormatter {
 
-  public static CurrencyFormatter of(String formatter, String prefix, String suffix) {
+  public static CurrencyFormatter of(Formatters formatter, String prefix, String suffix) {
     return switch (formatter) {
-      case "cool" -> new CoolFormatter(prefix, suffix);
-      case "comma" -> new CommaFormatter(prefix, suffix);
-      case "suffix" -> new SuffixFormatter(prefix, suffix);
-      case "none" -> new FaultyFormatter(prefix, suffix);
-      default -> new FaultyFormatter(prefix, suffix);
+      case COOL -> new CoolFormatter(prefix, suffix);
+      case COMMA -> new CommaFormatter(prefix, suffix);
+      case SUFFIX -> new SuffixFormatter(prefix, suffix);
+      case FAULTY -> new FaultyFormatter(prefix, suffix);
     };
   }
 

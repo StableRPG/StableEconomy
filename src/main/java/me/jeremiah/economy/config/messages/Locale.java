@@ -1,6 +1,5 @@
 package me.jeremiah.economy.config.messages;
 
-import me.jeremiah.economy.AbstractEconomyPlugin;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -10,8 +9,6 @@ import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 public interface Locale {
-
-  AbstractEconomyPlugin getPlugin();
 
   void load();
 
