@@ -15,7 +15,7 @@ public final class DatabaseInfo {
   private long autoSaveInterval;
 
   public DatabaseInfo(String databaseType, String databaseAddress, int databasePort, String name, String username, String password) {
-    this.databaseType = DatabaseType.valueOf(databaseType.toUpperCase());
+    this.databaseType = DatabaseType.fromString(databaseType);
     this.address = databaseAddress;
     this.port = databasePort;
     this.name = name;
@@ -65,7 +65,20 @@ public final class DatabaseInfo {
     MYSQL,
     MARIADB,
     POSTGRESQL,
-    MONGODB,
+    MONGODB;
+
+    public static DatabaseType fromString(String type) {
+      return switch (type.toUpperCase()) {
+        case "SQLITE" -> SQLITE;
+        case "H2" -> H2;
+        case "MYSQL" -> MYSQL;
+        case "MARIADB" -> MARIADB;
+        case "POSTGRESQL" -> POSTGRESQL;
+        case "MONGODB" -> MONGODB;
+        default -> H2;
+      };
+    }
+
   }
 
 }

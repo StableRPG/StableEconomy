@@ -30,15 +30,13 @@ public abstract class Database implements Closeable {
     };
   }
 
-  private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   protected final BasicConfig config;
 
   protected Set<PlayerAccount> entries;
   protected Map<UUID, PlayerAccount> entriesByUUID;
   protected Map<String, PlayerAccount> entriesByUsername;
-
-  private AutoSaveTask autoSaveTask;
 
   protected Database(@NotNull BasicConfig config) {
     this.config = config;
@@ -55,8 +53,7 @@ public abstract class Database implements Closeable {
     entriesByUsername = new ConcurrentHashMap<>(initialCapacity);
     load();
     long autoSaveInterval = config.getDatabaseInfo().getAutoSaveInterval();
-    autoSaveTask = new AutoSaveTask(this, TimeUnit.SECONDS.toMillis(autoSaveInterval));
-    executor.execute(autoSaveTask);
+    scheduler.scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
   }
 
   public final void add(PlayerAccount playerAccount) {
@@ -97,15 +94,15 @@ public abstract class Database implements Closeable {
   }
 
   public CompletableFuture<Boolean> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), executor);
+    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), scheduler);
   }
 
   public CompletableFuture<Boolean> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), executor);
+    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
   }
 
   public CompletableFuture<Boolean> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByUsername(username, consumer), executor);
+    return CompletableFuture.supplyAsync(() -> updateByUsername(username, consumer), scheduler);
   }
 
   public Optional<PlayerAccount> getByPlayer(@NotNull OfflinePlayer player) {
@@ -141,45 +138,19 @@ public abstract class Database implements Closeable {
   protected abstract void save();
 
   public void close() {
-    autoSaveTask.close();
-    autoSaveTask = null;
+    scheduler.shutdown();
+
+    try {
+      if (!scheduler.awaitTermination(10, TimeUnit.SECONDS))
+        scheduler.shutdownNow();
+    } catch (InterruptedException exception) {
+      scheduler.shutdownNow();
+    }
+
     save();
     entries.clear();
     entriesByUUID.clear();
     entriesByUsername.clear();
-  }
-
-  // TODO: Remove Busy-waiting from AutoSaveTask
-
-  private static class AutoSaveTask implements Runnable, Closeable {
-
-    private final Database database;
-    private final long interval;
-
-    private boolean running;
-
-    public AutoSaveTask(Database database, long interval) {
-      this.database = database;
-      this.interval = interval;
-    }
-
-    @Override
-    public void run() {
-      while (running)
-        try {
-          Thread.sleep(interval);
-          database.save();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          break;
-        }
-    }
-
-    @Override
-    public void close() {
-      running = false;
-    }
-
   }
 
 }
