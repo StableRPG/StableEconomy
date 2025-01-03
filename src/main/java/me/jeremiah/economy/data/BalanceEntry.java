@@ -31,7 +31,7 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
   }
 
   public void setBalance(double balance) {
-    unsavedBalance += balance - unsavedBalance;
+    unsavedBalance += balance - getBalance();
   }
 
   public void addBalance(double balance) {

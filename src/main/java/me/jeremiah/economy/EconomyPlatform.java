@@ -54,8 +54,10 @@ public class EconomyPlatform implements Listener, Closeable {
 
   @Override
   public void close() {
-    vaultHook.close();
-    vaultHook = null;
+    if (vaultHook != null) {
+      vaultHook.close();
+      vaultHook = null;
+    }
     PlayerJoinEvent.getHandlerList().unregister(this);
     currencyConfig.getCurrencies().forEach(Currency::unregister);
     database.close();

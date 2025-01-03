@@ -18,6 +18,7 @@ public final class PlayerAccount implements Dirtyable {
 
   public PlayerAccount(@NotNull UUID uniqueId, @NotNull String username) {
     this(uniqueId, username, new HashMap<>());
+    dirty = true;
   }
 
   public PlayerAccount(@NotNull UUID uniqueId, @NotNull String username, @NotNull HashMap<String, BalanceEntry> balanceEntries) {

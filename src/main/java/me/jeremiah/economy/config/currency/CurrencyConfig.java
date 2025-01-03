@@ -33,14 +33,14 @@ public final class CurrencyConfig implements CurrencyHolder {
     currencies.clear();
 
     if (!currencyDir.exists() || !currencyDir.isDirectory()) {
-      setupDefaultCurrency(platform, defaultCurrency);
+      setupDefaultCurrency(platform, null);
       return;
     }
 
     File[] currencyDirs = currencyDir.listFiles(File::isDirectory);
 
     if (currencyDirs == null) {
-      setupDefaultCurrency(platform, defaultCurrency);
+      setupDefaultCurrency(platform, null);
       return;
     }
 
@@ -65,7 +65,7 @@ public final class CurrencyConfig implements CurrencyHolder {
   }
 
   private void setupDefaultCurrency(@NotNull EconomyPlatform platform, @Nullable Currency currency) {
-    if (currency == null)
+    if (currency == null) {
       currency = new Currency.Builder("default", platform)
         .withLocale(platform.getDefaultLocale())
         .withPrefix("$")
@@ -79,6 +79,8 @@ public final class CurrencyConfig implements CurrencyHolder {
         .withAdminCommandAliases("eco")
         .withAdminCommandPermission("economy.admin")
         .build();
+      currencies.add(currency);
+    }
 
     defaultCurrency = currency;
   }

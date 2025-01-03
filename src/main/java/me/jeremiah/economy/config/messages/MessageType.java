@@ -5,8 +5,8 @@ public enum MessageType {
   VIEW_OWN("view-command.own", "balance"),
   VIEW_OTHER("view-command.other", "player", "balance"),
 
-  TRANSFER_SEND("transfer-command.send", "sender", "receiver", "amount", "balance"),
-  TRANSFER_RECEIVE("transfer-command.receive", "sender", "receiver", "amount", "balance"),
+  TRANSFER_SEND("transfer-command.send", "sender", "receiver", "amount", "old-balance", "new-balance"),
+  TRANSFER_RECEIVE("transfer-command.receive", "sender", "receiver", "amount", "old-balance", "new-balance"),
 
   LEADERBOARD_TITLE("leaderboard-command.title", "currency", "page", "max-page"),
   LEADERBOARD_SERVER_TOTAL("leaderboard-command.server-total", "server-total"),

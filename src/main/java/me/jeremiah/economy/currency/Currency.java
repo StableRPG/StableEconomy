@@ -3,7 +3,11 @@ package me.jeremiah.economy.currency;
 import com.google.common.base.Preconditions;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.DoubleArgument;
+import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
@@ -60,7 +64,7 @@ public class Currency {
       if (viewCommandPermission != null) viewCommand.withPermission(viewCommandPermission);
       viewCommand
         .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
           .executes(this::viewOtherBalance))
         .executesPlayer(this::viewOwnBalance);
     } else viewCommand = null;
@@ -70,7 +74,7 @@ public class Currency {
       if (transferCommandPermission != null) transferCommand.withPermission(transferCommandPermission);
       transferCommand
         .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
           .then(new DoubleArgument("amount")
             .executesPlayer(this::transferBalance)));
     } else transferCommand = null;
@@ -99,22 +103,22 @@ public class Currency {
       adminCommand
         .then(LiteralArgument.of("give")
           .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
             .then(new DoubleArgument("amount")
               .executes(this::addPlayerBalance))))
         .then(LiteralArgument.of("take")
           .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
             .then(new DoubleArgument("amount")
               .executes(this::subtractPlayerBalance))))
         .then(LiteralArgument.of("set")
           .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
             .then(new DoubleArgument("amount")
               .executes(this::setPlayerBalance))))
         .then(LiteralArgument.of("reset")
           .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
             .executes(this::resetPlayerBalance)));
     } else adminCommand = null;
   }
@@ -305,20 +309,22 @@ public class Currency {
         locale.sendParsedMessage(player, "<red>Insufficient funds.</red>");
       else {
         platform.getDatabase().getByPlayer(target).ifPresent(targetAccount -> {
-          subtractBalance(account, amount);
-          addBalance(targetAccount, amount);
           locale.sendParsedMessage(player, MessageType.TRANSFER_SEND,
             "sender", player.getName(),
             "receiver", account.getUsername(),
             "amount", format(amount),
-            "balance", getBalanceFormatted(account));
+            "old-balance", getBalanceFormatted(account),
+            "new-balance", format(getBalance(account) - amount));
           Player targetPlayer;
           if (target.isOnline() && (targetPlayer = target.getPlayer()) != null)
             locale.sendParsedMessage(targetPlayer, MessageType.TRANSFER_RECEIVE,
               "sender", player.getName(),
               "receiver", account.getUsername(),
               "amount", format(amount),
-              "balance", getBalanceFormatted(targetAccount));
+              "old-balance", getBalanceFormatted(targetAccount),
+              "new-balance", format(getBalance(targetAccount) + amount));
+          subtractBalance(account, amount);
+          addBalance(targetAccount, amount);
         });
       }
     });

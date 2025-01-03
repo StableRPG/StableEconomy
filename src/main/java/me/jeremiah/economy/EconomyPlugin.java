@@ -21,8 +21,8 @@ public final class EconomyPlugin extends AbstractEconomyPlugin {
 
   @Override
   public void onDisable() {
-    CommandAPI.onDisable();
     closeEconomyPlatform();
+    CommandAPI.onDisable();
   }
 
 }

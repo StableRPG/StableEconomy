@@ -9,8 +9,15 @@ import me.jeremiah.economy.data.util.DataUtils;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public abstract class AbstractSQLDatabase extends Database {
@@ -53,18 +60,27 @@ public abstract class AbstractSQLDatabase extends Database {
   }
 
   @Override
-  protected void load() {
+  protected void setup() {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement()) {
       statement.execute("CREATE TABLE IF NOT EXISTS player_entries(uniqueId BINARY(16) PRIMARY KEY, username VARCHAR(16));");
       statement.execute("CREATE TABLE IF NOT EXISTS balance_entries(uniqueId BINARY(16), currency VARCHAR(16), balance DOUBLE, FOREIGN KEY(uniqueId) REFERENCES player_entries(uniqueId), UNIQUE(uniqueId, currency));");
       connection.commit();
+    } catch (SQLException exception) {
+      config.getLogger().log(Level.SEVERE, "Failed to setup SQL database.", exception);
+    }
+    super.setup();
+  }
 
+  @Override
+  protected void load() {
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement()) {
       ResultSet rawBalanceEntries = statement.executeQuery("SELECT * FROM balance_entries;");
-      HashMap<byte[], HashMap<String, BalanceEntry>> balanceEntries = new HashMap<>();
+      HashMap<UUID, HashMap<String, BalanceEntry>> balanceEntries = new HashMap<>();
 
       while (rawBalanceEntries.next()) {
-        byte[] rawUniqueId = rawBalanceEntries.getBytes("uniqueId");
+        UUID rawUniqueId = DataUtils.uuidFromBytes(rawBalanceEntries.getBytes("uniqueId"));
 
         if (!balanceEntries.containsKey(rawUniqueId))
           balanceEntries.put(rawUniqueId, new HashMap<>());
@@ -72,18 +88,20 @@ public abstract class AbstractSQLDatabase extends Database {
         String currency = rawBalanceEntries.getString("currency");
         double balance = rawBalanceEntries.getDouble("balance");
 
+        System.out.printf("BalanceEntry: %s %f (%s)%n", currency, balance, rawUniqueId);
+
         balanceEntries.get(rawUniqueId).put(currency, new BalanceEntry(currency, balance));
       }
 
       ResultSet rawPlayerEntries = statement.executeQuery("SELECT * FROM player_entries;");
 
       while (rawPlayerEntries.next()) {
-        byte[] rawUniqueId = rawPlayerEntries.getBytes("uniqueId");
+        UUID uniqueId = DataUtils.uuidFromBytes(rawPlayerEntries.getBytes("uniqueId"));
 
         add(new PlayerAccount(
-          DataUtils.uuidFromBytes(rawUniqueId),
+          uniqueId,
           rawPlayerEntries.getString("username"),
-          balanceEntries.getOrDefault(rawUniqueId, new HashMap<>())
+          balanceEntries.getOrDefault(uniqueId, new HashMap<>())
         ));
       }
 
