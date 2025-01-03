@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.data.BalanceEntry;
 import me.jeremiah.economy.data.PlayerAccount;
+import me.jeremiah.economy.data.util.ByteArrayWrapper;
 import me.jeremiah.economy.data.util.DataUtils;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public abstract class AbstractSQLDatabase extends Database {
@@ -77,10 +77,10 @@ public abstract class AbstractSQLDatabase extends Database {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement()) {
       ResultSet rawBalanceEntries = statement.executeQuery("SELECT * FROM balance_entries;");
-      HashMap<UUID, HashMap<String, BalanceEntry>> balanceEntries = new HashMap<>();
+      HashMap<ByteArrayWrapper, HashMap<String, BalanceEntry>> balanceEntries = new HashMap<>();
 
       while (rawBalanceEntries.next()) {
-        UUID rawUniqueId = DataUtils.uuidFromBytes(rawBalanceEntries.getBytes("uniqueId"));
+        ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawBalanceEntries.getBytes("uniqueId"));
 
         if (!balanceEntries.containsKey(rawUniqueId))
           balanceEntries.put(rawUniqueId, new HashMap<>());
@@ -88,20 +88,18 @@ public abstract class AbstractSQLDatabase extends Database {
         String currency = rawBalanceEntries.getString("currency");
         double balance = rawBalanceEntries.getDouble("balance");
 
-        System.out.printf("BalanceEntry: %s %f (%s)%n", currency, balance, rawUniqueId);
-
         balanceEntries.get(rawUniqueId).put(currency, new BalanceEntry(currency, balance));
       }
 
       ResultSet rawPlayerEntries = statement.executeQuery("SELECT * FROM player_entries;");
 
       while (rawPlayerEntries.next()) {
-        UUID uniqueId = DataUtils.uuidFromBytes(rawPlayerEntries.getBytes("uniqueId"));
+        ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawPlayerEntries.getBytes("uniqueId"));
 
         add(new PlayerAccount(
-          uniqueId,
+          rawUniqueId.toUUID(),
           rawPlayerEntries.getString("username"),
-          balanceEntries.getOrDefault(uniqueId, new HashMap<>())
+          balanceEntries.getOrDefault(rawUniqueId, new HashMap<>())
         ));
       }
 
