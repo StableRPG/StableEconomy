@@ -54,7 +54,7 @@ public abstract class AbstractSQLDatabase extends Database {
       if (resultSet.next())
         return resultSet.getInt(1);
     } catch (SQLException exception) {
-      config.getLogger().log(Level.SEVERE, "Failed to lookup entry count from SQL database.", exception);
+      getConfig().getLogger().log(Level.SEVERE, "Failed to lookup entry count from SQL database.", exception);
     }
     return super.lookupEntryCount();
   }
@@ -67,7 +67,7 @@ public abstract class AbstractSQLDatabase extends Database {
       statement.execute("CREATE TABLE IF NOT EXISTS balance_entries(uniqueId BINARY(16), currency VARCHAR(16), balance DOUBLE, FOREIGN KEY(uniqueId) REFERENCES player_entries(uniqueId), UNIQUE(uniqueId, currency));");
       connection.commit();
     } catch (SQLException exception) {
-      config.getLogger().log(Level.SEVERE, "Failed to setup SQL database.", exception);
+      getConfig().getLogger().log(Level.SEVERE, "Failed to setup SQL database.", exception);
     }
     super.setup();
   }
@@ -104,7 +104,7 @@ public abstract class AbstractSQLDatabase extends Database {
       }
 
     } catch (SQLException exception) {
-      config.getLogger().log(Level.SEVERE, "Failed to load data from SQL database.", exception);
+      getConfig().getLogger().log(Level.SEVERE, "Failed to load data from SQL database.", exception);
     }
   }
 
@@ -146,7 +146,7 @@ public abstract class AbstractSQLDatabase extends Database {
             playerAccount.markClean();
             playerAccount.getBalanceEntries().forEach(BalanceEntry::markClean);
           } catch (SQLException exception) {
-            config.getLogger().log(Level.SEVERE, "Failed to save data for %s (%s)".formatted(playerAccount.getUsername(), playerAccount.getUniqueId()), exception);
+            getConfig().getLogger().log(Level.SEVERE, "Failed to save data for %s (%s)".formatted(playerAccount.getUsername(), playerAccount.getUniqueId()), exception);
           }
         }
 
@@ -159,7 +159,7 @@ public abstract class AbstractSQLDatabase extends Database {
         throw exception;
       }
     } catch (SQLException exception) {
-      config.getLogger().log(Level.SEVERE, "Failed to save data to SQL database.", exception);
+      getConfig().getLogger().log(Level.SEVERE, "Failed to save data to SQL database.", exception);
     }
   }
 

@@ -39,7 +39,7 @@ public abstract class Database implements Closeable {
 
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-  protected final BasicConfig config;
+  private final BasicConfig config;
 
   protected Set<PlayerAccount> entries;
   protected Map<UUID, PlayerAccount> entriesByUUID;
@@ -47,6 +47,14 @@ public abstract class Database implements Closeable {
 
   protected Database(@NotNull BasicConfig config) {
     this.config = config;
+  }
+
+  public ScheduledExecutorService getScheduler() {
+    return scheduler;
+  }
+
+  public BasicConfig getConfig() {
+    return config;
   }
 
   protected int lookupEntryCount() {
@@ -94,10 +102,6 @@ public abstract class Database implements Closeable {
 
   public CompletableFuture<Void> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
     return CompletableFuture.runAsync(() -> updateByUsername(username, consumer), scheduler);
-  }
-
-  public List<PlayerAccount> sortedByBalance() {
-    return sortedByBalance(config.getPlugin().getEconomyPlatform().getCurrencyConfig().getDefaultCurrency().getName());
   }
 
   public List<PlayerAccount> sortedByBalance(String currency) {

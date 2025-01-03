@@ -47,7 +47,7 @@ public class EconomyPlatform implements Listener, Closeable {
     database = Database.of(config);
     currencyConfig.getCurrencies().forEach(Currency::register);
 
-    Bukkit.getPluginManager().registerEvents(this, config.getPlugin());
+    Bukkit.getPluginManager().registerEvents(this, plugin);
     if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
       vaultHook = new VaultHook(this);
   }
