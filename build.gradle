@@ -42,7 +42,7 @@ jar {
 }
 
 shadowJar {
-    relocate 'dev.jorel.commandapi', 'me.jeremiah.economy.libraries'
+    relocate 'dev.jorel.commandapi', 'me.jeremiah.economy.commandapi'
     minimize()
     exclude 'META-INF/**', 'LICENSE', 'module-info.class'
     archiveFileName = "${rootProject.name}-${version}.jar"

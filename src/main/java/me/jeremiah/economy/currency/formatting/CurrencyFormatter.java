@@ -2,6 +2,8 @@ package me.jeremiah.economy.currency.formatting;
 
 public abstract class CurrencyFormatter {
 
+  // TODO: More customizable formatter that allows a string, possibly using MiniMessage
+
   public static CurrencyFormatter of(Formatters formatter, String prefix, String suffix) {
     return switch (formatter) {
       case COOL -> new CoolFormatter(prefix, suffix);

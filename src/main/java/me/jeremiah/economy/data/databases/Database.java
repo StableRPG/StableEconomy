@@ -69,43 +69,31 @@ public abstract class Database implements Closeable {
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
   }
 
-  public boolean updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-      Optional<PlayerAccount> optional = getByPlayer(player);
-      if (optional.isPresent()) {
-        consumer.accept(optional.get());
-        return true;
-      }
-      return false;
+  public void updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
+    PlayerAccount account = getByPlayer(player).orElseThrow(() -> new IllegalStateException("Player account not found"));
+    consumer.accept(account);
   }
 
-  public CompletableFuture<Boolean> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByPlayer(player, consumer), scheduler);
+  public CompletableFuture<Void> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.runAsync(() -> updateByPlayer(player, consumer), scheduler);
   }
 
-  public boolean updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-      Optional<PlayerAccount> optional = getByUUID(uniqueId);
-      if (optional.isPresent()) {
-        consumer.accept(optional.get());
-        return true;
-      }
-      return false;
+  public void updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    PlayerAccount account = getByUUID(uniqueId).orElseThrow(() -> new IllegalStateException("Player account not found"));
+    consumer.accept(account);
   }
 
-  public CompletableFuture<Boolean> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
+  public CompletableFuture<Void> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.runAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
   }
 
-  public boolean updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    Optional<PlayerAccount> optional = getByUsername(username);
-    if (optional.isPresent()) {
-      consumer.accept(optional.get());
-      return true;
-    }
-    return false;
+  public void updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    PlayerAccount account = getByUsername(username).orElseThrow(() -> new IllegalStateException("Player account not found"));
+    consumer.accept(account);
   }
 
-  public CompletableFuture<Boolean> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.supplyAsync(() -> updateByUsername(username, consumer), scheduler);
+  public CompletableFuture<Void> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    return CompletableFuture.runAsync(() -> updateByUsername(username, consumer), scheduler);
   }
 
   public List<PlayerAccount> sortedByBalance() {
