@@ -1,52 +1,16 @@
 view-command:
-  own:
-    type: chat
-    messages:
-      - "<gray>Balance: <yellow><balance>"
-  other:
-    type: chat
-    messages:
-      - "<gray><player>'s Balance: <yellow><balance>"
+  own: "<gray>Balance: <yellow><balance>"
+  other: "<gray><player>'s Balance: <yellow><balance>"
 transfer-command:
-  send:
-    type: chat
-    messages:
-      - "<gray>Sent <yellow><amount> <gray>to <yellow><receiver>"
-  receive:
-    type: chat
-    messages:
-      - "<gray>Received <yellow><amount> <gray>from <yellow><sender>"
+  send: "<gray>Sent <yellow><amount> <gray>to <yellow><receiver>"
+  receive: "<gray>Received <yellow><amount> <gray>from <yellow><sender>"
 leaderboard-command:
-  title:
-    type: chat
-    messages:
-      - "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><max-page> <gray><strikethrough>             •"
-  server-total:
-    type: chat
-    messages:
-      - "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <server-total>"
-  balance-view:
-    type: chat
-    messages:
-      - "<gray><place>. <player>, <yellow><balance>"
-  next-page:
-    type: chat
-    messages:
-      - "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <next-page> to view the next page."
+  title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><max-page> <gray><strikethrough>             •"
+  server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <server-total>"
+  balance-view: "<gray><place>. <player>, <yellow><balance>"
+  next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <next-page> to view the next page."
 admin-command:
-  set-balance:
-    type: chat
-    messages:
-      - "<gray>Set <yellow><player>'s <gray>balance to <yellow><new-balance>"
-  give-balance:
-    type: chat
-    messages:
-      - "<gray>Added <yellow><balance-change> <gray>to <yellow><player>'s <gray>balance"
-  take-balance:
-    type: chat
-    messages:
-      - "<gray>Removed <yellow><balance-change> <gray>from <yellow><player>'s <gray>balance"
-  reset-balance:
-    type: chat
-    messages:
-      - "<gray>Reset <yellow><player>'s <gray>balance"
+  set-balance: "<gray>Set <yellow><player>'s <gray>balance to <yellow><new-balance>"
+  give-balance: "<gray>Added <yellow><balance-change> <gray>to <yellow><player>'s <gray>balance"
+  take-balance: "<gray>Removed <yellow><balance-change> <gray>from <yellow><player>'s <gray>balance"
+  reset-balance: "<gray>Reset <yellow><player>'s <gray>balance"
