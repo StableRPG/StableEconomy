@@ -1,14 +1,14 @@
 package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class SQLite extends AbstractSQLDatabase {
 
-  public SQLite(@NotNull BasicConfig config) {
-    super(org.sqlite.JDBC.class, config);
+  public SQLite(@NotNull EconomyPlatform platform) {
+    super(org.sqlite.JDBC.class, platform);
   }
 
   @Override

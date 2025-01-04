@@ -1,14 +1,14 @@
 package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class PostgreSQL extends AbstractSQLDatabase {
 
-  public PostgreSQL(@NotNull BasicConfig config) {
-    super(org.postgresql.Driver.class, config);
+  public PostgreSQL(@NotNull EconomyPlatform platform) {
+    super(org.postgresql.Driver.class, platform);
   }
 
   @Override

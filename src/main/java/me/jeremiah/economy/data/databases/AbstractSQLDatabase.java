@@ -2,7 +2,7 @@ package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.BalanceEntry;
 import me.jeremiah.economy.data.PlayerAccount;
 import me.jeremiah.economy.data.util.ByteArrayWrapper;
@@ -24,8 +24,8 @@ public abstract class AbstractSQLDatabase extends Database {
 
   private final HikariDataSource dataSource;
 
-  protected AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull BasicConfig config) {
-    super(config);
+  protected AbstractSQLDatabase(Class<? extends Driver> driver, @NotNull EconomyPlatform platform) {
+    super(platform);
     if (DriverManager.drivers().noneMatch(driver::isInstance))
       try {
         DriverManager.registerDriver(driver.getDeclaredConstructor().newInstance());
@@ -37,7 +37,7 @@ public abstract class AbstractSQLDatabase extends Database {
 
     hikariConfig.setAutoCommit(false);
 
-    processConfig(hikariConfig, config.getDatabaseInfo());
+    processConfig(hikariConfig, getConfig().getDatabaseInfo());
 
     dataSource = new HikariDataSource(hikariConfig);
 

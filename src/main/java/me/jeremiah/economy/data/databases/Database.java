@@ -1,6 +1,7 @@
 package me.jeremiah.economy.data.databases;
 
 import com.google.common.base.Preconditions;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.data.PlayerAccount;
 import org.bukkit.Bukkit;
@@ -17,8 +18,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -26,31 +27,29 @@ public abstract class Database implements Closeable {
 
   // TODO: Possibly refactor this class to use a SingleThreadExecutor and CompletableFuture for all methods.
 
-  public static @NotNull Database of(BasicConfig config) {
-    return switch (config.getDatabaseInfo().getDatabaseType()) {
-      case SQLITE -> new SQLite(config);
-      case H2 -> new H2(config);
-      case MYSQL -> new MySQL(config);
-      case MARIADB -> new MariaDB(config);
-      case POSTGRESQL -> new PostgreSQL(config);
-      case MONGODB -> new MongoDB(config);
+  public static @NotNull Database of(@NotNull EconomyPlatform platform) {
+    return switch (platform.getConfig().getDatabaseInfo().getDatabaseType()) {
+      case SQLITE -> new SQLite(platform);
+      case H2 -> new H2(platform);
+      case MYSQL -> new MySQL(platform);
+      case MARIADB -> new MariaDB(platform);
+      case POSTGRESQL -> new PostgreSQL(platform);
+      case MONGODB -> new MongoDB(platform);
     };
   }
 
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
   private final BasicConfig config;
+  private final ScheduledExecutorService scheduler;
+
+  private ScheduledFuture<?> autoSaveTask;
 
   protected Set<PlayerAccount> entries;
   protected Map<UUID, PlayerAccount> entriesByUUID;
   protected Map<String, PlayerAccount> entriesByUsername;
 
-  protected Database(@NotNull BasicConfig config) {
-    this.config = config;
-  }
-
-  public ScheduledExecutorService getScheduler() {
-    return scheduler;
+  protected Database(@NotNull EconomyPlatform platform) {
+    this.config = platform.getConfig();
+    this.scheduler = platform.getScheduler();
   }
 
   public BasicConfig getConfig() {
@@ -68,7 +67,7 @@ public abstract class Database implements Closeable {
     entriesByUsername = new ConcurrentHashMap<>(initialCapacity);
     load();
     long autoSaveInterval = config.getDatabaseInfo().getAutoSaveInterval();
-    scheduler.scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
+    autoSaveTask = scheduler.scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
   }
 
   public final void add(PlayerAccount playerAccount) {
@@ -143,15 +142,7 @@ public abstract class Database implements Closeable {
   protected abstract void save();
 
   public void close() {
-    scheduler.shutdown();
-
-    try {
-      if (!scheduler.awaitTermination(10, TimeUnit.SECONDS))
-        scheduler.shutdownNow();
-    } catch (InterruptedException exception) {
-      scheduler.shutdownNow();
-    }
-
+    autoSaveTask.cancel(false);
     save();
     entries.clear();
     entriesByUUID.clear();

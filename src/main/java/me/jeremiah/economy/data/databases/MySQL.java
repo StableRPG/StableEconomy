@@ -1,14 +1,14 @@
 package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class MySQL extends AbstractSQLDatabase {
 
-  public MySQL(@NotNull BasicConfig config) {
-    super(com.mysql.cj.jdbc.Driver.class, config);
+  public MySQL(@NotNull EconomyPlatform platform) {
+    super(com.mysql.cj.jdbc.Driver.class, platform);
   }
 
   @Override

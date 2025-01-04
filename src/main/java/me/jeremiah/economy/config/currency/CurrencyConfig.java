@@ -1,6 +1,5 @@
 package me.jeremiah.economy.config.currency;
 
-import me.jeremiah.economy.AbstractEconomyPlugin;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.currency.Currency;
 import me.jeremiah.economy.currency.formatting.Formatters;
@@ -14,20 +13,19 @@ import java.util.Set;
 
 public final class CurrencyConfig implements CurrencyHolder {
 
-  private final @NotNull AbstractEconomyPlugin plugin;
+  private final @NotNull EconomyPlatform platform;
 
   private final @NotNull File currencyDir;
 
   private Currency defaultCurrency;
   private final Set<Currency> currencies = new HashSet<>();
 
-  public CurrencyConfig(@NotNull AbstractEconomyPlugin plugin) {
-    this.plugin = plugin;
-    currencyDir = new File(plugin.getDataFolder(), "currencies");
+  public CurrencyConfig(@NotNull EconomyPlatform platform, @NotNull File currencyDir) {
+    this.platform = platform;
+    this.currencyDir = currencyDir;
   }
 
   public void load() {
-    final EconomyPlatform platform = plugin.getEconomyPlatform();
 
     defaultCurrency = null;
     currencies.clear();
@@ -52,7 +50,7 @@ public final class CurrencyConfig implements CurrencyHolder {
         .usingYaml(YamlConfiguration.loadConfiguration(currencyFile));
 
       if (localeFile.exists())
-        currencyBuilder.withLocale(CurrencyLocale.of(plugin, localeFile));
+        currencyBuilder.withLocale(CurrencyLocale.of(platform, localeFile));
 
       Currency currency = currencyBuilder.build();
       if (currency.isDefaultCurrency())

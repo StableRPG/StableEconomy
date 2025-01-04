@@ -10,7 +10,6 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessageType;
@@ -28,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Currency {
@@ -48,8 +48,8 @@ public class Currency {
   private final @Nullable CommandTree transferCommand;
 
   private final @Nullable CommandTree leaderboardCommand;
-  private @Nullable List<PlayerAccount> leaderboard;
-  private @Nullable ScheduledTask autoUpdateLeaderboard;
+  private volatile @Nullable List<PlayerAccount> leaderboard;
+  private @Nullable ScheduledFuture<?> updateLeaderboardTask;
 
   private final @Nullable CommandTree adminCommand;
 
@@ -160,7 +160,7 @@ public class Currency {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
     if (leaderboardCommand != null) leaderboardCommand.register();
-    if (leaderboard != null) this.autoUpdateLeaderboard = Bukkit.getAsyncScheduler().runAtFixedRate(platform.getPlugin(), task -> updateLeaderboard(), 0, 5, TimeUnit.MINUTES);
+    if (leaderboard != null) this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, 5, TimeUnit.MINUTES);
     if (adminCommand != null) adminCommand.register();
   }
 
@@ -169,9 +169,9 @@ public class Currency {
     if (transferCommand != null) CommandAPI.unregister(transferCommand.getName());
     if (leaderboardCommand != null) CommandAPI.unregister(leaderboardCommand.getName());
     if (leaderboard != null) leaderboard.clear();
-    if (autoUpdateLeaderboard != null) {
-      autoUpdateLeaderboard.cancel();
-      autoUpdateLeaderboard = null;
+    if (updateLeaderboardTask != null) {
+      updateLeaderboardTask.cancel(true);
+      updateLeaderboardTask = null;
     }
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
   }

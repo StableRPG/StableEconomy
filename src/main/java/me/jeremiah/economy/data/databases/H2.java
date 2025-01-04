@@ -1,14 +1,14 @@
 package me.jeremiah.economy.data.databases;
 
 import com.zaxxer.hikari.HikariConfig;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.DatabaseInfo;
 import org.jetbrains.annotations.NotNull;
 
 public final class H2 extends AbstractSQLDatabase {
 
-  public H2(@NotNull BasicConfig config) {
-    super(org.h2.Driver.class, config);
+  public H2(@NotNull EconomyPlatform platform) {
+    super(org.h2.Driver.class, platform);
   }
 
   @Override

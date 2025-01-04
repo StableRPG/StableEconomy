@@ -10,7 +10,7 @@ import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
-import me.jeremiah.economy.config.BasicConfig;
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.BalanceEntry;
 import me.jeremiah.economy.data.PlayerAccount;
 import me.jeremiah.economy.data.util.DatabaseInfo;
@@ -18,17 +18,21 @@ import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public final class MongoDB extends Database {
 
   private final MongoClient client;
   private final MongoCollection<Document> accounts;
 
-  public MongoDB(@NotNull BasicConfig config) {
-    super(config);
+  public MongoDB(@NotNull EconomyPlatform platform) {
+    super(platform);
 
-    DatabaseInfo databaseInfo = config.getDatabaseInfo();
+    DatabaseInfo databaseInfo = getConfig().getDatabaseInfo();
 
     MongoClientSettings settings = MongoClientSettings.builder()
       .applyConnectionString(new ConnectionString("mongodb://%s/%s".formatted(databaseInfo.getUrl(), databaseInfo.getName())))
