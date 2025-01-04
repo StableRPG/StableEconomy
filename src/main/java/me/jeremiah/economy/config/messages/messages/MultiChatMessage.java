@@ -4,6 +4,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -11,16 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ChatMessage extends AbstractMessage<List<Component>> {
+@DelegateDeserialization(AbstractMessage.class)
+public final class MultiChatMessage extends AbstractMessage<List<Component>> {
 
   private final @NotNull List<@NotNull String> messages;
 
-  ChatMessage(String... messages) {
+  MultiChatMessage(String... messages) {
     this.messages = Arrays.asList(messages);
   }
 
-  ChatMessage(@NotNull List<@NotNull String> messages) {
-    this.messages = messages;
+  MultiChatMessage(@NotNull List<@NotNull String> messages) {
+    this.messages = List.copyOf(messages);
   }
 
   @Override
@@ -41,8 +43,12 @@ public final class ChatMessage extends AbstractMessage<List<Component>> {
     Map<String, Object> data = new HashMap<>();
 
     data.put("type", "chat");
-    data.put("messages", this.messages);
+    if (this.messages.size() == 1)
+      data.put("message", this.messages.getFirst());
+    else
+      data.put("messages", this.messages);
 
     return data;
   }
+
 }

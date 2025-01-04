@@ -2,6 +2,8 @@ package me.jeremiah.economy;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import me.jeremiah.economy.config.messages.messages.AbstractMessage;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 public final class EconomyPlugin extends AbstractEconomyPlugin {
 
@@ -11,6 +13,7 @@ public final class EconomyPlugin extends AbstractEconomyPlugin {
       .usePluginNamespace()
       .shouldHookPaperReload(true)
     );
+    ConfigurationSerialization.registerClass(AbstractMessage.class);
   }
 
   @Override
@@ -22,6 +25,7 @@ public final class EconomyPlugin extends AbstractEconomyPlugin {
   @Override
   public void onDisable() {
     closeEconomyPlatform();
+    ConfigurationSerialization.unregisterClass(AbstractMessage.class);
     CommandAPI.onDisable();
   }
 

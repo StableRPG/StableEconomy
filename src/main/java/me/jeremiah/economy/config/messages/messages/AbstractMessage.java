@@ -6,6 +6,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@SerializableAs("Message")
 public abstract class AbstractMessage<M> implements ConfigurationSerializable {
 
   public static @NotNull AbstractMessage<?> deserialize(@NotNull Map<String, Object> args) {
@@ -36,6 +38,10 @@ public abstract class AbstractMessage<M> implements ConfigurationSerializable {
         yield Messages.group(messages);
       }
       case "chat" -> {
+        if (args.containsKey("message")) {
+          String message = (String) args.get("message");
+          yield Messages.chat(message);
+        }
         List<?> rawMessages = (List<?>) args.get("messages");
 
         if (rawMessages == null)

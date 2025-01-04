@@ -4,11 +4,13 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@DelegateDeserialization(AbstractMessage.class)
 public final class SoundMessage extends AbstractMessage<Sound> {
 
   private @NotNull Key sound;

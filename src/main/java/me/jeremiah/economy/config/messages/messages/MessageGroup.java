@@ -2,6 +2,7 @@ package me.jeremiah.economy.config.messages.messages;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@DelegateDeserialization(AbstractMessage.class)
 public final class MessageGroup extends AbstractMessage<Void> {
 
   private final List<? extends AbstractMessage<?>> messages;
