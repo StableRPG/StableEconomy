@@ -18,9 +18,7 @@ public final class DataUtils {
 
   public static UUID uuidFromBytes(byte[] bytes) {
     ByteBuffer buffer = ByteBuffer.wrap(bytes);
-    long mostSigBits = buffer.getLong();
-    long leastSigBits = buffer.getLong();
-    return new UUID(mostSigBits, leastSigBits);
+    return new UUID(buffer.getLong(), buffer.getLong());
   }
 
 }

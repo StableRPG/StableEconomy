@@ -15,7 +15,7 @@ public final class EconomyPluginLoader implements PluginLoader {
 
   private static final List<String> LIBRARIES = List.of(
     "com.zaxxer:HikariCP:6.2.1",
-    "org.xerial:sqlite-jdbc:3.47.1.0",
+    "org.xerial:sqlite-jdbc:3.47.2.0",
     "com.h2database:h2:2.3.232",
     "com.mysql:mysql-connector-j:9.1.0",
     "org.mariadb.jdbc:mariadb-java-client:3.5.1",

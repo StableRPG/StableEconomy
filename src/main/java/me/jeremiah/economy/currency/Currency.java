@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
-  // TODO Further Vault integration
+  // TODO Further Vault integration (Figure out how the fuck I want to do fractional digit bullshit)
   // TODO Customizable leaderboard page length
   // TODO Customizable leaderboard update interval
   // TODO Starting balance for new players
