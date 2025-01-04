@@ -4,7 +4,10 @@ import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessageType;
 import me.jeremiah.economy.config.messages.messages.AbstractMessage;
+import me.jeremiah.economy.config.messages.messages.Messages;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -28,9 +31,15 @@ public final class CurrencyLocale implements Locale {
 
   public void load() {
     YamlConfiguration config = YamlConfiguration.loadConfiguration(localeFile);
-    for (MessageType type : MessageType.values())
-      if (config.contains(type.getKey()))
-        messages.put(type, config.getSerializable(type.getKey(), AbstractMessage.class));
+    for (MessageType type : MessageType.values()) {
+      if (config.isString(type.getKey())) {
+        messages.put(type, Messages.chat(config.getString(type.getKey())));
+        continue;
+      }
+      ConfigurationSection section = config.getConfigurationSection(type.getKey());
+      if (section != null)
+        messages.put(type, (AbstractMessage<?>) ConfigurationSerialization.deserializeObject(section.getValues(true), AbstractMessage.class));
+    }
   }
 
   public @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type) {
