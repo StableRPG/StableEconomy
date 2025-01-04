@@ -66,6 +66,7 @@ public final class CurrencyConfig implements CurrencyHolder {
     if (currency == null) {
       currency = new Currency.Builder("default", platform)
         .withLocale(platform.getDefaultLocale())
+        .withDisplayName("Dollar", "Dollars")
         .withPrefix("$")
         .withFormatter(Formatters.COOL)
         .withViewCommandName("balance")

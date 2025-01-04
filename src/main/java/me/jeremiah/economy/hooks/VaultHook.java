@@ -51,12 +51,12 @@ public final class VaultHook implements Economy, Closeable {
 
   @Override
   public String currencyNameSingular() {
-    return "Dollar";
+    return currency.getSingularDisplayName();
   }
 
   @Override
   public String currencyNamePlural() {
-    return "Dollars";
+    return currency.getPluralDisplayName();
   }
 
   @Override

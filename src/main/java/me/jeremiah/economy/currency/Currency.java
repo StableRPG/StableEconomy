@@ -37,9 +37,12 @@ public class Currency {
   // TODO Customizable leaderboard update interval
   // TODO Starting balance for new players
 
-  private final @NotNull String name;
+  private final @NotNull String id;
   private final @NotNull EconomyPlatform platform;
   private final @NotNull Locale locale;
+
+  private final String singularDisplayName;
+  private final String pluralDisplayName;
 
   private final @NotNull CurrencyFormatter formatter;
 
@@ -53,59 +56,59 @@ public class Currency {
 
   private final @Nullable CommandTree adminCommand;
 
-  private Currency(@NotNull String name, @NotNull EconomyPlatform platform, @Nullable Locale locale,
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale,
+                   @NotNull String singularDisplayName, @NotNull String pluralDisplayName,
                    @NotNull Formatters formatter, @NotNull String prefix, @NotNull String suffix,
-                   @Nullable String viewCommandName, @Nullable String[] viewCommandAliases, @Nullable String viewCommandPermission,
-                   @Nullable String transferCommandName, @Nullable String[] transferCommandAliases, @Nullable String transferCommandPermission,
-                   @Nullable String leaderboardCommandName, @Nullable String[] leaderboardCommandAliases, @Nullable String leaderboardCommandPermission,
-                   @Nullable String adminCommandName, @Nullable String[] adminCommandAliases, @Nullable String adminCommandPermission) {
-    this.name = name;
+                   @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, @NotNull Command adminCommand) {
+    this.id = id;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
+    this.singularDisplayName = singularDisplayName;
+    this.pluralDisplayName = pluralDisplayName;
     this.formatter = CurrencyFormatter.of(formatter, prefix, suffix);
 
-    if (viewCommandName != null) {
-      viewCommand = new CommandTree(viewCommandName).withAliases(viewCommandAliases);
-      if (viewCommandPermission != null) viewCommand.withPermission(viewCommandPermission);
-      viewCommand
+    if (viewCommand.canBeCreated()) {
+      this.viewCommand = new CommandTree(viewCommand.name()).withAliases(viewCommand.aliases());
+      if (viewCommand.hasPermission()) this.viewCommand.withPermission(viewCommand.permission());
+      this.viewCommand
         .then(new OfflinePlayerArgument("target")
           .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
           .executes(this::viewOtherBalance))
         .executesPlayer(this::viewOwnBalance);
-    } else viewCommand = null;
+    } else this.viewCommand = null;
 
-    if (transferCommandName != null) {
-      transferCommand = new CommandTree(transferCommandName).withAliases(transferCommandAliases);
-      if (transferCommandPermission != null) transferCommand.withPermission(transferCommandPermission);
-      transferCommand
+    if (transferCommand.canBeCreated()) {
+      this.transferCommand = new CommandTree(transferCommand.name()).withAliases(transferCommand.aliases());
+      if (transferCommand.hasPermission()) this.transferCommand.withPermission(transferCommand.permission());
+      this.transferCommand
         .then(new OfflinePlayerArgument("target")
           .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
           .then(new DoubleArgument("amount")
             .executesPlayer(this::transferBalance)));
-    } else transferCommand = null;
+    } else this.transferCommand = null;
 
-    if (leaderboardCommandName != null) {
-      leaderboardCommand = new CommandTree(leaderboardCommandName).withAliases(leaderboardCommandAliases);
-      if (leaderboardCommandPermission != null) leaderboardCommand.withPermission(leaderboardCommandPermission);
+    if (leaderboardCommand.canBeCreated()) {
+      this.leaderboardCommand = new CommandTree(leaderboardCommand.name()).withAliases(leaderboardCommand.aliases());
+      if (leaderboardCommand.hasPermission()) this.leaderboardCommand.withPermission(leaderboardCommand.permission());
 
       String updatePermission;
-      if (adminCommandPermission != null) updatePermission = adminCommandPermission;
-      else if (leaderboardCommandPermission != null) updatePermission = leaderboardCommandPermission + ".update";
+      if (adminCommand.hasPermission()) updatePermission = adminCommand.permission();
+      else if (leaderboardCommand.hasPermission()) updatePermission = leaderboardCommand.permission() + ".update";
       else updatePermission = "economy.leaderboard.update";
 
-      leaderboardCommand
+      this.leaderboardCommand
         .then(LiteralArgument.of("update")
           .withPermission(updatePermission)
           .executes(this::executeLeaderboardUpdate))
         .then(new IntegerArgument("page", 1)
           .setOptional(true)
           .executes(this::viewLeaderboard));
-    } else leaderboardCommand = null;
+    } else this.leaderboardCommand = null;
 
-    if (adminCommandName != null) {
-      adminCommand = new CommandTree(adminCommandName).withAliases(adminCommandAliases);
-      if (adminCommandPermission != null) adminCommand.withPermission(adminCommandPermission);
-      adminCommand
+    if (adminCommand.canBeCreated()) {
+      this.adminCommand = new CommandTree(adminCommand.name()).withAliases(adminCommand.aliases());
+      if (adminCommand.hasPermission()) this.adminCommand.withPermission(adminCommand.permission());
+      this.adminCommand
         .then(LiteralArgument.of("give")
           .then(new OfflinePlayerArgument("target")
             .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
@@ -125,15 +128,15 @@ public class Currency {
           .then(new OfflinePlayerArgument("target")
             .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
             .executes(this::resetPlayerBalance)));
-    } else adminCommand = null;
+    } else this.adminCommand = null;
   }
 
-  public @NotNull String getName() {
-    return name;
+  public @NotNull String getId() {
+    return id;
   }
 
   public boolean isDefaultCurrency() {
-    return name.equals("default");
+    return id.equals("default");
   }
 
   public @NotNull EconomyPlatform getPlatform() {
@@ -142,6 +145,14 @@ public class Currency {
 
   public @NotNull Locale getLocale() {
     return locale;
+  }
+
+  public @NotNull String getSingularDisplayName() {
+    return singularDisplayName;
+  }
+
+  public @NotNull String getPluralDisplayName() {
+    return pluralDisplayName;
   }
 
   public @NotNull CurrencyFormatter getFormatter() {
@@ -181,13 +192,13 @@ public class Currency {
   }
 
   public void updateLeaderboard() {
-    leaderboard = platform.getDatabase().sortedByBalance(name);
+    leaderboard = platform.getDatabase().sortedByBalance(id);
   }
 
   // Balance Actions
 
   public double getBalance(OfflinePlayer player) {
-    return platform.getDatabase().getByPlayer(player).map(account -> account.getBalance(name)).orElse(0.0);
+    return platform.getDatabase().getByPlayer(player).map(account -> account.getBalance(id)).orElse(0.0);
   }
 
   public String getBalanceFormatted(OfflinePlayer player) {
@@ -195,7 +206,7 @@ public class Currency {
   }
 
   public double getBalance(UUID uuid) {
-    return platform.getDatabase().getByUUID(uuid).map(account -> account.getBalance(name)).orElse(0.0);
+    return platform.getDatabase().getByUUID(uuid).map(account -> account.getBalance(id)).orElse(0.0);
   }
 
   public String getBalanceFormatted(UUID uuid) {
@@ -203,7 +214,7 @@ public class Currency {
   }
 
   public double getBalance(String username) {
-    return platform.getDatabase().getByUsername(username).map(account -> account.getBalance(name)).orElse(0.0);
+    return platform.getDatabase().getByUsername(username).map(account -> account.getBalance(id)).orElse(0.0);
   }
 
   public String getBalanceFormatted(String username) {
@@ -211,7 +222,7 @@ public class Currency {
   }
 
   public double getBalance(PlayerAccount account) {
-    return account.getBalance(name);
+    return account.getBalance(id);
   }
 
   public String getBalanceFormatted(PlayerAccount account) {
@@ -219,19 +230,19 @@ public class Currency {
   }
 
   public void setBalance(OfflinePlayer player, double balance) {
-    platform.getDatabase().updateByPlayer(player, playerAccount -> playerAccount.setBalance(name, balance));
+    platform.getDatabase().updateByPlayer(player, playerAccount -> playerAccount.setBalance(id, balance));
   }
 
   public void setBalance(UUID uuid, double balance) {
-    platform.getDatabase().updateByUUID(uuid, account -> account.setBalance(name, balance));
+    platform.getDatabase().updateByUUID(uuid, account -> account.setBalance(id, balance));
   }
 
   public void setBalance(String username, double balance) {
-    platform.getDatabase().updateByUsername(username, account -> account.setBalance(name, balance));
+    platform.getDatabase().updateByUsername(username, account -> account.setBalance(id, balance));
   }
 
   public void setBalance(PlayerAccount account, double balance) {
-    account.setBalance(name, balance);
+    account.setBalance(id, balance);
   }
 
   public void addBalance(OfflinePlayer player, double amount) {
@@ -247,7 +258,7 @@ public class Currency {
   }
 
   public void addBalance(PlayerAccount account, double amount) {
-    account.addBalance(name, amount);
+    account.addBalance(id, amount);
   }
 
   public void subtractBalance(OfflinePlayer player, double amount) {
@@ -263,7 +274,7 @@ public class Currency {
   }
 
   public void subtractBalance(PlayerAccount account, double amount) {
-    account.subtractBalance(name, amount);
+    account.subtractBalance(id, amount);
   }
 
   public void resetBalance(OfflinePlayer player) {
@@ -279,7 +290,7 @@ public class Currency {
   }
 
   public void resetBalance(PlayerAccount account) {
-    account.setBalance(name, 0);
+    account.setBalance(id, 0);
   }
 
   // Command Actions
@@ -340,6 +351,8 @@ public class Currency {
   }
 
   private void viewLeaderboard(CommandSender sender, CommandArguments args) {
+    List<PlayerAccount> leaderboard = this.leaderboard;
+    assert leaderboard != null;
     int page = (int) args.getOrDefault("page", 1);
 
     int pageSize = 10;
@@ -349,7 +362,7 @@ public class Currency {
     int end = Math.min(leaderboard.size(), start + pageSize);
 
     locale.sendParsedMessage(sender, MessageType.LEADERBOARD_TITLE,
-      "currency", name,
+      "currency", id,
       "page", String.valueOf(page),
       "max-page", String.valueOf(maxPage));
     locale.sendParsedMessage(sender, MessageType.LEADERBOARD_SERVER_TOTAL,
@@ -446,25 +459,17 @@ public class Currency {
 
     private Locale locale;
 
+    private String singularDisplayName;
+    private String pluralDisplayName;
+
     private Formatters formatter = Formatters.COOL;
     private String prefix = "";
     private String suffix = "";
 
-    private String viewCommandName;
-    private String[] viewCommandAliases = new String[0];
-    private String viewCommandPermission;
-
-    private String transferCommandName;
-    private String[] transferCommandAliases = new String[0];
-    private String transferCommandPermission;
-
-    private String leaderboardCommandName;
-    private String[] leaderboardCommandAliases = new String[0];
-    private String leaderboardCommandPermission;
-
-    private String adminCommandName;
-    private String[] adminCommandAliases = new String[0];
-    private String adminCommandPermission;
+    private final Command viewCommand = new Command();
+    private final Command transferCommand = new Command();
+    private final Command leaderboardCommand = new Command();
+    private final Command adminCommand = new Command();
 
     public Builder(@NotNull String currency, @NotNull EconomyPlatform platform) {
       Preconditions.checkNotNull(currency, "Currency name cannot be null");
@@ -474,34 +479,17 @@ public class Currency {
     }
 
     public Builder usingYaml(@NotNull YamlConfiguration config) {
-      if (config.contains("view-command")) {
-        ConfigurationSection viewConfig = config.getConfigurationSection("view-command");
-        assert viewConfig != null;
-        viewCommandName = viewConfig.getString("name");
-        viewCommandAliases = viewConfig.getStringList("aliases").toArray(new String[0]);
-        viewCommandPermission = viewConfig.getString("permission");
-      }
-      if (config.contains("transfer-command")) {
-        ConfigurationSection transferConfig = config.getConfigurationSection("transfer-command");
-        assert transferConfig != null;
-        transferCommandName = transferConfig.getString("name");
-        transferCommandAliases = transferConfig.getStringList("aliases").toArray(new String[0]);
-        transferCommandPermission = transferConfig.getString("permission");
-      }
-      if (config.contains("leaderboard-command")) {
-        ConfigurationSection leaderboardConfig = config.getConfigurationSection("leaderboard-command");
-        assert leaderboardConfig != null;
-        leaderboardCommandName = leaderboardConfig.getString("name");
-        leaderboardCommandAliases = leaderboardConfig.getStringList("aliases").toArray(new String[0]);
-        leaderboardCommandPermission = leaderboardConfig.getString("permission");
-      }
-      if (config.contains("admin-command")) {
-        ConfigurationSection adminConfig = config.getConfigurationSection("admin-command");
-        assert adminConfig != null;
-        adminCommandName = adminConfig.getString("name");
-        adminCommandAliases = adminConfig.getStringList("aliases").toArray(new String[0]);
-        adminCommandPermission = adminConfig.getString("permission");
-      }
+      String capitalCurrency = currency.replaceFirst("^\\w", String.valueOf(Character.toUpperCase(currency.charAt(0))));
+      singularDisplayName = config.getString("singular-display-name", capitalCurrency);
+      pluralDisplayName = config.getString("plural-display-name", singularDisplayName + "s");
+      if (config.contains("view-command"))
+        viewCommand.usingYaml(config.getConfigurationSection("view-command"));
+      if (config.contains("transfer-command"))
+        transferCommand.usingYaml(config.getConfigurationSection("transfer-command"));
+      if (config.contains("leaderboard-command"))
+        leaderboardCommand.usingYaml(config.getConfigurationSection("leaderboard-command"));
+      if (config.contains("admin-command"))
+        adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
       formatter = Formatters.fromString(config.getString("formatter", "cool"));
       prefix = config.getString("prefix", "");
       suffix = config.getString("suffix", "");
@@ -510,6 +498,21 @@ public class Currency {
 
     public Builder withLocale(@NotNull Locale locale) {
       this.locale = locale;
+      return this;
+    }
+
+    public Builder withDisplayName(@NotNull String singular, @NotNull String plural) {
+      return withSingularDisplayName(singular).withPluralDisplayName(plural);
+    }
+
+    public Builder withSingularDisplayName(@NotNull String singular) {
+      this.singularDisplayName = singular;
+      if (pluralDisplayName == null) pluralDisplayName = singular + "s";
+      return this;
+    }
+
+    public Builder withPluralDisplayName(@NotNull String plural) {
+      this.pluralDisplayName = plural;
       return this;
     }
 
@@ -528,75 +531,120 @@ public class Currency {
       return this;
     }
 
-    public Builder withViewCommandName(String name) {
-      this.viewCommandName = name;
+    public Builder withViewCommandName(@NotNull String name) {
+      viewCommand.name(name);
       return this;
     }
 
-    public Builder withViewCommandAliases(String... aliases) {
-      this.viewCommandAliases = aliases;
+    public Builder withViewCommandAliases(@NotNull String @NotNull ... aliases) {
+      viewCommand.aliases(aliases);
       return this;
     }
 
-    public Builder withViewCommandPermission(String permission) {
-      this.viewCommandPermission = permission;
+    public Builder withViewCommandPermission(@NotNull String permission) {
+      viewCommand.permission(permission);
       return this;
     }
 
-    public Builder withTransferCommandName(String name) {
-      this.transferCommandName = name;
+    public Builder withTransferCommandName(@NotNull String name) {
+      transferCommand.name(name);
       return this;
     }
 
-    public Builder withTransferCommandAliases(String... aliases) {
-      this.transferCommandAliases = aliases;
+    public Builder withTransferCommandAliases(@NotNull String @NotNull ... aliases) {
+      transferCommand.aliases(aliases);
       return this;
     }
 
-    public Builder withTransferCommandPermission(String permission) {
-      this.transferCommandPermission = permission;
+    public Builder withTransferCommandPermission(@NotNull String permission) {
+      transferCommand.permission(permission);
       return this;
     }
 
-    public Builder withLeaderboardCommandName(String name) {
-      this.leaderboardCommandName = name;
+    public Builder withLeaderboardCommandName(@NotNull String name) {
+      leaderboardCommand.name(name);
       return this;
     }
 
-    public Builder withLeaderboardCommandAliases(String... aliases) {
-      this.leaderboardCommandAliases = aliases;
+    public Builder withLeaderboardCommandAliases(@NotNull String @NotNull ... aliases) {
+      leaderboardCommand.aliases(aliases);
       return this;
     }
 
-    public Builder withLeaderboardCommandPermission(String permission) {
-      this.leaderboardCommandPermission = permission;
+    public Builder withLeaderboardCommandPermission(@NotNull String permission) {
+      leaderboardCommand.permission(permission);
       return this;
     }
 
-    public Builder withAdminCommandName(String name) {
-      this.adminCommandName = name;
+    public Builder withAdminCommandName(@NotNull String name) {
+      adminCommand.name(name);
       return this;
     }
 
-    public Builder withAdminCommandAliases(String... aliases) {
-      this.adminCommandAliases = aliases;
+    public Builder withAdminCommandAliases(@NotNull String @NotNull ... aliases) {
+      adminCommand.aliases(aliases);
       return this;
     }
 
-    public Builder withAdminCommandPermission(String permission) {
-      this.adminCommandPermission = permission;
+    public Builder withAdminCommandPermission(@NotNull String permission) {
+      adminCommand.permission(permission);
       return this;
     }
 
     public Currency build() {
       return new Currency(
         currency, platform, locale,
+        singularDisplayName, pluralDisplayName,
         formatter, prefix, suffix,
-        viewCommandName, viewCommandAliases, viewCommandPermission,
-        transferCommandName, transferCommandAliases, transferCommandPermission,
-        leaderboardCommandName, leaderboardCommandAliases, leaderboardCommandPermission,
-        adminCommandName, adminCommandAliases, adminCommandPermission
+        viewCommand, transferCommand, leaderboardCommand, adminCommand
       );
+    }
+
+  }
+
+  private static class Command {
+
+    private String name = "";
+    private String[] aliases = new String[0];
+    private String permission = "";
+
+    public void usingYaml(@Nullable ConfigurationSection config) {
+      if (config == null) return;
+      name = config.getString("name", "");
+      aliases = config.getStringList("aliases").toArray(new String[0]);
+      permission = config.getString("permission", "");
+    }
+
+    public void name(String name) {
+      this.name = name;
+    }
+
+    public String name() {
+      return name;
+    }
+
+    public void aliases(String... aliases) {
+      this.aliases = aliases;
+    }
+
+    public String[] aliases() {
+      return aliases;
+    }
+
+    public void permission(String permission) {
+      this.permission = permission;
+    }
+
+    public String permission() {
+      return permission;
+    }
+
+    public boolean canBeCreated() {
+      return !name.isEmpty();
+    }
+
+    public boolean hasPermission() {
+      return !permission.isEmpty();
     }
 
   }
