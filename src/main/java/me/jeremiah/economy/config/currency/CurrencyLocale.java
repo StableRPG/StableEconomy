@@ -3,6 +3,7 @@ package me.jeremiah.economy.config.currency;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessageType;
+import me.jeremiah.economy.config.messages.messages.AbstractMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ public final class CurrencyLocale implements Locale {
   private final EconomyPlatform platform;
 
   private final File localeFile;
-  private final HashMap<MessageType, String> messages = new HashMap<>();
+  private final HashMap<MessageType, AbstractMessage<?>> messages = new HashMap<>();
 
   private CurrencyLocale(EconomyPlatform platform, File localeFile) {
     this.platform = platform;
@@ -29,10 +30,10 @@ public final class CurrencyLocale implements Locale {
     YamlConfiguration config = YamlConfiguration.loadConfiguration(localeFile);
     for (MessageType type : MessageType.values())
       if (config.contains(type.getKey()))
-        messages.put(type, config.getString(type.getKey()));
+        messages.put(type, config.getSerializable(type.getKey(), AbstractMessage.class));
   }
 
-  public @NotNull String getMessage(@NotNull MessageType type) {
+  public @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type) {
     if (!messages.containsKey(type))
       return platform.getDefaultLocale().getMessage(type);
     return messages.get(type);

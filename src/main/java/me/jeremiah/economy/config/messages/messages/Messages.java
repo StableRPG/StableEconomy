@@ -5,6 +5,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
+import org.intellij.lang.annotations.Subst;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +91,7 @@ public final class Messages {
     return sound(sound, Sound.Source.MASTER, volume, pitch);
   }
 
-  public static SoundMessage sound(String sound, Sound.Source source, float volume, float pitch) {
+  public static SoundMessage sound(@Subst("minecraft:block.note_block.pling") String sound, Sound.Source source, float volume, float pitch) {
     return sound(Sound.sound(Key.key(sound), source, volume, pitch));
   }
 
