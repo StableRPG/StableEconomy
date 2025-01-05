@@ -6,6 +6,6 @@ database:
   type: h2
   address: localhost
   port: 3306
-  name: test
+  name: economy
   username: root
   password: root

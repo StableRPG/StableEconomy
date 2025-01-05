@@ -26,10 +26,6 @@ import java.util.logging.Logger;
 
 public class EconomyPlatform implements Listener, Closeable {
 
-  public static EconomyPlatform of(AbstractEconomyPlugin plugin, BasicConfig pluginConfig, Locale defaultLocale, CurrencyHolder currencyConfig) {
-    return new EconomyPlatform(plugin, pluginConfig, defaultLocale, currencyConfig);
-  }
-
   private final AbstractEconomyPlugin plugin;
 
   private ScheduledExecutorService scheduler;

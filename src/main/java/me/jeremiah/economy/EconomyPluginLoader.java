@@ -27,7 +27,11 @@ public final class EconomyPluginLoader implements PluginLoader {
   public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
     MavenLibraryResolver resolver = new MavenLibraryResolver();
     resolver.addRepository(new RemoteRepository.Builder("maven", "default", "https://repo1.maven.org/maven2/").build());
-    LIBRARIES.forEach(library -> resolver.addDependency(new Dependency(new DefaultArtifact(library), null)));
+    LIBRARIES
+      .stream()
+      .map(DefaultArtifact::new)
+      .map(artifact -> new Dependency(artifact, null))
+      .forEach(resolver::addDependency);
     classpathBuilder.addLibrary(resolver);
   }
 

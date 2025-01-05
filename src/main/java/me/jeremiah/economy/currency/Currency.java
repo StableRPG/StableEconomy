@@ -32,10 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
-  // TODO Further Vault integration (Figure out how the fuck I want to do fractional digit bullshit)
-  // TODO Customizable leaderboard page length
-  // TODO Customizable leaderboard update interval
-  // TODO Starting balance for new players
+  // TODO Figure out how I want to implement startingBalance within BalanceEntry.class
 
   private final @NotNull String id;
   private final @NotNull EconomyPlatform platform;
@@ -44,6 +41,8 @@ public class Currency {
   private final String singularDisplayName;
   private final String pluralDisplayName;
 
+  private final double startingBalance;
+
   private final @NotNull CurrencyFormatter formatter;
 
   private final @Nullable CommandTree viewCommand;
@@ -51,20 +50,25 @@ public class Currency {
   private final @Nullable CommandTree transferCommand;
 
   private final @Nullable CommandTree leaderboardCommand;
+  private final int leaderboardPageLength;
+  private final long leaderboardUpdateInterval;
   private volatile @Nullable List<PlayerAccount> leaderboard;
   private @Nullable ScheduledFuture<?> updateLeaderboardTask;
 
   private final @Nullable CommandTree adminCommand;
 
   private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale,
-                   @NotNull String singularDisplayName, @NotNull String pluralDisplayName,
+                   @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance,
                    @NotNull Formatters formatter, @NotNull String prefix, @NotNull String suffix,
-                   @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, @NotNull Command adminCommand) {
+                   @NotNull Command viewCommand, @NotNull Command transferCommand,
+                   @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval,
+                   @NotNull Command adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
     this.singularDisplayName = singularDisplayName;
     this.pluralDisplayName = pluralDisplayName;
+    this.startingBalance = startingBalance;
     this.formatter = CurrencyFormatter.of(formatter, prefix, suffix);
 
     if (viewCommand.canBeCreated()) {
@@ -104,6 +108,8 @@ public class Currency {
           .setOptional(true)
           .executes(this::viewLeaderboard));
     } else this.leaderboardCommand = null;
+    this.leaderboardPageLength = leaderboardPageLength;
+    this.leaderboardUpdateInterval = leaderboardUpdateInterval;
 
     if (adminCommand.canBeCreated()) {
       this.adminCommand = new CommandTree(adminCommand.name()).withAliases(adminCommand.aliases());
@@ -155,6 +161,10 @@ public class Currency {
     return pluralDisplayName;
   }
 
+  public double getStartingBalance() {
+    return startingBalance;
+  }
+
   public @NotNull CurrencyFormatter getFormatter() {
     return formatter;
   }
@@ -171,7 +181,7 @@ public class Currency {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
     if (leaderboardCommand != null) leaderboardCommand.register();
-    if (leaderboard != null) this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, 5, TimeUnit.MINUTES);
+    if (leaderboard != null) this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
     if (adminCommand != null) adminCommand.register();
   }
 
@@ -355,11 +365,10 @@ public class Currency {
     assert leaderboard != null;
     int page = (int) args.getOrDefault("page", 1);
 
-    int pageSize = 10;
-    int maxPage = (int) Math.ceil((double) leaderboard.size() / pageSize);
+    int maxPage = (int) Math.ceil((double) leaderboard.size() / leaderboardPageLength);
 
-    int start = (page - 1) * pageSize;
-    int end = Math.min(leaderboard.size(), start + pageSize);
+    int start = (page - 1) * leaderboardPageLength;
+    int end = Math.min(leaderboard.size(), start + leaderboardPageLength);
 
     locale.sendParsedMessage(sender, MessageType.LEADERBOARD_TITLE,
       "currency", id,
@@ -462,13 +471,19 @@ public class Currency {
     private String singularDisplayName;
     private String pluralDisplayName;
 
+    private double startingBalance = 0.0;
+
     private Formatters formatter = Formatters.COOL;
     private String prefix = "";
     private String suffix = "";
 
     private final Command viewCommand = new Command();
     private final Command transferCommand = new Command();
+
     private final Command leaderboardCommand = new Command();
+    private int leaderboardPageLength = 10;
+    private long leaderboardUpdateInterval = 300;
+
     private final Command adminCommand = new Command();
 
     public Builder(@NotNull String currency, @NotNull EconomyPlatform platform) {
@@ -482,12 +497,19 @@ public class Currency {
       String capitalCurrency = currency.replaceFirst("^\\w", String.valueOf(Character.toUpperCase(currency.charAt(0))));
       singularDisplayName = config.getString("singular-display-name", capitalCurrency);
       pluralDisplayName = config.getString("plural-display-name", singularDisplayName + "s");
+      startingBalance = config.getDouble("starting-balance", 0.0);
       if (config.contains("view-command"))
         viewCommand.usingYaml(config.getConfigurationSection("view-command"));
       if (config.contains("transfer-command"))
         transferCommand.usingYaml(config.getConfigurationSection("transfer-command"));
-      if (config.contains("leaderboard-command"))
-        leaderboardCommand.usingYaml(config.getConfigurationSection("leaderboard-command"));
+      if (config.contains("leaderboard-command")) {
+        ConfigurationSection section = config.getConfigurationSection("leaderboard-command");
+        leaderboardCommand.usingYaml(section);
+        if (section != null) {
+          leaderboardPageLength = section.getInt("page-length", 10);
+          leaderboardUpdateInterval = section.getLong("update-interval", 300);
+        }
+      }
       if (config.contains("admin-command"))
         adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
       formatter = Formatters.fromString(config.getString("formatter", "cool"));
@@ -513,6 +535,11 @@ public class Currency {
 
     public Builder withPluralDisplayName(@NotNull String plural) {
       this.pluralDisplayName = plural;
+      return this;
+    }
+
+    public Builder withStartingBalance(double balance) {
+      this.startingBalance = balance;
       return this;
     }
 
@@ -576,6 +603,16 @@ public class Currency {
       return this;
     }
 
+    public Builder withLeaderboardPageLength(int length) {
+      this.leaderboardPageLength = length;
+      return this;
+    }
+
+    public Builder withLeaderboardUpdateInterval(long interval) {
+      this.leaderboardUpdateInterval = interval;
+      return this;
+    }
+
     public Builder withAdminCommandName(@NotNull String name) {
       adminCommand.name(name);
       return this;
@@ -594,9 +631,11 @@ public class Currency {
     public Currency build() {
       return new Currency(
         currency, platform, locale,
-        singularDisplayName, pluralDisplayName,
+        singularDisplayName, pluralDisplayName, startingBalance,
         formatter, prefix, suffix,
-        viewCommand, transferCommand, leaderboardCommand, adminCommand
+        viewCommand, transferCommand,
+        leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval,
+        adminCommand
       );
     }
 
