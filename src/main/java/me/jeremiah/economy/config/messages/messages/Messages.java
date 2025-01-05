@@ -5,10 +5,15 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
+import org.bukkit.configuration.ConfigurationSection;
 import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public final class Messages {
 
@@ -16,7 +21,72 @@ public final class Messages {
     throw new UnsupportedOperationException();
   }
 
+  private static final String DEFAULT_MESSAGE = "<red>Undefined message</red>";
+  private static final String DEFAULT_SOUND = "minecraft:block.note_block.pling";
+
   private static final EmptyMessage EMPTY_MESSAGE = new EmptyMessage();
+
+  public static @NotNull AbstractMessage<?> fromYaml(@NotNull ConfigurationSection section) {
+    String type = section.getString("type", "empty");
+
+    return switch (type.toLowerCase()) {
+      case "group" -> {
+        ConfigurationSection messagesSection = section.getConfigurationSection("messages");
+
+        if (messagesSection == null)
+          yield Messages.group();
+
+        Set<String> messagePaths = messagesSection.getKeys(false);
+
+        List<? extends AbstractMessage<?>> messages = messagePaths.stream()
+          .map(messagesSection::getConfigurationSection).filter(Objects::nonNull)
+          .map(Messages::fromYaml)
+          .toList();
+
+        yield Messages.group(messages);
+      }
+      case "chat" -> {
+        if (section.contains("message")) {
+          String message = section.getString("message");
+          yield Messages.chat(message);
+        }
+        if (section.contains("messages")) {
+          List<String> messages = section.getStringList("messages").stream().map(String::valueOf).toList();
+          yield Messages.chat(messages);
+        }
+        yield Messages.chat(DEFAULT_MESSAGE);
+      }
+      case "actionbar" -> {
+        String message = section.getString("message", DEFAULT_MESSAGE);
+
+        yield Messages.actionBar(message);
+      }
+      case "title" -> {
+        String title = section.getString("title", DEFAULT_MESSAGE);
+        String subtitle = section.getString("subtitle", DEFAULT_MESSAGE);
+        long fadeIn = section.getLong("fade-in", 10);
+        long stay = section.getLong("stay", 70);
+        long fadeOut = section.getLong("fade-out", 20);
+
+        Title.Times times = Title.Times.times(
+          Ticks.duration(fadeIn),
+          Ticks.duration(stay),
+          Ticks.duration(fadeOut)
+        );
+
+        yield Messages.title(title, subtitle, times);
+      }
+      case "sound" -> {
+        String sound = section.getString("sound", DEFAULT_SOUND);
+        float volume = (float) section.getDouble("volume", 1.0);
+        float pitch = (float) section.getDouble("pitch", 1.0);
+
+        yield Messages.sound(sound, volume, pitch);
+      }
+      case "empty" -> Messages.empty();
+      default -> throw new IllegalArgumentException("Unknown message type: " + type);
+    };
+  }
 
   public static EmptyMessage empty() {
     return EMPTY_MESSAGE;

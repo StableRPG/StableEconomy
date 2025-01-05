@@ -4,13 +4,8 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@DelegateDeserialization(AbstractMessage.class)
 public final class SoundMessage extends AbstractMessage<Sound> {
 
   private @NotNull Key sound;
@@ -68,16 +63,4 @@ public final class SoundMessage extends AbstractMessage<Sound> {
     target.playSound(message);
   }
 
-  @Override
-  public @NotNull Map<String, Object> serialize() {
-    Map<String, Object> data = new HashMap<>();
-
-    data.put("type", "sound");
-    data.put("sound", this.sound.asString());
-    data.put("source", this.source.name());
-    data.put("volume", this.volume);
-    data.put("pitch", this.pitch);
-
-    return data;
-  }
 }

@@ -5,13 +5,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.Title;
-import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@DelegateDeserialization(AbstractMessage.class)
 public final class TitleMessage extends AbstractMessage<Title> {
 
   private @NotNull String title;
@@ -59,18 +54,5 @@ public final class TitleMessage extends AbstractMessage<Title> {
     target.showTitle(title);
   }
 
-  @Override
-  public @NotNull Map<String, Object> serialize() {
-    Map<String, Object> data = new HashMap<>();
-
-    data.put("type", "title");
-    data.put("title", this.title);
-    data.put("subtitle", this.subtitle);
-    data.put("fade-in", this.times.fadeIn());
-    data.put("stay", this.times.stay());
-    data.put("fade-out", this.times.fadeOut());
-
-    return data;
-  }
 }
 

@@ -2,15 +2,11 @@ package me.jeremiah.economy.config.messages.messages;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@DelegateDeserialization(AbstractMessage.class)
 public final class MessageGroup extends AbstractMessage<Void> {
 
   private final List<? extends AbstractMessage<?>> messages;
@@ -50,13 +46,4 @@ public final class MessageGroup extends AbstractMessage<Void> {
     messages.forEach(AbstractMessage::send);
   }
 
-  @Override
-  public @NotNull Map<String, Object> serialize() {
-    Map<String, Object> data = new HashMap<>();
-
-    data.put("type", "group");
-    data.put("messages", this.messages.stream().map(AbstractMessage::serialize).toList());
-
-    return data;
-  }
 }

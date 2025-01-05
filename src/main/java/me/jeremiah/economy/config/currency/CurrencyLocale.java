@@ -7,7 +7,6 @@ import me.jeremiah.economy.config.messages.messages.AbstractMessage;
 import me.jeremiah.economy.config.messages.messages.Messages;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -38,7 +37,7 @@ public final class CurrencyLocale implements Locale {
       }
       ConfigurationSection section = config.getConfigurationSection(type.getKey());
       if (section != null)
-        messages.put(type, (AbstractMessage<?>) ConfigurationSerialization.deserializeObject(section.getValues(true), AbstractMessage.class));
+        messages.put(type, Messages.fromYaml(section));
     }
   }
 
