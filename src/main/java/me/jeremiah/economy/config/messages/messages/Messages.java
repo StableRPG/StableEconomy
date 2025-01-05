@@ -30,17 +30,17 @@ public final class Messages {
     return new MessageGroup(messages);
   }
 
-  public static MultiChatMessage chat(Component... messages) {
+  public static ChatMessage chat(Component... messages) {
     String[] serialized = Arrays.stream(messages).map(MiniMessage.miniMessage()::serialize).toArray(String[]::new);
     return chat(serialized);
   }
 
-  public static MultiChatMessage chat(String... messages) {
-    return new MultiChatMessage(messages);
+  public static ChatMessage chat(String... messages) {
+    return new ChatMessage(messages);
   }
 
-  public static MultiChatMessage chat(List<String> messages) {
-    return new MultiChatMessage(messages);
+  public static ChatMessage chat(List<String> messages) {
+    return new ChatMessage(messages);
   }
 
   public static ActionBarMessage actionBar(Component message) {

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@SerializableAs("Message")
+@SerializableAs("AbstractMessage")
 public abstract class AbstractMessage<M> implements ConfigurationSerializable {
 
   public static @NotNull AbstractMessage<?> deserialize(@NotNull Map<String, Object> args) {

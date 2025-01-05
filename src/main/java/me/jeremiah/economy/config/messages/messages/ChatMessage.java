@@ -13,15 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 @DelegateDeserialization(AbstractMessage.class)
-public final class MultiChatMessage extends AbstractMessage<List<Component>> {
+public final class ChatMessage extends AbstractMessage<List<Component>> {
 
   private final @NotNull List<@NotNull String> messages;
 
-  MultiChatMessage(String... messages) {
+  ChatMessage(String... messages) {
     this.messages = Arrays.asList(messages);
   }
 
-  MultiChatMessage(@NotNull List<@NotNull String> messages) {
+  ChatMessage(@NotNull List<@NotNull String> messages) {
     this.messages = List.copyOf(messages);
   }
 
