@@ -1,0 +1,27 @@
+repositories {
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url 'https://oss.sonatype.org/content/groups/public/' }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    implementation(project(':common'))
+
+    compileOnly 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
+
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
+
+    implementation 'dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.7.0'
+}
+
+shadowJar {
+    relocate 'dev.jorel.commandapi', 'me.jeremiah.economy.commandapi'
+    doLast {
+        copy {
+            from archiveFile
+            into "P:/Minecraft Server/plugins"
+        }
+    }
+}
