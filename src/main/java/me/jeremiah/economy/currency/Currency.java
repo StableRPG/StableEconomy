@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
@@ -106,6 +107,8 @@ public class Currency {
         .then(new IntegerArgument("page", 1)
           .setOptional(true)
           .executes(this::viewLeaderboard));
+
+      this.leaderboard = new ArrayList<>();
     } else this.leaderboardCommand = null;
     this.leaderboardPageLength = leaderboardPageLength;
     this.leaderboardUpdateInterval = leaderboardUpdateInterval;
@@ -202,6 +205,12 @@ public class Currency {
 
   public void updateLeaderboard() {
     leaderboard = platform.getDatabase().sortedByBalance(id);
+  }
+
+  public PlayerAccount getLeaderboardEntry(int position) {
+    List<PlayerAccount> leaderboard = this.leaderboard;
+    if (leaderboard == null || position < 0 || position >= leaderboard.size()) return null;
+    return leaderboard.get(position);
   }
 
   // Balance Actions
@@ -379,7 +388,7 @@ public class Currency {
       if (i >= leaderboard.size()) break;
       PlayerAccount account = leaderboard.get(i);
       locale.sendParsedMessage(sender, MessageType.LEADERBOARD_BALANCE_VIEW,
-        "placement", String.valueOf(i + 1),
+        "position", String.valueOf(i + 1),
         "player", account.getUsername(),
         "balance", getBalanceFormatted(account));
     }

@@ -7,7 +7,7 @@ transfer-command:
 leaderboard-command:
   title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><max-page> <gray><strikethrough>             •"
   server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <server-total>"
-  balance-view: "<gray><place>. <player>, <yellow><balance>"
+  balance-view: "<gray><position>. <player>, <yellow><balance>"
   next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <next-page> to view the next page."
 admin-command:
   set-balance: "<gray>Set <yellow><player>'s <gray>balance to <yellow><new-balance>"

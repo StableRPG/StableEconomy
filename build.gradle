@@ -46,6 +46,13 @@ shadowJar {
     minimize()
     exclude 'META-INF/**', 'LICENSE', 'module-info.class'
     archiveFileName = "${rootProject.name}-${version}.jar"
+    shadowJar.archiveFile
+    doLast {
+        copy {
+            from archiveFile
+            into "P:/Minecraft Server/plugins"
+        }
+    }
 }
 
 assemble {

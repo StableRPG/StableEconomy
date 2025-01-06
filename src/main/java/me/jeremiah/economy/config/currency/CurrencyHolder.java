@@ -2,12 +2,13 @@ package me.jeremiah.economy.config.currency;
 
 import me.jeremiah.economy.currency.Currency;
 
-import java.util.Set;
+import java.util.Collection;
 
 public interface CurrencyHolder {
 
   Currency getDefaultCurrency();
-  Set<Currency> getCurrencies();
+  Collection<Currency> getCurrencies();
+  Currency getCurrency(String name);
 
   void load();
 

@@ -9,6 +9,7 @@ import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessagesConfig;
 import me.jeremiah.economy.currency.Currency;
 import me.jeremiah.economy.data.databases.Database;
+import me.jeremiah.economy.hooks.PlaceholderAPIHook;
 import me.jeremiah.economy.hooks.VaultHook;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -37,7 +38,9 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   private final CurrencyHolder currencyConfig;
 
   private Database database;
+
   private VaultHook vaultHook;
+  private PlaceholderAPIHook placeholderAPIHook;
 
   public EconomyPlatform(AbstractEconomyPlugin plugin, BasicConfig config, Locale defaultLocale, CurrencyHolder currencyConfig) {
     this.plugin = plugin;
@@ -63,12 +66,20 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
     currencyConfig.getCurrencies().forEach(Currency::register);
 
     Bukkit.getPluginManager().registerEvents(this, plugin);
-    if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
-      vaultHook = new VaultHook(this);
+    Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
+      if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
+        vaultHook = new VaultHook(this);
+      if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+        placeholderAPIHook = new PlaceholderAPIHook(this);
+    }, 20L);
   }
 
   @Override
   public void close() {
+    if (placeholderAPIHook != null) {
+      placeholderAPIHook.close();
+      placeholderAPIHook = null;
+    }
     if (vaultHook != null) {
       vaultHook.close();
       vaultHook = null;

@@ -8,8 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class CurrencyConfig implements CurrencyHolder {
 
@@ -18,7 +20,7 @@ public final class CurrencyConfig implements CurrencyHolder {
   private final @NotNull File currencyDir;
 
   private Currency defaultCurrency;
-  private final Set<Currency> currencies = new HashSet<>();
+  private final Map<String, Currency> currencies = new HashMap<>();
 
   public CurrencyConfig(@NotNull EconomyPlatform platform, @NotNull File currencyDir) {
     this.platform = platform;
@@ -55,7 +57,7 @@ public final class CurrencyConfig implements CurrencyHolder {
       Currency currency = currencyBuilder.build();
       if (currency.isDefaultCurrency())
         setupDefaultCurrency(platform, currency);
-      currencies.add(currency);
+      currencies.put(currency.getId(), currency);
     }
 
     if (defaultCurrency == null)
@@ -78,7 +80,7 @@ public final class CurrencyConfig implements CurrencyHolder {
         .withAdminCommandAliases("eco")
         .withAdminCommandPermission("economy.admin")
         .build();
-      currencies.add(currency);
+      currencies.put("default", currency);
     }
 
     defaultCurrency = currency;
@@ -90,8 +92,13 @@ public final class CurrencyConfig implements CurrencyHolder {
   }
 
   @Override
-  public Set<Currency> getCurrencies() {
-    return Set.copyOf(currencies);
+  public Collection<Currency> getCurrencies() {
+    return Collections.unmodifiableCollection(currencies.values());
+  }
+
+  @Override
+  public Currency getCurrency(@NotNull String id) {
+    return currencies.get(id);
   }
 
 }

@@ -10,7 +10,7 @@ public enum MessageType {
 
   LEADERBOARD_TITLE("leaderboard-command.title", "currency", "page", "max-page"),
   LEADERBOARD_SERVER_TOTAL("leaderboard-command.server-total", "server-total"),
-  LEADERBOARD_BALANCE_VIEW("leaderboard-command.balance-view", "placement", "player", "balance"),
+  LEADERBOARD_BALANCE_VIEW("leaderboard-command.balance-view", "position", "player", "balance"),
   LEADERBOARD_NEXT_PAGE("leaderboard-command.next-page", "command", "page", "next-page", "max-page"),
   
   ADMIN_SET("admin-command.set-balance", "player", "old-balance", "new-balance"),

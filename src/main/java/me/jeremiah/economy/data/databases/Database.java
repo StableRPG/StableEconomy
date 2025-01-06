@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class Database implements Closeable {
 
@@ -74,6 +75,18 @@ public abstract class Database implements Closeable {
     entries.add(playerAccount);
     entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
+  }
+
+  public <R> R queryByPlayer(@NotNull OfflinePlayer player, @NotNull Function<PlayerAccount, R> query) {
+    return getByPlayer(player).map(query).orElse(null);
+  }
+
+  public <R> R queryByUUID(@NotNull UUID uniqueId, @NotNull Function<PlayerAccount, R> query) {
+    return getByUUID(uniqueId).map(query).orElse(null);
+  }
+
+  public <R> R queryByUsername(@NotNull String username, @NotNull Function<PlayerAccount, R> query) {
+    return getByUsername(username).map(query).orElse(null);
   }
 
   public void updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
