@@ -1,5 +1,6 @@
 package me.jeremiah.economy;
 
+import me.jeremiah.economy.api.EconomyAPI;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AbstractEconomyPlugin extends JavaPlugin {
@@ -24,6 +25,10 @@ public abstract class AbstractEconomyPlugin extends JavaPlugin {
   }
 
   public EconomyPlatform getEconomyPlatform() {
+    return economyPlatform;
+  }
+
+  public EconomyAPI getEconomyAPI() {
     return economyPlatform;
   }
 

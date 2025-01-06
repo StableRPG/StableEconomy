@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
-  // TODO Figure out how I want to implement startingBalance within BalanceEntry.class
+  // TODO Figure out how I want to implement Starting Balance within BalanceEntry.class
 
   private final @NotNull String id;
   private final @NotNull EconomyPlatform platform;
@@ -46,7 +46,6 @@ public class Currency {
   private final @NotNull CurrencyFormatter formatter;
 
   private final @Nullable CommandTree viewCommand;
-
   private final @Nullable CommandTree transferCommand;
 
   private final @Nullable CommandTree leaderboardCommand;

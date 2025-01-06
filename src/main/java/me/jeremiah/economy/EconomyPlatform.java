@@ -1,5 +1,6 @@
 package me.jeremiah.economy;
 
+import me.jeremiah.economy.api.EconomyAPI;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.config.Config;
 import me.jeremiah.economy.config.currency.CurrencyConfig;
@@ -19,12 +20,13 @@ import org.bukkit.event.player.PlayerLoginEvent;
 
 import java.io.Closeable;
 import java.io.File;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EconomyPlatform implements Listener, Closeable {
+public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
   private final AbstractEconomyPlugin plugin;
 
@@ -118,6 +120,26 @@ public class EconomyPlatform implements Listener, Closeable {
   public final void onPlayerLoginEvent(PlayerLoginEvent event) {
     Player player = event.getPlayer();
     database.createOrUpdateAccount(player.getUniqueId(), player.getName());
+  }
+
+  @Override
+  public double getBalance(UUID uniqueId, String currency) {
+    return database.getByUUID(uniqueId).map(account -> account.getBalance(currency)).orElse(0.0);
+  }
+
+  @Override
+  public void setBalance(UUID uniqueId, double amount, String currency) {
+    database.updateByUUID(uniqueId, account -> account.setBalance(currency, amount));
+  }
+
+  @Override
+  public void addBalance(UUID uniqueId, double amount, String currency) {
+    database.updateByUUID(uniqueId, account -> account.addBalance(currency, amount));
+  }
+
+  @Override
+  public void subtractBalance(UUID uniqueId, double amount, String currency) {
+    database.updateByUUID(uniqueId, account -> account.subtractBalance(currency, amount));
   }
 
 }

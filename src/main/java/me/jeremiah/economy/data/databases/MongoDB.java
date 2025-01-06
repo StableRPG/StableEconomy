@@ -43,6 +43,8 @@ public final class MongoDB extends Database {
     client = MongoClients.create(settings);
     accounts = client.getDatabase(databaseInfo.getName()).getCollection("accounts");
     accounts.createIndex(new Document("uniqueId", 1), new IndexOptions().unique(true));
+
+    setup();
   }
 
   protected int lookupEntryCount() {
