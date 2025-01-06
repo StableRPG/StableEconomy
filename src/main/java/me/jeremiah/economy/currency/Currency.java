@@ -3,14 +3,13 @@ package me.jeremiah.economy.currency;
 import com.google.common.base.Preconditions;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
-import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import me.jeremiah.economy.EconomyPlatform;
+import me.jeremiah.economy.command.AccountArgument;
 import me.jeremiah.economy.config.messages.Locale;
 import me.jeremiah.economy.config.messages.MessageType;
 import me.jeremiah.economy.currency.formatting.CurrencyFormatter;
@@ -75,8 +74,7 @@ public class Currency {
       this.viewCommand = new CommandTree(viewCommand.name()).withAliases(viewCommand.aliases());
       if (viewCommand.hasPermission()) this.viewCommand.withPermission(viewCommand.permission());
       this.viewCommand
-        .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+        .then(new AccountArgument(this)
           .executes(this::viewOtherBalance))
         .executesPlayer(this::viewOwnBalance);
     } else this.viewCommand = null;
@@ -85,8 +83,7 @@ public class Currency {
       this.transferCommand = new CommandTree(transferCommand.name()).withAliases(transferCommand.aliases());
       if (transferCommand.hasPermission()) this.transferCommand.withPermission(transferCommand.permission());
       this.transferCommand
-        .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+        .then(new AccountArgument(this)
           .then(new DoubleArgument("amount")
             .executesPlayer(this::transferBalance)));
     } else this.transferCommand = null;
@@ -118,23 +115,19 @@ public class Currency {
       if (adminCommand.hasPermission()) this.adminCommand.withPermission(adminCommand.permission());
       this.adminCommand
         .then(LiteralArgument.of("give")
-          .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .then(new AccountArgument(this)
             .then(new DoubleArgument("amount")
               .executes(this::addPlayerBalance))))
         .then(LiteralArgument.of("take")
-          .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .then(new AccountArgument(this)
             .then(new DoubleArgument("amount")
               .executes(this::subtractPlayerBalance))))
         .then(LiteralArgument.of("set")
-          .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .then(new AccountArgument(this)
             .then(new DoubleArgument("amount")
               .executes(this::setPlayerBalance))))
         .then(LiteralArgument.of("reset")
-          .then(new OfflinePlayerArgument("target")
-            .replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)))
+          .then(new AccountArgument(this)
             .executes(this::resetPlayerBalance)));
     } else this.adminCommand = null;
   }
@@ -183,7 +176,8 @@ public class Currency {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
     if (leaderboardCommand != null) leaderboardCommand.register();
-    if (leaderboard != null) this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
+    if (leaderboard != null)
+      this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
     if (adminCommand != null) adminCommand.register();
   }
 
@@ -314,14 +308,15 @@ public class Currency {
   // Command Actions
 
   private void viewOtherBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
 
     if (target == null)
       throw CommandAPI.failWithString("Player not found");
 
-    platform.getDatabase().getByPlayer(target).ifPresent(account -> locale.sendParsedMessage(sender, MessageType.VIEW_OTHER,
-      "player", account.getUsername(),
-      "balance", getBalanceFormatted(account)));
+
+    locale.sendParsedMessage(sender, MessageType.VIEW_OTHER,
+      "player", target.getUsername(),
+      "balance", getBalanceFormatted(target));
   }
 
   private void viewOwnBalance(Player player, CommandArguments args) {
@@ -330,7 +325,7 @@ public class Currency {
   }
 
   private void transferBalance(Player player, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
     Double amount = (Double) args.get("amount");
 
     if (target == null)
@@ -338,30 +333,30 @@ public class Currency {
     if (amount == null)
       throw CommandAPI.failWithString("Invalid amount");
 
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> {
-      if (getBalance(account) < amount)
-        locale.sendParsedMessage(player, "<red>Insufficient funds.</red>");
-      else {
-        platform.getDatabase().getByPlayer(target).ifPresent(targetAccount -> {
-          locale.sendParsedMessage(player, MessageType.TRANSFER_SEND,
-            "sender", player.getName(),
-            "receiver", account.getUsername(),
-            "amount", format(amount),
-            "old-balance", getBalanceFormatted(account),
-            "new-balance", format(getBalance(account) - amount));
-          Player targetPlayer;
-          if (target.isOnline() && (targetPlayer = target.getPlayer()) != null)
-            locale.sendParsedMessage(targetPlayer, MessageType.TRANSFER_RECEIVE,
-              "sender", player.getName(),
-              "receiver", account.getUsername(),
-              "amount", format(amount),
-              "old-balance", getBalanceFormatted(targetAccount),
-              "new-balance", format(getBalance(targetAccount) + amount));
-          subtractBalance(account, amount);
-          addBalance(targetAccount, amount);
-        });
-      }
-    });
+    PlayerAccount account = platform.getDatabase().getByPlayer(player)
+      .orElseThrow(() -> CommandAPI.failWithString("You do not have an account"));
+
+    if (getBalance(account) < amount)
+      throw CommandAPI.failWithString("Insufficient funds");
+
+    locale.sendParsedMessage(player, MessageType.TRANSFER_SEND,
+      "sender", player.getName(),
+      "receiver", account.getUsername(),
+      "amount", format(amount),
+      "old-balance", getBalanceFormatted(account),
+      "new-balance", format(getBalance(account) - amount));
+
+    Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
+    if (targetPlayer != null)
+      locale.sendParsedMessage(targetPlayer, MessageType.TRANSFER_RECEIVE,
+        "sender", player.getName(),
+        "receiver", account.getUsername(),
+        "amount", format(amount),
+        "old-balance", getBalanceFormatted(target),
+        "new-balance", format(getBalance(target) + amount));
+
+    subtractBalance(account, amount);
+    addBalance(target, amount);
   }
 
   private void executeLeaderboardUpdate(@Nullable CommandSender sender, @Nullable CommandArguments args) {
@@ -400,7 +395,7 @@ public class Currency {
   }
 
   private void setPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
     Double amount = (Double) args.get("amount");
 
     if (target == null)
@@ -408,17 +403,17 @@ public class Currency {
     if (amount == null)
       throw CommandAPI.failWithString("Invalid amount");
 
-    platform.getDatabase().getByPlayer(target).ifPresent(account -> {
-      locale.sendParsedMessage(sender, MessageType.ADMIN_SET,
-        "player", account.getUsername(),
-        "old-balance", getBalanceFormatted(account),
-        "new-balance", format(amount));
-      setBalance(account, amount);
-    });
+    locale.sendParsedMessage(sender, MessageType.ADMIN_SET,
+      "player", target.getUsername(),
+      "old-balance", getBalanceFormatted(target),
+      "new-balance", format(amount)
+    );
+
+    setBalance(target, amount);
   }
 
   private void addPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
     Double amount = (Double) args.get("amount");
 
     if (target == null)
@@ -426,18 +421,18 @@ public class Currency {
     if (amount == null)
       throw CommandAPI.failWithString("Invalid amount");
 
-    platform.getDatabase().getByPlayer(target).ifPresent(account -> {
-      locale.sendParsedMessage(sender, MessageType.ADMIN_ADD,
-        "player", account.getUsername(),
-        "old-balance", getBalanceFormatted(account),
-        "balance-change", format(amount),
-        "new-balance", format(getBalance(account) + amount));
-      addBalance(account, amount);
-    });
+    locale.sendParsedMessage(sender, MessageType.ADMIN_ADD,
+      "player", target.getUsername(),
+      "old-balance", getBalanceFormatted(target),
+      "balance-change", format(amount),
+      "new-balance", format(getBalance(target) + amount)
+    );
+
+    addBalance(target, amount);
   }
 
   private void subtractPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
     Double amount = (Double) args.get("amount");
 
     if (target == null)
@@ -445,28 +440,28 @@ public class Currency {
     if (amount == null)
       throw CommandAPI.failWithString("Invalid amount");
 
-    platform.getDatabase().getByPlayer(target).ifPresent(account -> {
-      locale.sendParsedMessage(sender, MessageType.ADMIN_REMOVE,
-        "player", account.getUsername(),
-        "old-balance", getBalanceFormatted(account),
-        "balance-change", format(amount),
-        "new-balance", format(getBalance(account) - amount));
-      subtractBalance(account, amount);
-    });
+    locale.sendParsedMessage(sender, MessageType.ADMIN_REMOVE,
+      "player", target.getUsername(),
+      "old-balance", getBalanceFormatted(target),
+      "balance-change", format(amount),
+      "new-balance", format(getBalance(target) - amount)
+    );
+
+    subtractBalance(target, amount);
   }
 
   private void resetPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    OfflinePlayer target = (OfflinePlayer) args.get("target");
+    PlayerAccount target = (PlayerAccount) args.get("target");
 
     if (target == null)
       throw CommandAPI.failWithString("Player not found");
 
-    platform.getDatabase().getByPlayer(target).ifPresent(account -> {
-      locale.sendParsedMessage(sender, MessageType.ADMIN_RESET,
-        "player", account.getUsername(),
-        "old-balance", getBalanceFormatted(account));
-      resetBalance(account);
-    });
+    locale.sendParsedMessage(sender, MessageType.ADMIN_RESET,
+      "player", target.getUsername(),
+      "old-balance", getBalanceFormatted(target)
+    );
+
+    resetBalance(target);
   }
 
   public static class Builder {
