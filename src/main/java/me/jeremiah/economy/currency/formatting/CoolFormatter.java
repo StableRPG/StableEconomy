@@ -5,15 +5,15 @@ public class CoolFormatter extends CurrencyFormatter {
   private final CommaFormatter comma;
   private final SuffixFormatter suffix;
 
-  public CoolFormatter(String prefix, String suffix) {
-    super(prefix, suffix);
-    this.comma = new CommaFormatter(prefix, suffix);
-    this.suffix = new SuffixFormatter(prefix, suffix);
+  public CoolFormatter(String formatString) {
+    super(formatString);
+    comma = new CommaFormatter(formatString);
+    suffix = new SuffixFormatter(formatString);
   }
 
   @Override
-  public String format(double amount) {
-    return amount < 1_000_000.0 ? comma.format(amount) : suffix.format(amount);
+  public String format0(double amount) {
+    return amount < 1_000_000.0 ? comma.format0(amount) : suffix.format0(amount);
   }
 
 }

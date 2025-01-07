@@ -97,6 +97,7 @@ public abstract class AbstractSQLDatabase extends Database {
         ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawPlayerEntries.getBytes("uniqueId"));
 
         add(new PlayerAccount(
+          getPlatform(),
           rawUniqueId.toUUID(),
           rawPlayerEntries.getString("username"),
           balanceEntries.getOrDefault(rawUniqueId, new HashMap<>())

@@ -39,8 +39,7 @@ public abstract class Database implements Closeable {
     };
   }
 
-  private final BasicConfig config;
-  private final ScheduledExecutorService scheduler;
+  private final EconomyPlatform platform;
 
   private ScheduledFuture<?> autoSaveTask;
 
@@ -49,12 +48,19 @@ public abstract class Database implements Closeable {
   protected Map<String, PlayerAccount> entriesByUsername;
 
   protected Database(@NotNull EconomyPlatform platform) {
-    this.config = platform.getConfig();
-    this.scheduler = platform.getScheduler();
+    this.platform = platform;
+  }
+
+  public final EconomyPlatform getPlatform() {
+    return platform;
   }
 
   public final BasicConfig getConfig() {
-    return config;
+    return platform.getConfig();
+  }
+
+  protected final ScheduledExecutorService getScheduler() {
+    return platform.getScheduler();
   }
 
   protected int lookupEntryCount() {
@@ -67,8 +73,8 @@ public abstract class Database implements Closeable {
     entriesByUUID = new ConcurrentHashMap<>(initialCapacity);
     entriesByUsername = new ConcurrentHashMap<>(initialCapacity);
     load();
-    long autoSaveInterval = config.getDatabaseInfo().getAutoSaveInterval();
-    autoSaveTask = scheduler.scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
+    long autoSaveInterval = getConfig().getDatabaseInfo().getAutoSaveInterval();
+    autoSaveTask = getScheduler().scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
   }
 
   public final void add(PlayerAccount playerAccount) {
@@ -95,7 +101,7 @@ public abstract class Database implements Closeable {
   }
 
   public final CompletableFuture<Void> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByPlayer(player, consumer), scheduler);
+    return CompletableFuture.runAsync(() -> updateByPlayer(player, consumer), getScheduler());
   }
 
   public final void updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
@@ -104,7 +110,7 @@ public abstract class Database implements Closeable {
   }
 
   public final CompletableFuture<Void> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByUUID(uniqueId, consumer), scheduler);
+    return CompletableFuture.runAsync(() -> updateByUUID(uniqueId, consumer), getScheduler());
   }
 
   public final void updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
@@ -113,7 +119,7 @@ public abstract class Database implements Closeable {
   }
 
   public final CompletableFuture<Void> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByUsername(username, consumer), scheduler);
+    return CompletableFuture.runAsync(() -> updateByUsername(username, consumer), getScheduler());
   }
 
   public final List<PlayerAccount> sortedByBalance(String currency) {
@@ -146,7 +152,7 @@ public abstract class Database implements Closeable {
         entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(playerAccount));
         entriesByUsername.put(username, playerAccount);
       },
-      () -> add(new PlayerAccount(uniqueId, username))
+      () -> add(new PlayerAccount(platform, uniqueId, username))
     );
   }
 

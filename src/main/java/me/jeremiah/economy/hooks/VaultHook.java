@@ -10,6 +10,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 
 import java.io.Closeable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,10 +23,17 @@ public final class VaultHook implements Economy, Closeable {
     this.platform = platform;
     this.currency = platform.getCurrencyConfig().getDefaultCurrency();
     Bukkit.getServicesManager().register(Economy.class, this, platform.getPlugin(), ServicePriority.Highest);
-    RegisteredServiceProvider<Economy> registeredServiceProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
+    Collection<RegisteredServiceProvider<Economy>> providers = Bukkit.getServicesManager().getRegistrations(Economy.class);
 
-    if (registeredServiceProvider == null)
+    if (providers.isEmpty() || providers.stream().noneMatch(service -> service.getProvider() == this)) {
       platform.getLogger().severe("Failed to register with net.milkbowl.vault.economy.Economy.class");
+      return;
+    }
+
+    providers.stream()
+      .map(RegisteredServiceProvider::getProvider)
+      .filter(provider -> provider.getName().toLowerCase().contains("essentials"))
+      .forEach(Bukkit.getServicesManager()::unregister);
   }
 
   @Override

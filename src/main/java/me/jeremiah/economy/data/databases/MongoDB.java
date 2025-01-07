@@ -61,7 +61,7 @@ public final class MongoDB extends Database {
       for (Map.Entry<String, Object> entry : balanceDocument.entrySet())
         balances.put(entry.getKey(), new BalanceEntry(entry.getKey(), (Double) entry.getValue()));
 
-      add(new PlayerAccount(uniqueId, username, balances));
+      add(new PlayerAccount(getPlatform(), uniqueId, username, balances));
     }
   }
 

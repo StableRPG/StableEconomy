@@ -2,13 +2,13 @@ package me.jeremiah.economy.currency.formatting;
 
 public class FaultyFormatter extends CurrencyFormatter {
 
-  public FaultyFormatter(String prefix, String suffix) {
-    super(prefix, suffix);
+  public FaultyFormatter(String formatString) {
+    super(formatString);
   }
 
   @Override
-  public String format(double amount) {
-    return prefix + amount + suffix;
+  public String format0(double amount) {
+    return String.valueOf(amount);
   }
 
 }

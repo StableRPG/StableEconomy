@@ -32,8 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
-  // TODO Figure out how I want to implement Starting Balance within BalanceEntry.class
-
   private final @NotNull String id;
   private final @NotNull EconomyPlatform platform;
   private final @NotNull Locale locale;
@@ -58,7 +56,7 @@ public class Currency {
 
   private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale,
                    @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance,
-                   @NotNull Formatters formatter, @NotNull String prefix, @NotNull String suffix,
+                   @NotNull Formatters formatter, @NotNull String formatString,
                    @NotNull Command viewCommand, @NotNull Command transferCommand,
                    @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval,
                    @NotNull Command adminCommand) {
@@ -68,7 +66,7 @@ public class Currency {
     this.singularDisplayName = singularDisplayName;
     this.pluralDisplayName = pluralDisplayName;
     this.startingBalance = startingBalance;
-    this.formatter = CurrencyFormatter.of(formatter, prefix, suffix);
+    this.formatter = CurrencyFormatter.of(formatter, formatString);
 
     if (viewCommand.canBeCreated()) {
       this.viewCommand = new CommandTree(viewCommand.name()).withAliases(viewCommand.aliases());
@@ -164,14 +162,6 @@ public class Currency {
     return formatter;
   }
 
-  public @NotNull String getPrefix() {
-    return formatter.getPrefix();
-  }
-
-  public @NotNull String getSuffix() {
-    return formatter.getSuffix();
-  }
-
   public void register() {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
@@ -194,7 +184,7 @@ public class Currency {
   }
 
   public String format(double amount) {
-    return formatter.format(amount);
+    return formatter.format0(amount);
   }
 
   public void updateLeaderboard() {
@@ -477,8 +467,7 @@ public class Currency {
     private double startingBalance = 0.0;
 
     private Formatters formatter = Formatters.COOL;
-    private String prefix = "";
-    private String suffix = "";
+    private String formatString = "";
 
     private final Command viewCommand = new Command();
     private final Command transferCommand = new Command();
@@ -516,8 +505,7 @@ public class Currency {
       if (config.contains("admin-command"))
         adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
       formatter = Formatters.fromString(config.getString("formatter", "cool"));
-      prefix = config.getString("prefix", "");
-      suffix = config.getString("suffix", "");
+      formatString = config.getString("format-string", "");
       return this;
     }
 
@@ -551,13 +539,8 @@ public class Currency {
       return this;
     }
 
-    public Builder withPrefix(@NotNull String prefix) {
-      this.prefix = prefix;
-      return this;
-    }
-
-    public Builder withSuffix(@NotNull String suffix) {
-      this.suffix = suffix;
+    public Builder withFormattingString(@NotNull String formatString) {
+      this.formatString = formatString;
       return this;
     }
 
@@ -635,7 +618,7 @@ public class Currency {
       return new Currency(
         currency, platform, locale,
         singularDisplayName, pluralDisplayName, startingBalance,
-        formatter, prefix, suffix,
+        formatter, formatString,
         viewCommand, transferCommand,
         leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval,
         adminCommand

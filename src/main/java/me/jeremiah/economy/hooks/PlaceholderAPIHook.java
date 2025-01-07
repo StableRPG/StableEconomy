@@ -75,7 +75,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
           position = Integer.parseInt(args[1].substring(1)) - 1;
           display = args[2];
         } else {
-          currency = platform.getCurrencyConfig().getCurrency(args[1]);
+          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          if (optionalCurrency.isEmpty())
+            yield null;
+          currency = optionalCurrency.get();
           position = Integer.parseInt(args[2].substring(1)) - 1;
           display = args[3];
         }
@@ -83,7 +86,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
         PlayerAccount account = currency.getLeaderboardEntry(position);
 
         if (account == null)
-          yield "N/A";
+          if (display.equals("username"))
+            yield "N/A";
+          else if (display.equals("balance"))
+            yield currency.format(0);
 
         if (display.equals("username"))
           yield account.getUsername();
@@ -98,9 +104,9 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
             yield null;
           yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(player);
         } else if (args.length == 2) {
-          Currency currency = platform.getCurrencyConfig().getCurrency(args[1]);
-          if (currency != null)
-            yield currency.getBalanceFormatted(player);
+          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          if (optionalCurrency.isPresent())
+            yield optionalCurrency.get().getBalanceFormatted(player);
           else {
             PlayerAccount account;
             try {
@@ -133,7 +139,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
               yield "No Account Found";
             account = optional.get();
           }
-          yield platform.getCurrencyConfig().getCurrency(args[1]).getBalanceFormatted(account);
+          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          if (optionalCurrency.isEmpty())
+            yield null;
+          yield optionalCurrency.get().getBalanceFormatted(account);
         }
 
         yield null;

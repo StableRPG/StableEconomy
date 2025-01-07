@@ -1,5 +1,6 @@
 package me.jeremiah.economy.data;
 
+import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.Dirtyable;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,8 @@ import java.util.UUID;
 
 public final class PlayerAccount implements Dirtyable {
 
+  private final EconomyPlatform platform;
+
   private final UUID uniqueId;
   private String username;
 
@@ -16,12 +19,13 @@ public final class PlayerAccount implements Dirtyable {
 
   private boolean dirty = false;
 
-  public PlayerAccount(@NotNull UUID uniqueId, @NotNull String username) {
-    this(uniqueId, username, new HashMap<>());
+  public PlayerAccount(@NotNull EconomyPlatform platform, @NotNull UUID uniqueId, @NotNull String username) {
+    this(platform, uniqueId, username, new HashMap<>());
     dirty = true;
   }
 
-  public PlayerAccount(@NotNull UUID uniqueId, @NotNull String username, @NotNull HashMap<String, BalanceEntry> balanceEntries) {
+  public PlayerAccount(@NotNull EconomyPlatform platform, @NotNull UUID uniqueId, @NotNull String username, @NotNull HashMap<String, BalanceEntry> balanceEntries) {
+    this.platform = platform;
     this.uniqueId = uniqueId;
     this.username = username;
     this.balanceEntries = balanceEntries;
@@ -44,8 +48,12 @@ public final class PlayerAccount implements Dirtyable {
     return balanceEntries.values();
   }
 
-  public @NotNull BalanceEntry getBalanceEntry(@NotNull String currency) {
-    return balanceEntries.computeIfAbsent(currency, BalanceEntry::new);
+  public @NotNull BalanceEntry getBalanceEntry(@NotNull String currencyId) {
+    return balanceEntries.computeIfAbsent(currencyId,
+      id -> platform.getCurrencyConfig().getCurrency(currencyId)
+      .map(BalanceEntry::new)
+      .orElse(new BalanceEntry(currencyId))
+    );
   }
 
   public double getBalance(@NotNull String currency) {

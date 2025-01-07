@@ -2,33 +2,25 @@ package me.jeremiah.economy.currency.formatting;
 
 public abstract class CurrencyFormatter {
 
-  // TODO: More customizable formatter that allows a string, possibly using MiniMessage
-
-  public static CurrencyFormatter of(Formatters formatter, String prefix, String suffix) {
+  public static CurrencyFormatter of(Formatters formatter, String formatString) {
     return switch (formatter) {
-      case COOL -> new CoolFormatter(prefix, suffix);
-      case COMMA -> new CommaFormatter(prefix, suffix);
-      case SUFFIX -> new SuffixFormatter(prefix, suffix);
-      case FAULTY -> new FaultyFormatter(prefix, suffix);
+      case COOL -> new CoolFormatter(formatString);
+      case COMMA -> new CommaFormatter(formatString);
+      case SUFFIX -> new SuffixFormatter(formatString);
+      case FAULTY -> new FaultyFormatter(formatString);
     };
   }
 
-  protected final String prefix;
-  protected final String suffix;
+  protected final String formatString;
 
-  public CurrencyFormatter(String prefix, String suffix) {
-    this.prefix = prefix;
-    this.suffix = suffix;
+  public CurrencyFormatter(String formatString) {
+    this.formatString = formatString.replaceAll("<amount>", "%s");
   }
 
-  public String getPrefix() {
-    return prefix;
+  public String format(double amount) {
+    return formatString.formatted(format0(amount));
   }
 
-  public String getSuffix() {
-    return suffix;
-  }
-
-  public abstract String format(double amount);
+  public abstract String format0(double amount);
 
 }

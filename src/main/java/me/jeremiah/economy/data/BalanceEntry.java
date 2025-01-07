@@ -1,5 +1,6 @@
 package me.jeremiah.economy.data;
 
+import me.jeremiah.economy.currency.Currency;
 import me.jeremiah.economy.data.util.Dirtyable;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,6 +9,10 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
   private final String currency;
   private double savedBalance;
   private double unsavedBalance = 0;
+
+  public BalanceEntry(Currency currency) {
+    this(currency.getId(), currency.getStartingBalance());
+  }
 
   public BalanceEntry(String currency) {
     this(currency, 0);

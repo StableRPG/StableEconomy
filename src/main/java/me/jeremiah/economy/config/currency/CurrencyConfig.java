@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class CurrencyConfig implements CurrencyHolder {
 
@@ -69,7 +70,7 @@ public final class CurrencyConfig implements CurrencyHolder {
       currency = new Currency.Builder("default", platform)
         .withLocale(platform.getDefaultLocale())
         .withDisplayName("Dollar", "Dollars")
-        .withPrefix("$")
+        .withFormattingString("$<amount>")
         .withFormatter(Formatters.COOL)
         .withViewCommandName("balance")
         .withViewCommandAliases("bal")
@@ -97,8 +98,8 @@ public final class CurrencyConfig implements CurrencyHolder {
   }
 
   @Override
-  public Currency getCurrency(@NotNull String id) {
-    return currencies.get(id);
+  public Optional<Currency> getCurrency(@NotNull String id) {
+    return Optional.ofNullable(currencies.get(id));
   }
 
 }
