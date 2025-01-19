@@ -175,10 +175,13 @@ public class Currency {
     if (viewCommand != null) CommandAPI.unregister(viewCommand.getName());
     if (transferCommand != null) CommandAPI.unregister(transferCommand.getName());
     if (leaderboardCommand != null) CommandAPI.unregister(leaderboardCommand.getName());
-    if (leaderboard != null) leaderboard.clear();
     if (updateLeaderboardTask != null) {
       updateLeaderboardTask.cancel(true);
       updateLeaderboardTask = null;
+    }
+    if (leaderboard != null) {
+      leaderboard.clear();
+      leaderboard = null;
     }
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
   }

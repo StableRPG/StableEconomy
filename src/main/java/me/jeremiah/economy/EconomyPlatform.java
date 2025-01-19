@@ -66,12 +66,15 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
     currencyConfig.getCurrencies().forEach(Currency::register);
 
     Bukkit.getPluginManager().registerEvents(this, plugin);
-    Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
-      if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
-        vaultHook = new VaultHook(this);
-      if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
-        placeholderAPIHook = new PlaceholderAPIHook(this);
-    }, 20L);
+    loadHooks();
+    Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> loadHooks(), 20L);
+  }
+
+  private void loadHooks() {
+    if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
+      vaultHook = new VaultHook(this);
+    if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+      placeholderAPIHook = new PlaceholderAPIHook(this);
   }
 
   @Override

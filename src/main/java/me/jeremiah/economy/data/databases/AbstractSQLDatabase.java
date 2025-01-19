@@ -76,32 +76,33 @@ public abstract class AbstractSQLDatabase extends Database {
   protected void load() {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement()) {
-      ResultSet rawBalanceEntries = statement.executeQuery("SELECT * FROM balance_entries;");
       HashMap<ByteArrayWrapper, HashMap<String, BalanceEntry>> balanceEntries = new HashMap<>();
 
-      while (rawBalanceEntries.next()) {
-        ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawBalanceEntries.getBytes("uniqueId"));
+      try (ResultSet rawBalanceEntries = statement.executeQuery("SELECT * FROM balance_entries;")) {
+        while (rawBalanceEntries.next()) {
+          ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawBalanceEntries.getBytes("uniqueId"));
 
-        if (!balanceEntries.containsKey(rawUniqueId))
-          balanceEntries.put(rawUniqueId, new HashMap<>());
+          if (!balanceEntries.containsKey(rawUniqueId))
+            balanceEntries.put(rawUniqueId, new HashMap<>());
 
-        String currency = rawBalanceEntries.getString("currency");
-        double balance = rawBalanceEntries.getDouble("balance");
+          String currency = rawBalanceEntries.getString("currency");
+          double balance = rawBalanceEntries.getDouble("balance");
 
-        balanceEntries.get(rawUniqueId).put(currency, new BalanceEntry(currency, balance));
+          balanceEntries.get(rawUniqueId).put(currency, new BalanceEntry(currency, balance));
+        }
       }
 
-      ResultSet rawPlayerEntries = statement.executeQuery("SELECT * FROM player_entries;");
+      try (ResultSet rawPlayerEntries = statement.executeQuery("SELECT * FROM player_entries;")) {
+        while (rawPlayerEntries.next()) {
+          ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawPlayerEntries.getBytes("uniqueId"));
 
-      while (rawPlayerEntries.next()) {
-        ByteArrayWrapper rawUniqueId = new ByteArrayWrapper(rawPlayerEntries.getBytes("uniqueId"));
-
-        add(new PlayerAccount(
-          getPlatform(),
-          rawUniqueId.toUUID(),
-          rawPlayerEntries.getString("username"),
-          balanceEntries.getOrDefault(rawUniqueId, new HashMap<>())
-        ));
+          add(new PlayerAccount(
+            getPlatform(),
+            rawUniqueId.toUUID(),
+            rawPlayerEntries.getString("username"),
+            balanceEntries.getOrDefault(rawUniqueId, new HashMap<>())
+          ));
+        }
       }
 
     } catch (SQLException exception) {

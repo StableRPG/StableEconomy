@@ -32,8 +32,7 @@ public abstract class Database implements Closeable {
     return switch (platform.getConfig().getDatabaseInfo().getDatabaseType()) {
       case SQLITE -> new SQLite(platform);
       case H2 -> new H2(platform);
-      case MYSQL -> new MySQL(platform);
-      case MARIADB -> new MariaDB(platform);
+      case MYSQL, MARIADB -> new MariaDB(platform);
       case POSTGRESQL -> new PostgreSQL(platform);
       case MONGODB -> new MongoDB(platform);
     };
@@ -83,7 +82,7 @@ public abstract class Database implements Closeable {
     entriesByUsername.put(playerAccount.getUsername(), playerAccount);
   }
 
-  public final  <R> R queryByPlayer(@NotNull OfflinePlayer player, @NotNull Function<PlayerAccount, R> query) {
+  public final <R> R queryByPlayer(@NotNull OfflinePlayer player, @NotNull Function<PlayerAccount, R> query) {
     return getByPlayer(player).map(query).orElse(null);
   }
 
