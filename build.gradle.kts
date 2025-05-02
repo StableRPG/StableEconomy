@@ -2,9 +2,9 @@ import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
 
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "9.0.0-beta12"
+    id("com.gradleup.shadow") version "9.0.0-beta13"
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
-    id("xyz.jpenilla.resource-factory-paper-convention") version "1.2.0"
+    id("xyz.jpenilla.resource-factory-paper-convention") version "1.2.1"
 }
 
 setGroup("org.stablerpg.stableeconomy")
@@ -27,12 +27,12 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("me.clip:placeholderapi:2.11.6")
 
-    compileOnly("com.zaxxer:HikariCP:6.2.1")
+    compileOnly("com.zaxxer:HikariCP:6.3.0")
     compileOnly("org.xerial:sqlite-jdbc:3.49.1.0")
     compileOnly("com.h2database:h2:2.3.232")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.3")
-    compileOnly("org.postgresql:postgresql:42.7.4")
-    compileOnly("org.mongodb:mongodb-driver-sync:5.3.0-beta0")
+    compileOnly("org.postgresql:postgresql:42.7.5")
+    compileOnly("org.mongodb:mongodb-driver-sync:5.4.0")
 
     implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
 }
