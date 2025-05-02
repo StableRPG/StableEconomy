@@ -1,4 +1,5 @@
 import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml.Load
 
 plugins {
     id("java")
@@ -62,8 +63,14 @@ tasks {
     }
     paperPluginYaml {
         name.set(rootProject.name)
+        version.set(project.version.toString())
         main.set("${project.group}.${rootProject.name}")
+        loader.set("${project.group}.${rootProject.name}Loader")
         apiVersion.set("1.21")
         author.set("ImNotStable")
+        dependencies {
+            server("Vault", Load.BEFORE, required = false, joinClasspath = true)
+            server("PlaceholderAPI", Load.BEFORE, required = false, joinClasspath = true)
+        }
     }
 }
