@@ -1,13 +1,16 @@
 package me.jeremiah.economy.data;
 
+import lombok.Getter;
 import me.jeremiah.economy.currency.Currency;
 import me.jeremiah.economy.data.util.Dirtyable;
 import org.jetbrains.annotations.NotNull;
 
 public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
 
+  @Getter
   private final String currency;
   private double savedBalance;
+  @Getter
   private double unsavedBalance = 0;
 
   public BalanceEntry(Currency currency) {
@@ -23,16 +26,8 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
     this.savedBalance = savedBalance;
   }
 
-  public String getCurrency() {
-    return currency;
-  }
-
   public double getBalance() {
     return savedBalance + unsavedBalance;
-  }
-
-  public double getUnsavedBalance() {
-    return unsavedBalance;
   }
 
   public void setBalance(double balance) {

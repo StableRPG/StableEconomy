@@ -1,5 +1,6 @@
 package me.jeremiah.economy;
 
+import lombok.Getter;
 import me.jeremiah.economy.api.EconomyAPI;
 import me.jeremiah.economy.config.BasicConfig;
 import me.jeremiah.economy.config.Config;
@@ -29,14 +30,20 @@ import java.util.logging.Logger;
 
 public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
+  @Getter
   private final AbstractEconomyPlugin plugin;
 
+  @Getter
   private ScheduledExecutorService scheduler;
 
+  @Getter
   private final BasicConfig config;
+  @Getter
   private final Locale defaultLocale;
+  @Getter
   private final CurrencyHolder currencyConfig;
 
+  @Getter
   private Database database;
 
   private VaultHook vaultHook;
@@ -102,32 +109,8 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
     scheduler = null;
   }
 
-  public ScheduledExecutorService getScheduler() {
-    return scheduler;
-  }
-
-  public AbstractEconomyPlugin getPlugin() {
-    return plugin;
-  }
-
   public Logger getLogger() {
     return plugin.getLogger();
-  }
-
-  public BasicConfig getConfig() {
-    return config;
-  }
-
-  public Locale getDefaultLocale() {
-    return defaultLocale;
-  }
-
-  public CurrencyHolder getCurrencyConfig() {
-    return currencyConfig;
-  }
-
-  public Database getDatabase() {
-    return database;
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

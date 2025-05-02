@@ -1,5 +1,7 @@
 package me.jeremiah.economy.config.messages;
 
+import lombok.Getter;
+
 public enum MessageType {
   
   VIEW_OWN("view-command.own", "balance"),
@@ -18,16 +20,13 @@ public enum MessageType {
   ADMIN_REMOVE("admin-command.take-balance", "player", "old-balance", "balance-change", "new-balance"),
   ADMIN_RESET("admin-command.reset-balance", "player", "old-balance");
   
+  @Getter
   private final String key;
   private final String[] requiredTags;
   
   MessageType(String key, String... requiredTags) {
     this.key = key;
     this.requiredTags = requiredTags;
-  }
-
-  public String getKey() {
-    return key;
   }
 
   public void checkTags(String[] tags) {

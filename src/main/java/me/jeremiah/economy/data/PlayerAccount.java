@@ -1,5 +1,6 @@
 package me.jeremiah.economy.data;
 
+import lombok.Getter;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.data.util.Dirtyable;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,9 @@ public final class PlayerAccount implements Dirtyable {
 
   private final EconomyPlatform platform;
 
+  @Getter
   private final UUID uniqueId;
+  @Getter
   private String username;
 
   private final HashMap<String, BalanceEntry> balanceEntries;
@@ -29,14 +32,6 @@ public final class PlayerAccount implements Dirtyable {
     this.uniqueId = uniqueId;
     this.username = username;
     this.balanceEntries = balanceEntries;
-  }
-
-  public UUID getUniqueId() {
-    return uniqueId;
-  }
-
-  public String getUsername() {
-    return username;
   }
 
   public void updateUsername(String username) {

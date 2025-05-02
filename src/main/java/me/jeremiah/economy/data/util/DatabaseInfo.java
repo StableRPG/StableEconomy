@@ -1,5 +1,9 @@
 package me.jeremiah.economy.data.util;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public final class DatabaseInfo {
 
   private final DatabaseType databaseType;
@@ -12,6 +16,7 @@ public final class DatabaseInfo {
   private final String username;
   private final String password;
 
+  @Setter
   private long autoSaveInterval;
 
   public DatabaseInfo(String databaseType, String databaseAddress, int databasePort, String name, String username, String password) {
@@ -23,40 +28,8 @@ public final class DatabaseInfo {
     this.password = password;
   }
 
-  public DatabaseType getDatabaseType() {
-    return databaseType;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
   public String getUrl() {
     return "%s:%d".formatted(address, port);
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public long getAutoSaveInterval() {
-    return autoSaveInterval;
-  }
-
-  public void setAutoSaveInterval(long autoSaveInterval) {
-    this.autoSaveInterval = autoSaveInterval;
   }
 
   public enum DatabaseType {
