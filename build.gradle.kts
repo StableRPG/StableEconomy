@@ -34,7 +34,7 @@ dependencies {
     compileOnly("org.postgresql:postgresql:42.7.4")
     compileOnly("org.mongodb:mongodb-driver-sync:5.3.0-beta0")
 
-    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.7.0")
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
 }
 
 tasks {
