@@ -22,11 +22,13 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("me.clip:placeholderapi:2.11.6")
+
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 
     compileOnly("com.zaxxer:HikariCP:6.3.0")
     compileOnly("org.xerial:sqlite-jdbc:3.49.1.0")
@@ -34,8 +36,6 @@ dependencies {
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.3")
     compileOnly("org.postgresql:postgresql:42.7.5")
     compileOnly("org.mongodb:mongodb-driver-sync:5.4.0")
-
-    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
 }
 
 tasks {
