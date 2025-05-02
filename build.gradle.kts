@@ -32,7 +32,7 @@ dependencies {
     compileOnly("com.h2database:h2:2.3.232")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.1")
     compileOnly("org.postgresql:postgresql:42.7.4")
-    compileOnly("org.mongodb:mongodb-driver-sync:5.3.0-beta0")
+    compileOnly("org.mongodb:mongodb-driver-sync:5.4.0")
 
     implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
 }
