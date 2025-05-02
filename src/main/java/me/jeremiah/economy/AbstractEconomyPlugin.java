@@ -1,8 +1,10 @@
 package me.jeremiah.economy;
 
+import lombok.Getter;
 import me.jeremiah.economy.api.EconomyAPI;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public abstract class AbstractEconomyPlugin extends JavaPlugin {
 
   private EconomyPlatform economyPlatform;
@@ -22,10 +24,6 @@ public abstract class AbstractEconomyPlugin extends JavaPlugin {
       economyPlatform.close();
       economyPlatform = null;
     }
-  }
-
-  public EconomyPlatform getEconomyPlatform() {
-    return economyPlatform;
   }
 
   public EconomyAPI getEconomyAPI() {

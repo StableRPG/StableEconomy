@@ -70,7 +70,6 @@ public final class DatabaseInfo {
     public static DatabaseType fromString(String type) {
       return switch (type.toUpperCase()) {
         case "SQLITE" -> SQLITE;
-        case "H2" -> H2;
         case "MYSQL" -> MYSQL;
         case "MARIADB" -> MARIADB;
         case "POSTGRESQL" -> POSTGRESQL;

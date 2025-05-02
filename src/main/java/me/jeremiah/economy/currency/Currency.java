@@ -8,6 +8,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
+import lombok.Getter;
 import me.jeremiah.economy.EconomyPlatform;
 import me.jeremiah.economy.command.AccountArgument;
 import me.jeremiah.economy.config.messages.Locale;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +41,7 @@ public class Currency {
   private final String singularDisplayName;
   private final String pluralDisplayName;
 
+  @Getter
   private final double startingBalance;
 
   private final @NotNull CurrencyFormatter formatter;
@@ -154,10 +157,6 @@ public class Currency {
     return pluralDisplayName;
   }
 
-  public double getStartingBalance() {
-    return startingBalance;
-  }
-
   public @NotNull CurrencyFormatter getFormatter() {
     return formatter;
   }
@@ -180,7 +179,7 @@ public class Currency {
       updateLeaderboardTask = null;
     }
     if (leaderboard != null) {
-      leaderboard.clear();
+      Objects.requireNonNull(leaderboard).clear();
       leaderboard = null;
     }
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
