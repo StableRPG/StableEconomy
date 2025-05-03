@@ -17,6 +17,8 @@ public abstract class AbstractConfig {
   private final @NotNull File file;
   private final @NotNull YamlConfiguration config = new YamlConfiguration();
 
+  protected boolean automaticUpdate = true;
+
   public AbstractConfig(@NotNull AbstractEconomyPlugin plugin, @NotNull String fileName) {
     this.plugin = plugin;
     this.file = new File(plugin.getDataFolder(), fileName);
@@ -32,7 +34,8 @@ public abstract class AbstractConfig {
 
   public void load() {
     createFile(plugin);
-    update(plugin);
+    if (automaticUpdate)
+      update(plugin);
     loadFile(plugin);
   }
 

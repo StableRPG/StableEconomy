@@ -22,6 +22,7 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig {
 
   public PriceConfigImpl(@NotNull AbstractEconomyPlugin plugin) {
     super(plugin,"prices.yml");
+    super.automaticUpdate = false;
     this.priceProvider = new PriceProviderImpl();
   }
 
