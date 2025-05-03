@@ -70,6 +70,7 @@ tasks {
         version.set(project.version.toString())
         main.set("${project.group}.${rootProject.name}")
         loader.set("${project.group}.${rootProject.name}Loader")
+        description.set("An addition to the StableRPG plugin suite.")
         author.set("StableRPG")
         website.set("https://github.com/StableRPG/StableEconomy")
         dependencies {
