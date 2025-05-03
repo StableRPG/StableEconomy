@@ -45,6 +45,9 @@ public abstract class Database implements Closeable {
   protected Map<UUID, PlayerAccount> entriesByUUID;
   protected Map<String, PlayerAccount> entriesByUsername;
 
+  private Map<String, List<PlayerAccount>> sortedEntries;
+  private final Map<String, Long> lastSortedTime = new HashMap<>();
+
   protected Database(@NotNull EconomyPlatform platform) {
     this.platform = platform;
   }
@@ -70,6 +73,7 @@ public abstract class Database implements Closeable {
     entries = new HashSet<>(initialCapacity);
     entriesByUUID = new HashMap<>(initialCapacity);
     entriesByUsername = new HashMap<>(initialCapacity);
+    sortedEntries = new HashMap<>();
     load();
     long autoSaveInterval = getConfig().getDatabaseInfo().getAutoSaveInterval();
     autoSaveTask = getScheduler().scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
@@ -80,6 +84,34 @@ public abstract class Database implements Closeable {
       entries.add(playerAccount);
       entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
       entriesByUsername.put(playerAccount.getUsername(), playerAccount);
+      playerAccount.getBalanceEntries().forEach(entry ->
+        sortedEntries.computeIfAbsent(
+          entry.getCurrency(),
+          currency -> new ArrayList<>(entries.size())).add(playerAccount)
+      );
+    });
+  }
+
+  public final CompletableFuture<PlayerAccount> getAccount(@NotNull UUID uniqueId) {
+    Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
+    return CompletableFuture.supplyAsync(() -> entriesByUUID.get(uniqueId), getScheduler());
+  }
+
+  public final CompletableFuture<PlayerAccount> getAccount(@NotNull String username) {
+    Preconditions.checkNotNull(username, "Username cannot be null");
+    return CompletableFuture.supplyAsync(() -> entriesByUsername.get(username), getScheduler());
+  }
+
+  public final void createOrUpdateAccount(@NotNull UUID uniqueId, @NotNull String username) {
+    Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
+    Preconditions.checkNotNull(username, "Username cannot be null");
+    getAccount(uniqueId).thenAccept(account -> {
+      if (account != null) {
+        account.updateUsername(username);
+        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(account));
+        entriesByUsername.put(username, account);
+      } else
+        add(new PlayerAccount(platform, uniqueId, username));
     });
   }
 
@@ -116,32 +148,14 @@ public abstract class Database implements Closeable {
   }
 
   public final List<PlayerAccount> sortedByBalance(String currency) {
-    ArrayList<PlayerAccount> sorted = new ArrayList<>(entries);
-    sorted.sort(Comparator.comparing(playerAccount -> playerAccount.getBalanceEntry(currency), Comparator.reverseOrder()));
-    return sorted;
-  }
-
-  public final CompletableFuture<PlayerAccount> getAccount(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
-    return CompletableFuture.supplyAsync(() -> entriesByUUID.get(uniqueId), getScheduler());
-  }
-
-  public final CompletableFuture<PlayerAccount> getAccount(@NotNull String username) {
-    Preconditions.checkNotNull(username, "Username cannot be null");
-    return CompletableFuture.supplyAsync(() -> entriesByUsername.get(username), getScheduler());
-  }
-
-  public final void createOrUpdateAccount(@NotNull UUID uniqueId, @NotNull String username) {
-    Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
-    Preconditions.checkNotNull(username, "Username cannot be null");
-    getAccount(uniqueId).thenAccept(account -> {
-      if (account != null) {
-        account.updateUsername(username);
-        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(account));
-        entriesByUsername.put(username, account);
-      } else
-        add(new PlayerAccount(platform, uniqueId, username));
-    });
+    long currentTime = System.currentTimeMillis();
+    long lastSortedTime = this.lastSortedTime.computeIfAbsent(currency, k -> 0L);
+    List<PlayerAccount> leaderboard = sortedEntries.computeIfAbsent(currency, k -> new ArrayList<>(entries.size()));
+    if (lastSortedTime == 0 || currentTime - lastSortedTime > 10_000) {
+      leaderboard.sort(Comparator.comparing(playerAccount -> playerAccount.getBalanceEntry(currency), Comparator.reverseOrder()));
+      this.lastSortedTime.put(currency, currentTime);
+    }
+    return leaderboard;
   }
 
   protected abstract void load();
