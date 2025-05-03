@@ -28,8 +28,6 @@ import org.stablerpg.stableeconomy.data.PlayerAccount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 public class Currency {
 
@@ -57,8 +55,8 @@ public class Currency {
   private final @Nullable CommandTree leaderboardCommand;
   private final int leaderboardPageLength;
   private final long leaderboardUpdateInterval;
-  private volatile @Nullable List<PlayerAccount> leaderboard;
-  private @Nullable ScheduledFuture<?> updateLeaderboardTask;
+  private @Nullable List<PlayerAccount> leaderboard;
+  private long lastLeaderboardUpdate = 0;
 
   private final @Nullable CommandTree adminCommand;
 
@@ -146,8 +144,6 @@ public class Currency {
     if (viewCommand != null) viewCommand.register();
     if (transferCommand != null) transferCommand.register();
     if (leaderboardCommand != null) leaderboardCommand.register();
-    if (leaderboard != null)
-      this.updateLeaderboardTask = platform.getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
     if (adminCommand != null) adminCommand.register();
   }
 
@@ -155,10 +151,6 @@ public class Currency {
     if (viewCommand != null) CommandAPI.unregister(viewCommand.getName());
     if (transferCommand != null) CommandAPI.unregister(transferCommand.getName());
     if (leaderboardCommand != null) CommandAPI.unregister(leaderboardCommand.getName());
-    if (updateLeaderboardTask != null) {
-      updateLeaderboardTask.cancel(true);
-      updateLeaderboardTask = null;
-    }
     if (leaderboard != null) leaderboard = null;
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
   }
@@ -167,14 +159,23 @@ public class Currency {
     return formatter.format(amount);
   }
 
-  public void updateLeaderboard() {
-    leaderboard = platform.getLeaderboard(id);
+  public List<PlayerAccount> getLeaderboard() {
+    long currentTime = System.currentTimeMillis();
+    if (lastLeaderboardUpdate == 0 || currentTime - lastLeaderboardUpdate >= leaderboardUpdateInterval * 1000) {
+      updateLeaderboard();
+      lastLeaderboardUpdate = currentTime;
+    }
+    return leaderboard;
   }
 
   public PlayerAccount getLeaderboardEntry(int position) {
-    List<PlayerAccount> leaderboard = this.leaderboard;
+    List<PlayerAccount> leaderboard = getLeaderboard();
     if (leaderboard == null || position < 0 || position >= leaderboard.size()) return null;
     return leaderboard.get(position);
+  }
+
+  public void updateLeaderboard() {
+    leaderboard = platform.getLeaderboard(id);
   }
 
   // Balance Actions
@@ -335,9 +336,12 @@ public class Currency {
     updateLeaderboard();
   }
 
-  private void viewLeaderboard(CommandSender sender, CommandArguments args) {
-    List<PlayerAccount> leaderboard = this.leaderboard;
-    assert leaderboard != null;
+  private void viewLeaderboard(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
+    List<PlayerAccount> leaderboard = getLeaderboard();
+
+    if (leaderboard == null)
+      throw CommandAPI.failWithString("There was an issue retrieving the leaderboard, contact an administrator immediately.");
+
     int page = (int) args.getOrDefault("page", 1);
 
     int maxPage = (int) Math.ceil((double) leaderboard.size() / leaderboardPageLength);
