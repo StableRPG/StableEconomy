@@ -42,6 +42,10 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
     unsavedBalance -= balance;
   }
 
+  public void resetBalance() {
+    unsavedBalance = -savedBalance;
+  }
+
   @Override
   public int compareTo(@NotNull BalanceEntry balanceEntry) {
     return Double.compare(getBalance(), balanceEntry.getBalance());

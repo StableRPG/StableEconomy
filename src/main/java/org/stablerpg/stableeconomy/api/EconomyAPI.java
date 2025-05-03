@@ -2,7 +2,9 @@ package org.stablerpg.stableeconomy.api;
 
 import org.bukkit.OfflinePlayer;
 import org.stablerpg.stableeconomy.StableEconomy;
+import org.stablerpg.stableeconomy.data.PlayerAccount;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface EconomyAPI {
@@ -19,6 +21,14 @@ public interface EconomyAPI {
     return api;
   }
 
+  default PlayerAccount getAccount(OfflinePlayer player) {
+    return getAccount(player.getUniqueId());
+  }
+
+  PlayerAccount getAccount(UUID uniqueId);
+
+  PlayerAccount getAccount(String username);
+
   default double getBalance(OfflinePlayer player) {
     return getBalance(player, "default");
   }
@@ -32,6 +42,12 @@ public interface EconomyAPI {
   }
 
   double getBalance(UUID uniqueId, String currency);
+
+  default double getBalance(String username) {
+    return getBalance(username, "default");
+  }
+
+  double getBalance(String username, String currency);
 
   default void setBalance(OfflinePlayer player, double amount) {
     setBalance(player, amount, "default");
@@ -47,6 +63,12 @@ public interface EconomyAPI {
 
   void setBalance(UUID uniqueId, double amount, String currency);
 
+  default void setBalance(String username, double amount) {
+    setBalance(username, amount, "default");
+  }
+
+  void setBalance(String username, double amount, String currency);
+
   default void addBalance(OfflinePlayer player, double amount) {
     addBalance(player, amount, "default");
   }
@@ -61,6 +83,12 @@ public interface EconomyAPI {
 
   void addBalance(UUID uniqueId, double amount, String currency);
 
+  default void addBalance(String username, double amount) {
+    addBalance(username, amount, "default");
+  }
+
+  void addBalance(String username, double amount, String currency);
+
   default void subtractBalance(OfflinePlayer player, double amount) {
     subtractBalance(player, amount, "default");
   }
@@ -74,6 +102,12 @@ public interface EconomyAPI {
   }
 
   void subtractBalance(UUID uniqueId, double amount, String currency);
+
+  default void subtractBalance(String username, double amount) {
+    subtractBalance(username, amount, "default");
+  }
+
+  void subtractBalance(String username, double amount, String currency);
 
   default boolean hasBalance(OfflinePlayer player, double amount) {
     return hasBalance(player, amount, "default");
@@ -90,5 +124,35 @@ public interface EconomyAPI {
   default boolean hasBalance(UUID uniqueId, double amount, String currency) {
     return getBalance(uniqueId, currency) >= amount;
   }
+
+  default boolean hasBalance(String username, double amount) {
+    return hasBalance(username, amount, "default");
+  }
+
+  default boolean hasBalance(String username, double amount, String currency) {
+    return getBalance(username, currency) >= amount;
+  }
+
+  default void resetBalance(OfflinePlayer player) {
+    resetBalance(player.getUniqueId());
+  }
+
+  default void resetBalance(UUID uniqueId) {
+    resetBalance(uniqueId, "default");
+  }
+
+  default void resetBalance(OfflinePlayer player, String currency) {
+    resetBalance(player.getUniqueId(), currency);
+  }
+
+  void resetBalance(UUID uniqueId, String currency);
+
+  default void resetBalance(String username) {
+    resetBalance(username, "default");
+  }
+
+  void resetBalance(String username, String currency);
+
+  List<PlayerAccount> getLeaderboard(String currency);
 
 }

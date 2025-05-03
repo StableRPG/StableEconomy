@@ -69,7 +69,7 @@ public final class VaultHook implements Economy, Closeable {
 
   @Override
   public boolean hasAccount(OfflinePlayer player) {
-    return platform.getDatabase().getByPlayer(player).isPresent();
+    return platform.getAccount(player) != null;
   }
 
   @Override
@@ -80,7 +80,7 @@ public final class VaultHook implements Economy, Closeable {
   @Override
   public boolean hasAccount(String player) {
     platform.getLogger().warning("Checking for an account by name is not recommended. Please use the UUID of the player instead.");
-    return platform.getDatabase().getByUsername(player).isPresent();
+    return platform.getAccount(player) != null;
   }
 
   @Override

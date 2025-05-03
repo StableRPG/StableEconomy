@@ -112,16 +112,14 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
             PlayerAccount account;
             try {
               UUID target = UUID.fromString(args[1]);
-              Optional<PlayerAccount> optional = platform.getDatabase().getByUUID(target);
-              if (optional.isEmpty())
-                yield null;
-              account = optional.get();
+              account = platform.getAccount(target);
+              if (account == null)
+                yield "No Account Found";
             } catch (Exception ignored) {
               String username = args[1];
-              Optional<PlayerAccount> optional = platform.getDatabase().getByUsername(username);
-              if (optional.isEmpty())
-                yield null;
-              account = optional.get();
+              account = platform.getAccount(username);
+              if (account == null)
+                yield "No Account Found";
             }
             yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(account);
           }
@@ -129,16 +127,14 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
           PlayerAccount account;
           try {
             UUID target = UUID.fromString(args[2]);
-            Optional<PlayerAccount> optional = platform.getDatabase().getByUUID(target);
-            if (optional.isEmpty())
+            account = platform.getAccount(target);
+            if (account == null)
               yield "No Account Found";
-            account = optional.get();
           } catch (Exception ignored) {
             String username = args[2];
-            Optional<PlayerAccount> optional = platform.getDatabase().getByUsername(username);
-            if (optional.isEmpty())
+            account = platform.getAccount(username);
+            if (account == null)
               yield "No Account Found";
-            account = optional.get();
           }
           Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
           if (optionalCurrency.isEmpty())

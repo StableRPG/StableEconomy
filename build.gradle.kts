@@ -65,12 +65,13 @@ tasks {
         reobfArtifactConfiguration.set(ReobfArtifactConfiguration.MOJANG_PRODUCTION)
     }
     paperPluginYaml {
+        apiVersion.set("1.21")
         name.set(rootProject.name)
         version.set(project.version.toString())
         main.set("${project.group}.${rootProject.name}")
         loader.set("${project.group}.${rootProject.name}Loader")
-        apiVersion.set("1.21")
-        author.set("ImNotStable")
+        author.set("StableRPG")
+        website.set("https://github.com/StableRPG/StableEconomy")
         dependencies {
             server("Vault", Load.BEFORE, required = false, joinClasspath = true)
             server("PlaceholderAPI", Load.BEFORE, required = false, joinClasspath = true)

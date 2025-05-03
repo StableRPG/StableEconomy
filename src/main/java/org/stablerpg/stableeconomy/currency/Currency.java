@@ -168,7 +168,7 @@ public class Currency {
   }
 
   public void updateLeaderboard() {
-    leaderboard = platform.getDatabase().sortedByBalance(id);
+    leaderboard = platform.getLeaderboard(id);
   }
 
   public PlayerAccount getLeaderboardEntry(int position) {
@@ -180,7 +180,7 @@ public class Currency {
   // Balance Actions
 
   public double getBalance(OfflinePlayer player) {
-    return platform.getDatabase().getByPlayer(player).map(account -> account.getBalance(id)).orElse(0.0);
+    return platform.getBalance(player);
   }
 
   public String getBalanceFormatted(OfflinePlayer player) {
@@ -188,7 +188,7 @@ public class Currency {
   }
 
   public double getBalance(UUID uuid) {
-    return platform.getDatabase().getByUUID(uuid).map(account -> account.getBalance(id)).orElse(0.0);
+    return platform.getBalance(uuid, id);
   }
 
   public String getBalanceFormatted(UUID uuid) {
@@ -196,7 +196,7 @@ public class Currency {
   }
 
   public double getBalance(String username) {
-    return platform.getDatabase().getByUsername(username).map(account -> account.getBalance(id)).orElse(0.0);
+    return platform.getBalance(username, id);
   }
 
   public String getBalanceFormatted(String username) {
@@ -212,15 +212,15 @@ public class Currency {
   }
 
   public void setBalance(OfflinePlayer player, double balance) {
-    platform.getDatabase().updateByPlayer(player, playerAccount -> playerAccount.setBalance(id, balance));
+    platform.setBalance(player, balance, id);
   }
 
   public void setBalance(UUID uuid, double balance) {
-    platform.getDatabase().updateByUUID(uuid, account -> account.setBalance(id, balance));
+    platform.setBalance(uuid, balance, id);
   }
 
   public void setBalance(String username, double balance) {
-    platform.getDatabase().updateByUsername(username, account -> account.setBalance(id, balance));
+    platform.setBalance(username, balance, id);
   }
 
   public void setBalance(PlayerAccount account, double balance) {
@@ -228,15 +228,15 @@ public class Currency {
   }
 
   public void addBalance(OfflinePlayer player, double amount) {
-    platform.getDatabase().updateByPlayer(player, account -> addBalance(account, amount));
+    platform.addBalance(player, amount, id);
   }
 
   public void addBalance(UUID uuid, double amount) {
-    platform.getDatabase().updateByUUID(uuid, account -> addBalance(account, amount));
+    platform.addBalance(uuid, amount, id);
   }
 
   public void addBalance(String username, double amount) {
-    platform.getDatabase().updateByUsername(username, account -> addBalance(account, amount));
+    platform.addBalance(username, amount, id);
   }
 
   public void addBalance(PlayerAccount account, double amount) {
@@ -244,15 +244,15 @@ public class Currency {
   }
 
   public void subtractBalance(OfflinePlayer player, double amount) {
-    platform.getDatabase().updateByPlayer(player, account -> subtractBalance(account, amount));
+    platform.subtractBalance(player, amount, id);
   }
 
   public void subtractBalance(UUID uuid, double amount) {
-    platform.getDatabase().updateByUUID(uuid, account -> subtractBalance(account, amount));
+    platform.subtractBalance(uuid, amount, id);
   }
 
   public void subtractBalance(String username, double amount) {
-    platform.getDatabase().updateByUsername(username, account -> subtractBalance(account, amount));
+    platform.subtractBalance(username, amount, id);
   }
 
   public void subtractBalance(PlayerAccount account, double amount) {
@@ -260,19 +260,19 @@ public class Currency {
   }
 
   public void resetBalance(OfflinePlayer player) {
-    platform.getDatabase().updateByPlayer(player, this::resetBalance);
+    platform.resetBalance(player, id);
   }
 
   public void resetBalance(UUID uuid) {
-    platform.getDatabase().updateByUUID(uuid, this::resetBalance);
+    platform.resetBalance(uuid, id);
   }
 
   public void resetBalance(String username) {
-    platform.getDatabase().updateByUsername(username, this::resetBalance);
+    platform.resetBalance(username, id);
   }
 
   public void resetBalance(PlayerAccount account) {
-    account.setBalance(id, 0);
+    account.resetBalance(id);
   }
 
   // Command Actions
@@ -290,8 +290,8 @@ public class Currency {
   }
 
   private void viewOwnBalance(Player player, CommandArguments args) {
-    platform.getDatabase().getByPlayer(player).ifPresent(account -> locale.sendParsedMessage(player, MessageType.VIEW_OWN,
-      "balance", getBalanceFormatted(account)));
+    locale.sendParsedMessage(player, MessageType.VIEW_OWN,
+        "balance", getBalanceFormatted(player));
   }
 
   private void transferBalance(Player player, CommandArguments args) throws WrapperCommandSyntaxException {
@@ -303,8 +303,10 @@ public class Currency {
     if (amount == null)
       throw CommandAPI.failWithString("Invalid amount");
 
-    PlayerAccount account = platform.getDatabase().getByPlayer(player)
-      .orElseThrow(() -> CommandAPI.failWithString("You do not have an account"));
+    PlayerAccount account = platform.getAccount(player);
+
+    if (account == null)
+      throw CommandAPI.failWithString("You do not have an account");
 
     if (getBalance(account) < amount)
       throw CommandAPI.failWithString("Insufficient funds");

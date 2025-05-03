@@ -2,7 +2,6 @@ package org.stablerpg.stableeconomy.data.databases;
 
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.BasicConfig;
@@ -11,13 +10,13 @@ import org.stablerpg.stableeconomy.data.PlayerAccount;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -68,57 +67,52 @@ public abstract class Database implements Closeable {
 
   protected void setup() {
     int initialCapacity = lookupEntryCount() * 2;
-    entries = ConcurrentHashMap.newKeySet(initialCapacity);
-    entriesByUUID = new ConcurrentHashMap<>(initialCapacity);
-    entriesByUsername = new ConcurrentHashMap<>(initialCapacity);
+    entries = new HashSet<>(initialCapacity);
+    entriesByUUID = new HashMap<>(initialCapacity);
+    entriesByUsername = new HashMap<>(initialCapacity);
     load();
     long autoSaveInterval = getConfig().getDatabaseInfo().getAutoSaveInterval();
     autoSaveTask = getScheduler().scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
   }
 
-  public final void add(PlayerAccount playerAccount) {
-    entries.add(playerAccount);
-    entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
-    entriesByUsername.put(playerAccount.getUsername(), playerAccount);
+  public final void add(final @NotNull PlayerAccount playerAccount) {
+    getScheduler().execute(() -> {
+      entries.add(playerAccount);
+      entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
+      entriesByUsername.put(playerAccount.getUsername(), playerAccount);
+    });
   }
 
-  public final <R> R queryByPlayer(@NotNull OfflinePlayer player, @NotNull Function<PlayerAccount, R> query) {
-    return getByPlayer(player).map(query).orElse(null);
+  public final <R> CompletableFuture<R> query(@NotNull UUID uniqueId, @NotNull Function<PlayerAccount, R> query) {
+    return getAccount(uniqueId).thenApply(account -> {
+      if (account == null)
+        throw new IllegalStateException("Player account not found for UUID: " + uniqueId);
+      return query.apply(account);
+    });
   }
 
-  public final <R> R queryByUUID(@NotNull UUID uniqueId, @NotNull Function<PlayerAccount, R> query) {
-    return getByUUID(uniqueId).map(query).orElse(null);
+  public final <R> CompletableFuture<R> query(@NotNull String username, @NotNull Function<PlayerAccount, R> query) {
+    return getAccount(username).thenApply(account -> {
+      if (account == null)
+        throw new IllegalStateException("Player account not found for username: " + username);
+      return query.apply(account);
+    });
   }
 
-  public final <R> R queryByUsername(@NotNull String username, @NotNull Function<PlayerAccount, R> query) {
-    return getByUsername(username).map(query).orElse(null);
+  public final CompletableFuture<Void> update(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
+    return getAccount(uniqueId).thenAccept(account -> {
+      if (account == null)
+        throw new IllegalStateException("Player account not found for UUID: " + uniqueId);
+      consumer.accept(account);
+    });
   }
 
-  public final void updateByPlayer(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    PlayerAccount account = getByPlayer(player).orElseThrow(() -> new IllegalStateException("Player account not found"));
-    consumer.accept(account);
-  }
-
-  public final CompletableFuture<Void> updateByPlayerAsync(@NotNull OfflinePlayer player, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByPlayer(player, consumer), getScheduler());
-  }
-
-  public final void updateByUUID(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    PlayerAccount account = getByUUID(uniqueId).orElseThrow(() -> new IllegalStateException("Player account not found"));
-    consumer.accept(account);
-  }
-
-  public final CompletableFuture<Void> updateByUUIDAsync(@NotNull UUID uniqueId, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByUUID(uniqueId, consumer), getScheduler());
-  }
-
-  public final void updateByUsername(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    PlayerAccount account = getByUsername(username).orElseThrow(() -> new IllegalStateException("Player account not found"));
-    consumer.accept(account);
-  }
-
-  public final CompletableFuture<Void> updateByUsernameAsync(@NotNull String username, Consumer<PlayerAccount> consumer) {
-    return CompletableFuture.runAsync(() -> updateByUsername(username, consumer), getScheduler());
+  public final CompletableFuture<Void> update(@NotNull String username, Consumer<PlayerAccount> consumer) {
+    return getAccount(username).thenAccept(account -> {
+      if (account == null)
+        throw new IllegalStateException("Player account not found for username: " + username);
+      consumer.accept(account);
+    });
   }
 
   public final List<PlayerAccount> sortedByBalance(String currency) {
@@ -127,32 +121,27 @@ public abstract class Database implements Closeable {
     return sorted;
   }
 
-  public final Optional<PlayerAccount> getByPlayer(@NotNull OfflinePlayer player) {
-    Preconditions.checkNotNull(player, "Player cannot be null");
-    return getByUUID(player.getUniqueId());
-  }
-
-  public final Optional<PlayerAccount> getByUUID(@NotNull UUID uniqueId) {
+  public final CompletableFuture<PlayerAccount> getAccount(@NotNull UUID uniqueId) {
     Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
-    return Optional.ofNullable(entriesByUUID.get(uniqueId));
+    return CompletableFuture.supplyAsync(() -> entriesByUUID.get(uniqueId), getScheduler());
   }
 
-  public final Optional<PlayerAccount> getByUsername(@NotNull String username) {
+  public final CompletableFuture<PlayerAccount> getAccount(@NotNull String username) {
     Preconditions.checkNotNull(username, "Username cannot be null");
-    return Optional.ofNullable(entriesByUsername.get(username));
+    return CompletableFuture.supplyAsync(() -> entriesByUsername.get(username), getScheduler());
   }
 
   public final void createOrUpdateAccount(@NotNull UUID uniqueId, @NotNull String username) {
     Preconditions.checkNotNull(uniqueId, "UUID cannot be null");
     Preconditions.checkNotNull(username, "Username cannot be null");
-    getByUUID(uniqueId).ifPresentOrElse(
-      playerAccount -> {
-        playerAccount.updateUsername(username);
-        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(playerAccount));
-        entriesByUsername.put(username, playerAccount);
-      },
-      () -> add(new PlayerAccount(platform, uniqueId, username))
-    );
+    getAccount(uniqueId).thenAccept(account -> {
+      if (account != null) {
+        account.updateUsername(username);
+        entriesByUsername.entrySet().removeIf(e -> e.getValue().equals(account));
+        entriesByUsername.put(username, account);
+      } else
+        add(new PlayerAccount(platform, uniqueId, username));
+    });
   }
 
   protected abstract void load();

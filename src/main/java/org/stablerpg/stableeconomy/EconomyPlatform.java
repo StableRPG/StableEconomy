@@ -15,12 +15,14 @@ import org.stablerpg.stableeconomy.config.currency.CurrencyHolder;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessagesConfig;
 import org.stablerpg.stableeconomy.currency.Currency;
+import org.stablerpg.stableeconomy.data.PlayerAccount;
 import org.stablerpg.stableeconomy.data.databases.Database;
 import org.stablerpg.stableeconomy.hooks.PlaceholderAPIHook;
 import org.stablerpg.stableeconomy.hooks.VaultHook;
 
 import java.io.Closeable;
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,7 +44,6 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   @Getter
   private final CurrencyHolder currencyConfig;
 
-  @Getter
   private Database database;
 
   private VaultHook vaultHook;
@@ -119,23 +120,67 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   }
 
   @Override
+  public PlayerAccount getAccount(UUID uniqueId) {
+    return database.getAccount(uniqueId).join();
+  }
+
+  @Override
+  public PlayerAccount getAccount(String username) {
+    return database.getAccount(username).join();
+  }
+
+  @Override
   public double getBalance(UUID uniqueId, String currency) {
-    return database.getByUUID(uniqueId).map(account -> account.getBalance(currency)).orElse(0.0);
+    return database.query(uniqueId, account -> account.getBalance(currency)).join();
+  }
+
+  @Override
+  public double getBalance(String username, String currency) {
+    return database.query(username, account -> account.getBalance(currency)).join();
   }
 
   @Override
   public void setBalance(UUID uniqueId, double amount, String currency) {
-    database.updateByUUID(uniqueId, account -> account.setBalance(currency, amount));
+    database.update(uniqueId, account -> account.setBalance(currency, amount));
+  }
+
+  public void setBalance(String username, double amount, String currency) {
+    database.update(username, account -> account.setBalance(currency, amount));
   }
 
   @Override
   public void addBalance(UUID uniqueId, double amount, String currency) {
-    database.updateByUUID(uniqueId, account -> account.addBalance(currency, amount));
+    database.update(uniqueId, account -> account.addBalance(currency, amount));
+  }
+
+  @Override
+  public void addBalance(String username, double amount, String currency) {
+    database.update(username, account -> account.addBalance(currency, amount));
   }
 
   @Override
   public void subtractBalance(UUID uniqueId, double amount, String currency) {
-    database.updateByUUID(uniqueId, account -> account.subtractBalance(currency, amount));
+    database.update(uniqueId, account -> account.subtractBalance(currency, amount));
+  }
+
+  @Override
+  public void subtractBalance(String username, double amount, String currency) {
+    database.update(username, account -> account.subtractBalance(currency, amount));
+  }
+
+  @Override
+  public void resetBalance(UUID uniqueId, String currency) {
+    database.update(uniqueId, account -> account.resetBalance(currency));
+  }
+
+  @Override
+  public void resetBalance(String username, String currency) {
+    database.update(username, account -> account.resetBalance(currency));
+  }
+
+  @Override
+  public List<PlayerAccount> getLeaderboard(String currency) {
+    return database.sortedByBalance(currency);
   }
 
 }

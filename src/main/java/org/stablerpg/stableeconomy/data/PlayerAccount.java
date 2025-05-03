@@ -67,6 +67,10 @@ public final class PlayerAccount implements Dirtyable {
     getBalanceEntry(currency).subtractBalance(balance);
   }
 
+  public void resetBalance(@NotNull String currency) {
+    getBalanceEntry(currency).resetBalance();
+  }
+
   @Override
   public boolean isDirty() {
     return dirty;
