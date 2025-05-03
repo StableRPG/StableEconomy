@@ -155,4 +155,6 @@ public interface EconomyAPI {
 
   List<PlayerAccount> getLeaderboard(String currency);
 
+  PriceProvider getPriceProvider();
+
 }

@@ -8,19 +8,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.stablerpg.stableeconomy.api.EconomyAPI;
+import org.stablerpg.stableeconomy.api.PriceProvider;
 import org.stablerpg.stableeconomy.config.BasicConfig;
 import org.stablerpg.stableeconomy.config.Config;
 import org.stablerpg.stableeconomy.config.currency.CurrencyConfig;
 import org.stablerpg.stableeconomy.config.currency.CurrencyHolder;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessagesConfig;
+import org.stablerpg.stableeconomy.config.prices.PriceConfig;
+import org.stablerpg.stableeconomy.config.prices.PriceConfigImpl;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 import org.stablerpg.stableeconomy.data.databases.Database;
 import org.stablerpg.stableeconomy.hooks.PlaceholderAPIHook;
 import org.stablerpg.stableeconomy.hooks.VaultHook;
 
 import java.io.Closeable;
-import java.io.File;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -36,30 +38,35 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   private final Locale defaultLocale;
   @Getter
   private final CurrencyHolder currencyConfig;
+  @Getter
+  private final PriceConfig priceConfig;
 
   private Database database;
 
   private VaultHook vaultHook;
   private PlaceholderAPIHook placeholderAPIHook;
 
-  public EconomyPlatform(AbstractEconomyPlugin plugin, BasicConfig config, Locale defaultLocale, CurrencyHolder currencyConfig) {
+  public EconomyPlatform(AbstractEconomyPlugin plugin, BasicConfig config, Locale defaultLocale, CurrencyHolder currencyConfig, PriceConfig priceConfig) {
     this.plugin = plugin;
     this.config = config;
     this.defaultLocale = defaultLocale;
     this.currencyConfig = currencyConfig;
+    this.priceConfig = priceConfig;
   }
 
   public EconomyPlatform(AbstractEconomyPlugin plugin) {
     this.plugin = plugin;
     this.config = new Config(plugin);
     this.defaultLocale = new MessagesConfig(plugin);
-    this.currencyConfig = new CurrencyConfig(this,  new File(plugin.getDataFolder(), "currencies"));
+    this.currencyConfig = new CurrencyConfig(this);
+    this.priceConfig = new PriceConfigImpl(plugin);
   }
 
   public void init() {
     config.load();
     defaultLocale.load();
     currencyConfig.load();
+    priceConfig.load();
 
     database = Database.of(this);
     currencyConfig.registerCurrencies();
@@ -164,6 +171,11 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   @Override
   public List<PlayerAccount> getLeaderboard(String currency) {
     return database.sortedByBalance(currency);
+  }
+
+  @Override
+  public PriceProvider getPriceProvider() {
+    return priceConfig.getPriceProvider();
   }
 
 }

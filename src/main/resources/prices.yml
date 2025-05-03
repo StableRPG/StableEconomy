@@ -1,0 +1,18 @@
+prices:
+  # Basic Prices
+  OAK_LOG:
+    buy: 10
+    sell: 5
+
+  # Grouped Prices
+  SAPLING: # This can be whatever
+    material: "(.*)_SAPLING"
+    buy: 15
+    sell: 7
+
+  # Advanced Prices
+  EXCALIBUR: # This can be whatever
+    name: "Excalibur"
+    material: "GOLDEN_SWORD"
+    buy: 1000
+    sell: 500

@@ -23,9 +23,9 @@ public final class CurrencyConfig implements CurrencyHolder {
   private Currency defaultCurrency;
   private final Map<String, Currency> currencies = new HashMap<>();
 
-  public CurrencyConfig(@NotNull EconomyPlatform platform, @NotNull File currencyDir) {
+  public CurrencyConfig(@NotNull EconomyPlatform platform) {
     this.platform = platform;
-    this.currencyDir = currencyDir;
+    this.currencyDir = new File(platform.getPlugin().getDataFolder(), "currencies");
   }
 
   public void load() {

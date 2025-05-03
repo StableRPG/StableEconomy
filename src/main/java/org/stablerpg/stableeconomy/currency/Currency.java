@@ -18,7 +18,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.EconomyPlatform;
-import org.stablerpg.stableeconomy.command.AccountArgument;
+import org.stablerpg.stableeconomy.commands.CurrencyCommand;
+import org.stablerpg.stableeconomy.commands.arguments.AccountArgument;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessageType;
 import org.stablerpg.stableeconomy.currency.formatting.CurrencyFormatter;
@@ -63,9 +64,9 @@ public class Currency {
   private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale,
                    @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance,
                    @NotNull Formatters formatter, @NotNull String formatString,
-                   @NotNull Command viewCommand, @NotNull Command transferCommand,
-                   @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval,
-                   @NotNull Command adminCommand) {
+                   @NotNull CurrencyCommand viewCommand, @NotNull CurrencyCommand transferCommand,
+                   @NotNull CurrencyCommand leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval,
+                   @NotNull CurrencyCommand adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
@@ -455,14 +456,14 @@ public class Currency {
     private Formatters formatter = Formatters.COOL;
     private String formatString = "";
 
-    private final Command viewCommand = new Command();
-    private final Command transferCommand = new Command();
+    private final CurrencyCommand viewCommand = new CurrencyCommand();
+    private final CurrencyCommand transferCommand = new CurrencyCommand();
 
-    private final Command leaderboardCommand = new Command();
+    private final CurrencyCommand leaderboardCommand = new CurrencyCommand();
     private int leaderboardPageLength = 10;
     private long leaderboardUpdateInterval = 300;
 
-    private final Command adminCommand = new Command();
+    private final CurrencyCommand adminCommand = new CurrencyCommand();
 
     public Builder(@NotNull String currency, @NotNull EconomyPlatform platform) {
       Preconditions.checkNotNull(currency, "Currency name cannot be null");
@@ -609,53 +610,6 @@ public class Currency {
         leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval,
         adminCommand
       );
-    }
-
-  }
-
-  private static class Command {
-
-    private String name = "";
-    private String[] aliases = new String[0];
-    private String permission = "";
-
-    public void usingYaml(@Nullable ConfigurationSection config) {
-      if (config == null) return;
-      name = config.getString("name", "");
-      aliases = config.getStringList("aliases").toArray(new String[0]);
-      permission = config.getString("permission", "");
-    }
-
-    public void name(String name) {
-      this.name = name;
-    }
-
-    public String name() {
-      return name;
-    }
-
-    public void aliases(String... aliases) {
-      this.aliases = aliases;
-    }
-
-    public String[] aliases() {
-      return aliases;
-    }
-
-    public void permission(String permission) {
-      this.permission = permission;
-    }
-
-    public String permission() {
-      return permission;
-    }
-
-    public boolean canBeCreated() {
-      return !name.isEmpty();
-    }
-
-    public boolean hasPermission() {
-      return !permission.isEmpty();
     }
 
   }

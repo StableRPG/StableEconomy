@@ -7,10 +7,10 @@ import java.util.logging.Logger;
 
 public interface BasicConfig {
 
-  @NotNull Logger getLogger();
+  void load();
 
   @NotNull DatabaseInfo getDatabaseInfo();
 
-  void load();
+  @NotNull Logger getLogger();
 
 }

@@ -1,4 +1,4 @@
-package org.stablerpg.stableeconomy.command;
+package org.stablerpg.stableeconomy.commands.arguments;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
