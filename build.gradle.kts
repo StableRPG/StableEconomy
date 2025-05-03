@@ -53,6 +53,9 @@ tasks {
     }
     shadowJar {
         archiveFileName.set("${project.name}-${project.version}.jar")
+
+        relocate("dev.jorel.commandapi", "${project.group}.libs.commandapi")
+
         minimize()
     }
     assemble {

@@ -2,6 +2,7 @@ package org.stablerpg.stableeconomy.data.util;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.stablerpg.stableeconomy.StableEconomy;
 
 @Getter
 public final class DatabaseInfo {
@@ -11,6 +12,7 @@ public final class DatabaseInfo {
   private final String address;
   private final int port;
 
+  private final String path = StableEconomy.class.getSimpleName();
   private final String name;
 
   private final String username;
@@ -30,6 +32,10 @@ public final class DatabaseInfo {
 
   public String getUrl() {
     return "%s:%d".formatted(address, port);
+  }
+
+  public String getFullPath() {
+    return "./plugins/%s/%s".formatted(path, name);
   }
 
   public enum DatabaseType {

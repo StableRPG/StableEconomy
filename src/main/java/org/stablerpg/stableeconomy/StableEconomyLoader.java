@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
-public final class EconomyPluginLoader implements PluginLoader {
+public final class StableEconomyLoader implements PluginLoader {
 
   private static final List<String> LIBRARIES = List.of(
     "com.zaxxer:HikariCP:6.2.1",

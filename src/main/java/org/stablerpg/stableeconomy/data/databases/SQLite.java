@@ -13,7 +13,7 @@ public final class SQLite extends AbstractSQLDatabase {
 
   @Override
   void processConfig(@NotNull HikariConfig hikariConfig, @NotNull DatabaseInfo databaseInfo) {
-    hikariConfig.setJdbcUrl("jdbc:sqlite:./plugins/Economy/%s".formatted(databaseInfo.getName()));
+    hikariConfig.setJdbcUrl("jdbc:sqlite:%s".formatted(databaseInfo.getFullPath()));
   }
 
   @Override

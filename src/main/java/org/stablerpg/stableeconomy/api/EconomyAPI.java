@@ -1,10 +1,23 @@
 package org.stablerpg.stableeconomy.api;
 
 import org.bukkit.OfflinePlayer;
+import org.stablerpg.stableeconomy.StableEconomy;
 
 import java.util.UUID;
 
 public interface EconomyAPI {
+
+  static EconomyAPI get() {
+    StableEconomy plugin = StableEconomy.getPlugin(StableEconomy.class);
+    if (plugin == null) {
+      throw new IllegalStateException("EconomyPlugin is not initialized. Please ensure the plugin is enabled.");
+    }
+    EconomyAPI api = plugin.getEconomyAPI();
+    if (api == null) {
+      throw new IllegalStateException("EconomyAPI is not initialized. Please ensure the plugin has been properly initialized.");
+    }
+    return api;
+  }
 
   default double getBalance(OfflinePlayer player) {
     return getBalance(player, "default");
