@@ -147,7 +147,7 @@ public class Currency {
     if (transferCommand != null) transferCommand.register();
     if (leaderboardCommand != null) leaderboardCommand.register();
     if (leaderboard != null)
-      this.updateLeaderboardTask = getPlatform().getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
+      this.updateLeaderboardTask = platform.getScheduler().scheduleAtFixedRate(this::updateLeaderboard, 0, leaderboardUpdateInterval, TimeUnit.SECONDS);
     if (adminCommand != null) adminCommand.register();
   }
 

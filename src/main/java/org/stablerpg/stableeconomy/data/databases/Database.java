@@ -43,9 +43,6 @@ public abstract class Database implements Closeable {
   protected Map<UUID, PlayerAccount> entriesByUUID;
   protected Map<String, PlayerAccount> entriesByUsername;
 
-  private Map<String, List<PlayerAccount>> sortedEntries;
-  private final Map<String, Long> lastSortedTime = new HashMap<>();
-
   protected Database(@NotNull EconomyPlatform platform) {
     this.platform = platform;
   }
@@ -71,7 +68,6 @@ public abstract class Database implements Closeable {
     entries = new HashSet<>(initialCapacity);
     entriesByUUID = new HashMap<>(initialCapacity);
     entriesByUsername = new HashMap<>(initialCapacity);
-    sortedEntries = new HashMap<>();
     load();
     long autoSaveInterval = getConfig().getDatabaseInfo().getAutoSaveInterval();
     autoSaveTask = getScheduler().scheduleAtFixedRate(this::save, autoSaveInterval, autoSaveInterval, TimeUnit.SECONDS);
@@ -82,11 +78,6 @@ public abstract class Database implements Closeable {
       entries.add(playerAccount);
       entriesByUUID.put(playerAccount.getUniqueId(), playerAccount);
       entriesByUsername.put(playerAccount.getUsername(), playerAccount);
-      playerAccount.getBalanceEntries().forEach(entry ->
-        sortedEntries.computeIfAbsent(
-          entry.getCurrency(),
-          currency -> new ArrayList<>(entries.size())).add(playerAccount)
-      );
     });
   }
 
@@ -146,13 +137,8 @@ public abstract class Database implements Closeable {
   }
 
   public final List<PlayerAccount> sortedByBalance(String currency) {
-    long currentTime = System.currentTimeMillis();
-    long lastSortedTime = this.lastSortedTime.computeIfAbsent(currency, k -> 0L);
-    List<PlayerAccount> leaderboard = sortedEntries.computeIfAbsent(currency, k -> new ArrayList<>(entries.size()));
-    if (lastSortedTime == 0 || currentTime - lastSortedTime > 10_000) {
-      leaderboard.sort(Comparator.comparing(playerAccount -> playerAccount.getBalanceEntry(currency), Comparator.reverseOrder()));
-      this.lastSortedTime.put(currency, currentTime);
-    }
+    List<PlayerAccount> leaderboard = new ArrayList<>(entries);
+    leaderboard.sort(Comparator.comparing(account -> account.getBalanceEntry(currency), Comparator.reverseOrder()));
     return leaderboard;
   }
 
