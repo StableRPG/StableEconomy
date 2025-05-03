@@ -350,7 +350,7 @@ public class Currency {
       "page", String.valueOf(page),
       "max-page", String.valueOf(maxPage));
     locale.sendParsedMessage(sender, MessageType.LEADERBOARD_SERVER_TOTAL,
-      "server-total", String.valueOf(leaderboard.size()));
+      "server-total", format(leaderboard.stream().mapToDouble(account -> account.getBalance(id)).sum()));
     for (int i = start; i < end; i++) {
       if (i >= leaderboard.size()) break;
       PlayerAccount account = leaderboard.get(i);
