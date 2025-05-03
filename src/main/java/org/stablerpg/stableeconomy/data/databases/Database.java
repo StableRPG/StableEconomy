@@ -25,8 +25,6 @@ import java.util.function.Function;
 
 public abstract class Database implements Closeable {
 
-  // TODO: Possibly refactor this class to use a SingleThreadExecutor and CompletableFuture for all methods.
-
   public static @NotNull Database of(@NotNull EconomyPlatform platform) {
     return switch (platform.getConfig().getDatabaseInfo().getDatabaseType()) {
       case SQLITE -> new SQLite(platform);
