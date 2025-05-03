@@ -14,7 +14,6 @@ import org.stablerpg.stableeconomy.config.currency.CurrencyConfig;
 import org.stablerpg.stableeconomy.config.currency.CurrencyHolder;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessagesConfig;
-import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 import org.stablerpg.stableeconomy.data.databases.Database;
 import org.stablerpg.stableeconomy.hooks.PlaceholderAPIHook;
@@ -24,18 +23,12 @@ import java.io.Closeable;
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
   @Getter
   private final AbstractEconomyPlugin plugin;
-
-  @Getter
-  private ScheduledExecutorService scheduler;
 
   @Getter
   private final BasicConfig config;
@@ -68,9 +61,8 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
     defaultLocale.load();
     currencyConfig.load();
 
-    scheduler = Executors.newSingleThreadScheduledExecutor();
     database = Database.of(this);
-    currencyConfig.getCurrencies().forEach(Currency::register);
+    currencyConfig.registerCurrencies();
 
     Bukkit.getPluginManager().registerEvents(this, plugin);
     loadHooks();
@@ -95,18 +87,9 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
       vaultHook = null;
     }
     PlayerLoginEvent.getHandlerList().unregister(this);
-    currencyConfig.getCurrencies().forEach(Currency::unregister);
+    currencyConfig.unregisterCurrencies();
     database.close();
     database = null;
-    scheduler.shutdown();
-    try {
-      if (!scheduler.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS))
-        scheduler.shutdownNow();
-    } catch (InterruptedException exception) {
-      getLogger().log(Level.SEVERE, "Failed to shutdown scheduler", exception);
-      scheduler.shutdownNow();
-    }
-    scheduler = null;
   }
 
   public Logger getLogger() {

@@ -65,6 +65,16 @@ public final class CurrencyConfig implements CurrencyHolder {
       setupDefaultCurrency(platform, null);
   }
 
+  @Override
+  public void registerCurrencies() {
+    currencies.values().forEach(Currency::register);
+  }
+
+  @Override
+  public void unregisterCurrencies() {
+    currencies.values().forEach(Currency::unregister);
+  }
+
   private void setupDefaultCurrency(@NotNull EconomyPlatform platform, @Nullable Currency currency) {
     if (currency == null) {
       currency = new Currency.Builder("default", platform)

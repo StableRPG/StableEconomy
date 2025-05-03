@@ -17,11 +17,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 public abstract class Database implements Closeable {
 
@@ -36,6 +38,7 @@ public abstract class Database implements Closeable {
   }
 
   private final EconomyPlatform platform;
+  private ScheduledExecutorService scheduler;
 
   private ScheduledFuture<?> autoSaveTask;
 
@@ -45,6 +48,7 @@ public abstract class Database implements Closeable {
 
   protected Database(@NotNull EconomyPlatform platform) {
     this.platform = platform;
+    scheduler = Executors.newSingleThreadScheduledExecutor();
   }
 
   public final EconomyPlatform getPlatform() {
@@ -56,7 +60,7 @@ public abstract class Database implements Closeable {
   }
 
   protected final ScheduledExecutorService getScheduler() {
-    return platform.getScheduler();
+    return scheduler;
   }
 
   protected int lookupEntryCount() {
@@ -149,6 +153,17 @@ public abstract class Database implements Closeable {
   public void close() {
     autoSaveTask.cancel(false);
     save();
+
+    scheduler.shutdown();
+    try {
+      if (!scheduler.awaitTermination(5, TimeUnit.SECONDS))
+        scheduler.shutdownNow();
+    } catch (InterruptedException exception) {
+      platform.getLogger().log(Level.SEVERE, "Failed to shutdown scheduler", exception);
+      scheduler.shutdownNow();
+    }
+    scheduler = null;
+
     entries.clear();
     entriesByUUID.clear();
     entriesByUsername.clear();

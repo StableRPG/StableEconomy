@@ -7,10 +7,12 @@ import java.util.Optional;
 
 public interface CurrencyHolder {
 
+  void load();
+  void registerCurrencies();
+  void unregisterCurrencies();
+
   Currency getDefaultCurrency();
   Collection<Currency> getCurrencies();
   Optional<Currency> getCurrency(String name);
-
-  void load();
 
 }
