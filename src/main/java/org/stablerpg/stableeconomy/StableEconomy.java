@@ -7,23 +7,19 @@ public final class StableEconomy extends AbstractEconomyPlugin {
 
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
-      .silentLogs(true)
-      .shouldHookPaperReload(true)
-      .useLatestNMSVersion(true)
-    );
-  }
-
-  @Override
-  public void onEnable() {
-    CommandAPI.onEnable();
-    initEconomyPlatform();
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true).shouldHookPaperReload(true).useLatestNMSVersion(true));
   }
 
   @Override
   public void onDisable() {
     closeEconomyPlatform();
     CommandAPI.onDisable();
+  }
+
+  @Override
+  public void onEnable() {
+    CommandAPI.onEnable();
+    initEconomyPlatform();
   }
 
 }

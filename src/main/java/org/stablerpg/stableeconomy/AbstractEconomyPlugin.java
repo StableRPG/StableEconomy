@@ -14,8 +14,7 @@ public abstract class AbstractEconomyPlugin extends JavaPlugin {
   }
 
   protected void initEconomyPlatform() {
-    if (economyPlatform == null)
-      economyPlatform = new EconomyPlatform(this);
+    if (economyPlatform == null) economyPlatform = new EconomyPlatform(this);
     economyPlatform.init();
   }
 

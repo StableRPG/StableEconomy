@@ -41,19 +41,17 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
   }
 
   public @NotNull List<String> getPlaceholders() {
-    return List.of(
-      "leaderboard_#<position>_username", "leaderboard_#<position>_balance",
-      "leaderboard_<currency>_#<position>_username", "leaderboard_<currency>_#<position>_balance",
-      "balance", "balance_<currency>", "balance_<currency>_<uuid>", "balance_<currency>_<username>"
-    );
+    return List.of("leaderboard_#<position>_username", "leaderboard_#<position>_balance", "leaderboard_<currency>_#<position>_username", "leaderboard_<currency>_#<position>_balance", "balance", "balance_<currency>", "balance_<currency>_<uuid>", "balance_<currency>_<username>");
   }
 
   public boolean persist() {
     return true;
   }
 
-
   @Override
+  public void close() {
+    unregister();
+  }  @Override
   public @Nullable String onPlaceholderRequest(final Player player, @NotNull final String params) {
     return onRequest(player, params);
   }
@@ -61,12 +59,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
   @Override
   public @Nullable String onRequest(final OfflinePlayer player, @NotNull final String params) {
     String[] args = params.split("_");
-    if (args.length == 0)
-      return null;
+    if (args.length == 0) return null;
     return switch (args[0]) {
       case "leaderboard" -> {
-        if (args.length < 3)
-          yield null;
+        if (args.length < 3) yield null;
 
         Currency currency;
         int position;
@@ -77,8 +73,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
           display = args[2];
         } else {
           Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
-          if (optionalCurrency.isEmpty())
-            yield null;
+          if (optionalCurrency.isEmpty()) yield null;
           currency = optionalCurrency.get();
           position = Integer.parseInt(args[2].substring(1)) - 1;
           display = args[3];
@@ -86,40 +81,31 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
 
         PlayerAccount account = currency.getLeaderboardEntry(position);
 
-        if (account == null)
-          if (display.equals("username"))
-            yield "N/A";
-          else if (display.equals("balance"))
-            yield currency.format(0);
+        if (account == null) if (display.equals("username")) yield "N/A";
+        else if (display.equals("balance")) yield currency.format(0);
 
-        if (display.equals("username"))
-          yield account.getUsername();
-        else if (display.equals("balance"))
-          yield currency.getBalanceFormatted(account);
+        if (display.equals("username")) yield account.getUsername();
+        else if (display.equals("balance")) yield currency.getBalanceFormatted(account);
 
         yield null;
       }
       case "balance" -> {
         if (args.length == 1) {
-          if (player == null)
-            yield null;
+          if (player == null) yield null;
           yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(player);
         } else if (args.length == 2) {
           Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
-          if (optionalCurrency.isPresent())
-            yield optionalCurrency.get().getBalanceFormatted(player);
+          if (optionalCurrency.isPresent()) yield optionalCurrency.get().getBalanceFormatted(player);
           else {
             PlayerAccount account;
             try {
               UUID target = UUID.fromString(args[1]);
               account = platform.getAccount(target);
-              if (account == null)
-                yield "No Account Found";
+              if (account == null) yield "No Account Found";
             } catch (Exception ignored) {
               String username = args[1];
               account = platform.getAccount(username);
-              if (account == null)
-                yield "No Account Found";
+              if (account == null) yield "No Account Found";
             }
             yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(account);
           }
@@ -128,17 +114,14 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
           try {
             UUID target = UUID.fromString(args[2]);
             account = platform.getAccount(target);
-            if (account == null)
-              yield "No Account Found";
+            if (account == null) yield "No Account Found";
           } catch (Exception ignored) {
             String username = args[2];
             account = platform.getAccount(username);
-            if (account == null)
-              yield "No Account Found";
+            if (account == null) yield "No Account Found";
           }
           Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
-          if (optionalCurrency.isEmpty())
-            yield null;
+          if (optionalCurrency.isEmpty()) yield null;
           yield optionalCurrency.get().getBalanceFormatted(account);
         }
 
@@ -148,9 +131,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
     };
   }
 
-  @Override
-  public void close() {
-    unregister();
-  }
+
 
 }

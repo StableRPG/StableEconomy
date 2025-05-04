@@ -2,6 +2,12 @@ package org.stablerpg.stableeconomy.currency.formatting;
 
 public abstract class CurrencyFormatter {
 
+  protected final String formatString;
+
+  public CurrencyFormatter(String formatString) {
+    this.formatString = formatString.replaceAll("<amount>", "%s");
+  }
+
   public static CurrencyFormatter of(Formatters formatter, String formatString) {
     return switch (formatter) {
       case COOL -> new CoolFormatter(formatString);
@@ -9,12 +15,6 @@ public abstract class CurrencyFormatter {
       case SUFFIX -> new SuffixFormatter(formatString);
       case FAULTY -> new FaultyFormatter(formatString);
     };
-  }
-
-  protected final String formatString;
-
-  public CurrencyFormatter(String formatString) {
-    this.formatString = formatString.replaceAll("<amount>", "%s");
   }
 
   public String format(double amount) {

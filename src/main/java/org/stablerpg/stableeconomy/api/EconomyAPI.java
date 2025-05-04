@@ -37,11 +37,11 @@ public interface EconomyAPI {
     return getBalance(player.getUniqueId(), currency);
   }
 
+  double getBalance(UUID uniqueId, String currency);
+
   default double getBalance(UUID uniqueId) {
     return getBalance(uniqueId, "default");
   }
-
-  double getBalance(UUID uniqueId, String currency);
 
   default double getBalance(String username) {
     return getBalance(username, "default");
@@ -57,11 +57,11 @@ public interface EconomyAPI {
     setBalance(player.getUniqueId(), amount, currency);
   }
 
+  void setBalance(UUID uniqueId, double amount, String currency);
+
   default void setBalance(UUID uniqueId, double amount) {
     setBalance(uniqueId, amount, "default");
   }
-
-  void setBalance(UUID uniqueId, double amount, String currency);
 
   default void setBalance(String username, double amount) {
     setBalance(username, amount, "default");
@@ -77,11 +77,11 @@ public interface EconomyAPI {
     addBalance(player.getUniqueId(), amount, currency);
   }
 
+  void addBalance(UUID uniqueId, double amount, String currency);
+
   default void addBalance(UUID uniqueId, double amount) {
     addBalance(uniqueId, amount, "default");
   }
-
-  void addBalance(UUID uniqueId, double amount, String currency);
 
   default void addBalance(String username, double amount) {
     addBalance(username, amount, "default");
@@ -97,11 +97,11 @@ public interface EconomyAPI {
     subtractBalance(player.getUniqueId(), amount, currency);
   }
 
+  void subtractBalance(UUID uniqueId, double amount, String currency);
+
   default void subtractBalance(UUID uniqueId, double amount) {
     subtractBalance(uniqueId, amount, "default");
   }
-
-  void subtractBalance(UUID uniqueId, double amount, String currency);
 
   default void subtractBalance(String username, double amount) {
     subtractBalance(username, amount, "default");
@@ -117,12 +117,12 @@ public interface EconomyAPI {
     return hasBalance(player.getUniqueId(), amount, currency);
   }
 
-  default boolean hasBalance(UUID uniqueId, double amount) {
-    return hasBalance(uniqueId, amount, "default");
-  }
-
   default boolean hasBalance(UUID uniqueId, double amount, String currency) {
     return getBalance(uniqueId, currency) >= amount;
+  }
+
+  default boolean hasBalance(UUID uniqueId, double amount) {
+    return hasBalance(uniqueId, amount, "default");
   }
 
   default boolean hasBalance(String username, double amount) {
@@ -141,11 +141,11 @@ public interface EconomyAPI {
     resetBalance(uniqueId, "default");
   }
 
+  void resetBalance(UUID uniqueId, String currency);
+
   default void resetBalance(OfflinePlayer player, String currency) {
     resetBalance(player.getUniqueId(), currency);
   }
-
-  void resetBalance(UUID uniqueId, String currency);
 
   default void resetBalance(String username) {
     resetBalance(username, "default");

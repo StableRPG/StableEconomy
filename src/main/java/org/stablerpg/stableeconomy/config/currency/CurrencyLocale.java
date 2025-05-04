@@ -11,21 +11,20 @@ import org.stablerpg.stableeconomy.config.messages.messages.Messages;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public final class CurrencyLocale implements Locale {
 
-  public static CurrencyLocale of(EconomyPlatform plugin, File localeFile) {
-    return new CurrencyLocale(plugin, localeFile);
-  }
-
   private final EconomyPlatform platform;
-
   private final File localeFile;
   private final HashMap<MessageType, AbstractMessage<?>> messages = new HashMap<>();
-
   private CurrencyLocale(EconomyPlatform platform, File localeFile) {
     this.platform = platform;
     this.localeFile = localeFile;
+  }
+
+  public static CurrencyLocale of(EconomyPlatform plugin, File localeFile) {
+    return new CurrencyLocale(plugin, localeFile);
   }
 
   public void load() {
@@ -36,14 +35,17 @@ public final class CurrencyLocale implements Locale {
         continue;
       }
       ConfigurationSection section = config.getConfigurationSection(type.getKey());
-      if (section != null)
-        messages.put(type, Messages.fromYaml(section));
+      if (section != null) messages.put(type, Messages.fromYaml(section));
     }
   }
 
+  @Override
+  public @NotNull Logger getLogger() {
+    return platform.getLogger();
+  }
+
   public @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type) {
-    if (!messages.containsKey(type))
-      return platform.getDefaultLocale().getMessage(type);
+    if (!messages.containsKey(type)) return platform.getDefaultLocale().getMessage(type);
     return messages.get(type);
   }
 

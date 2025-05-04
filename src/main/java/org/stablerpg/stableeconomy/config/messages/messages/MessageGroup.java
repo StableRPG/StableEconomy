@@ -21,8 +21,7 @@ public final class MessageGroup extends AbstractMessage<Void> {
   }
 
   @Override
-  @NotNull
-  Void parse(TagResolver... resolvers) {
+  @NotNull Void parse(TagResolver... resolvers) {
     return null;
   }
 

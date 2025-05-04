@@ -17,6 +17,11 @@ public abstract class AbstractMessage<M> {
     return targets(Bukkit.getOnlinePlayers());
   }
 
+  public AbstractMessage<M> targets(@NotNull Collection<? extends @NotNull Audience> targets) {
+    this.targets = Audience.audience(targets);
+    return this;
+  }
+
   public AbstractMessage<M> toAllExcept(@NotNull Audience @NotNull ... targets) {
     List<Audience> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
     onlinePlayers.removeAll(List.of(targets));
@@ -27,26 +32,21 @@ public abstract class AbstractMessage<M> {
     return targets(List.of(targets));
   }
 
-  public AbstractMessage<M> targets(@NotNull Collection<? extends @NotNull Audience> targets) {
-    this.targets = Audience.audience(targets);
-    return this;
+  public void send(@NotNull Collection<? extends @NotNull Audience> targets, TagResolver... resolvers) {
+    M message = parse(resolvers);
+    targets.forEach(target -> send(target, message));
   }
 
   abstract @NotNull M parse(TagResolver... resolvers);
 
   abstract void send(@NotNull Audience targets, @NotNull M message);
 
-  public void send(@NotNull Audience target, TagResolver... resolvers) {
-    send(target, parse(resolvers));
-  }
-
-  public void send(@NotNull Collection<? extends @NotNull Audience> targets, TagResolver... resolvers) {
-    M message = parse(resolvers);
-    targets.forEach(target -> send(target, message));
-  }
-
   public void send() {
     send(targets);
+  }
+
+  public void send(@NotNull Audience target, TagResolver... resolvers) {
+    send(target, parse(resolvers));
   }
 
 }

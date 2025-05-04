@@ -13,25 +13,13 @@ import java.util.List;
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public final class StableEconomyLoader implements PluginLoader {
 
-  private static final List<String> LIBRARIES = List.of(
-    "com.zaxxer:HikariCP:6.2.1",
-    "org.xerial:sqlite-jdbc:3.47.2.0",
-    "com.h2database:h2:2.3.232",
-    "com.mysql:mysql-connector-j:9.1.0",
-    "org.mariadb.jdbc:mariadb-java-client:3.5.1",
-    "org.postgresql:postgresql:42.7.4",
-    "org.mongodb:mongodb-driver-sync:5.3.0-beta0"
-  );
+  private static final List<String> LIBRARIES = List.of("com.zaxxer:HikariCP:6.2.1", "org.xerial:sqlite-jdbc:3.47.2.0", "com.h2database:h2:2.3.232", "com.mysql:mysql-connector-j:9.1.0", "org.mariadb.jdbc:mariadb-java-client:3.5.1", "org.postgresql:postgresql:42.7.4", "org.mongodb:mongodb-driver-sync:5.3.0-beta0");
 
   @Override
   public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
     MavenLibraryResolver resolver = new MavenLibraryResolver();
     resolver.addRepository(new RemoteRepository.Builder("maven", "default", "https://repo1.maven.org/maven2/").build());
-    LIBRARIES
-      .stream()
-      .map(DefaultArtifact::new)
-      .map(artifact -> new Dependency(artifact, null))
-      .forEach(resolver::addDependency);
+    LIBRARIES.stream().map(DefaultArtifact::new).map(artifact -> new Dependency(artifact, null)).forEach(resolver::addDependency);
     classpathBuilder.addLibrary(resolver);
   }
 

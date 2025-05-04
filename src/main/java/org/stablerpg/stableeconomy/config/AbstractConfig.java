@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public abstract class AbstractConfig {
+public abstract class AbstractConfig implements BasicConfig {
 
   private final @NotNull AbstractEconomyPlugin plugin;
   private final @NotNull File file;
@@ -32,26 +33,21 @@ public abstract class AbstractConfig {
     return config;
   }
 
-  public void load() {
+  public abstract void load();
+
+  @Override
+  public @NotNull Logger getLogger() {
+    return plugin.getLogger();
+  }
+
+  protected void load0() {
     createFile(plugin);
-    if (automaticUpdate)
-      update(plugin);
+    if (automaticUpdate) update(plugin);
     loadFile(plugin);
   }
 
   private void createFile(@NotNull AbstractEconomyPlugin plugin) {
-    if (!file.exists())
-      plugin.saveResource(file.getName(), false);
-  }
-
-  private void loadFile(@NotNull AbstractEconomyPlugin plugin) {
-    try {
-      config.load(file);
-    } catch (InvalidConfigurationException exception) {
-      plugin.getLogger().log(Level.SEVERE, "Failed to load %s due to an invalid configuration".formatted(file.getName()), exception);
-    } catch (IOException exception) {
-      plugin.getLogger().log(Level.SEVERE, "Failed to load " + file.getName(), exception);
-    }
+    if (!file.exists()) plugin.saveResource(file.getName(), false);
   }
 
   private void update(@NotNull AbstractEconomyPlugin plugin) {
@@ -69,10 +65,19 @@ public abstract class AbstractConfig {
           save = true;
         }
 
-      if (save)
-        messages.save(file);
+      if (save) messages.save(file);
     } catch (IOException exception) {
       plugin.getLogger().log(Level.SEVERE, "Failed to update " + file.getName(), exception);
+    }
+  }
+
+  private void loadFile(@NotNull AbstractEconomyPlugin plugin) {
+    try {
+      config.load(file);
+    } catch (InvalidConfigurationException exception) {
+      plugin.getLogger().log(Level.SEVERE, "Failed to load %s due to an invalid configuration".formatted(file.getName()), exception);
+    } catch (IOException exception) {
+      plugin.getLogger().log(Level.SEVERE, "Failed to load " + file.getName(), exception);
     }
   }
 

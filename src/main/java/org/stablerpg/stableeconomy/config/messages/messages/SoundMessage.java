@@ -53,8 +53,7 @@ public final class SoundMessage extends AbstractMessage<Sound> {
   }
 
   @Override
-  @NotNull
-  Sound parse(TagResolver... resolvers) {
+  @NotNull Sound parse(TagResolver... resolvers) {
     return Sound.sound(sound, source, volume, pitch);
   }
 

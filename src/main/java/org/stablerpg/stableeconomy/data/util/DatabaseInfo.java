@@ -39,12 +39,7 @@ public final class DatabaseInfo {
   }
 
   public enum DatabaseType {
-    SQLITE,
-    H2,
-    MYSQL,
-    MARIADB,
-    POSTGRESQL,
-    MONGODB;
+    SQLITE, H2, MYSQL, MARIADB, POSTGRESQL, MONGODB;
 
     public static DatabaseType fromString(String type) {
       return switch (type.toUpperCase()) {

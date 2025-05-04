@@ -2,10 +2,7 @@ package org.stablerpg.stableeconomy.currency.formatting;
 
 public enum Formatters {
 
-  COOL,
-  COMMA,
-  SUFFIX,
-  FAULTY;
+  COOL, COMMA, SUFFIX, FAULTY;
 
   public static Formatters fromString(String name) {
     return switch (name.toUpperCase()) {

@@ -18,7 +18,8 @@ public final class MessagesConfig extends AbstractConfig implements Locale {
   }
 
   public void load() {
-    super.load();
+    load0();
+
     messages = new HashMap<>();
     for (MessageType type : MessageType.values()) {
       if (getConfig().isString(type.getKey())) {
@@ -26,8 +27,7 @@ public final class MessagesConfig extends AbstractConfig implements Locale {
         continue;
       }
       ConfigurationSection section = getConfig().getConfigurationSection(type.getKey());
-      if (section != null)
-        messages.put(type, Messages.fromYaml(section));
+      if (section != null) messages.put(type, Messages.fromYaml(section));
     }
   }
 

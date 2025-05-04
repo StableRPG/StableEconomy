@@ -20,8 +20,7 @@ public class GroupedPricedItems implements PricedItem {
   public boolean test(@NotNull ItemStack item) {
     Material itemType = item.getType();
     for (Material material : materials)
-      if (material.equals(itemType))
-        return true;
+      if (material.equals(itemType)) return true;
     return false;
   }
 

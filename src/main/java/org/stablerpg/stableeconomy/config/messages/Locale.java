@@ -7,13 +7,10 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
+import org.stablerpg.stableeconomy.config.BasicConfig;
 import org.stablerpg.stableeconomy.config.messages.messages.AbstractMessage;
 
-public interface Locale {
-
-  void load();
-
-  @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type);
+public interface Locale extends BasicConfig {
 
   default void sendParsedMessage(@NotNull Audience audience, @NotNull MessageType id, @Subst("") @NotNull String... tags) {
     id.checkTags(tags);
@@ -26,6 +23,8 @@ public interface Locale {
 
     message.send(audience, tagResolvers);
   }
+
+  @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type);
 
   default void sendParsedMessage(@NotNull Audience audience, @NotNull String message) {
     audience.sendMessage(MiniMessage.miniMessage().deserialize(message));

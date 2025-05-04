@@ -34,32 +34,27 @@ public class PriceProviderImpl implements PriceProvider {
     advanced.clear();
   }
 
-  private PricedItem getPricedItem(ItemStack itemStack) {
-    for (BasicPricedItem item : basic)
-      if (item.test(itemStack))
-        return item;
-    for (GroupedPricedItems item : grouped)
-      if (item.test(itemStack))
-        return item;
-    for (AdvancedPricedItem item : advanced)
-      if (item.test(itemStack))
-        return item;
-    return null;
-  }
-
   @Override
   public double getSellPrice(ItemStack itemStack) {
     PricedItem pricedItem = getPricedItem(itemStack);
-    if (pricedItem != null)
-      return pricedItem.getSellPrice() * itemStack.getAmount();
+    if (pricedItem != null) return pricedItem.getSellPrice() * itemStack.getAmount();
     return 0;
+  }
+
+  private PricedItem getPricedItem(ItemStack itemStack) {
+    for (BasicPricedItem item : basic)
+      if (item.test(itemStack)) return item;
+    for (GroupedPricedItems item : grouped)
+      if (item.test(itemStack)) return item;
+    for (AdvancedPricedItem item : advanced)
+      if (item.test(itemStack)) return item;
+    return null;
   }
 
   @Override
   public double getBuyPrice(ItemStack itemStack) {
     PricedItem pricedItem = getPricedItem(itemStack);
-    if (pricedItem != null)
-      return pricedItem.getBuyPrice() * itemStack.getAmount();
+    if (pricedItem != null) return pricedItem.getBuyPrice() * itemStack.getAmount();
     return 0;
   }
 

@@ -15,11 +15,9 @@ public final class PlayerAccount implements Dirtyable {
 
   @Getter
   private final UUID uniqueId;
+  private final HashMap<String, BalanceEntry> balanceEntries;
   @Getter
   private String username;
-
-  private final HashMap<String, BalanceEntry> balanceEntries;
-
   private boolean dirty = false;
 
   public PlayerAccount(@NotNull EconomyPlatform platform, @NotNull UUID uniqueId, @NotNull String username) {
@@ -43,16 +41,12 @@ public final class PlayerAccount implements Dirtyable {
     return balanceEntries.values();
   }
 
-  public @NotNull BalanceEntry getBalanceEntry(@NotNull String currencyId) {
-    return balanceEntries.computeIfAbsent(currencyId,
-      id -> platform.getCurrencyConfig().getCurrency(currencyId)
-      .map(BalanceEntry::new)
-      .orElse(new BalanceEntry(currencyId))
-    );
-  }
-
   public double getBalance(@NotNull String currency) {
     return getBalanceEntry(currency).getBalance();
+  }
+
+  public @NotNull BalanceEntry getBalanceEntry(@NotNull String currencyId) {
+    return balanceEntries.computeIfAbsent(currencyId, id -> platform.getCurrencyConfig().getCurrency(currencyId).map(BalanceEntry::new).orElse(new BalanceEntry(currencyId)));
   }
 
   public void setBalance(@NotNull String currency, double balance) {

@@ -23,8 +23,7 @@ public final class ActionBarMessage extends AbstractMessage<Component> {
   }
 
   @Override
-  @NotNull
-  Component parse(TagResolver... resolvers) {
+  @NotNull Component parse(TagResolver... resolvers) {
     return MiniMessage.miniMessage().deserialize(this.message, resolvers);
   }
 

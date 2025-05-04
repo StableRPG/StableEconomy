@@ -22,11 +22,8 @@ public final class ChatMessage extends AbstractMessage<List<Component>> {
   }
 
   @Override
-  @NotNull
-  List<Component> parse(TagResolver... resolvers) {
-    return messages.stream()
-        .map(message -> MiniMessage.miniMessage().deserialize(message, resolvers))
-        .toList();
+  @NotNull List<Component> parse(TagResolver... resolvers) {
+    return messages.stream().map(message -> MiniMessage.miniMessage().deserialize(message, resolvers)).toList();
   }
 
   @Override

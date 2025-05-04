@@ -23,10 +23,8 @@ public class AdvancedPricedItem implements PricedItem {
 
   @Override
   public boolean test(@NotNull ItemStack item) {
-    if (!material.matcher(item.getType().name()).matches())
-      return false;
-    if (name == null)
-      return true;
+    if (!material.matcher(item.getType().name()).matches()) return false;
+    if (name == null) return true;
     Component rawName = item.displayName();
     String itemName = PlainTextComponentSerializer.plainText().serialize(rawName);
     return name.matcher(itemName).matches();

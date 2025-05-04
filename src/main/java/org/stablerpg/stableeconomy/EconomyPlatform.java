@@ -9,10 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.stablerpg.stableeconomy.api.EconomyAPI;
 import org.stablerpg.stableeconomy.api.PriceProvider;
-import org.stablerpg.stableeconomy.config.BasicConfig;
-import org.stablerpg.stableeconomy.config.Config;
 import org.stablerpg.stableeconomy.config.currency.CurrencyConfig;
 import org.stablerpg.stableeconomy.config.currency.CurrencyHolder;
+import org.stablerpg.stableeconomy.config.database.DatabaseConfig;
+import org.stablerpg.stableeconomy.config.database.DatabaseConfigImpl;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessagesConfig;
 import org.stablerpg.stableeconomy.config.prices.PriceConfig;
@@ -33,7 +33,7 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   private final AbstractEconomyPlugin plugin;
 
   @Getter
-  private final BasicConfig config;
+  private final DatabaseConfig config;
   @Getter
   private final Locale defaultLocale;
   @Getter
@@ -46,7 +46,7 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   private VaultHook vaultHook;
   private PlaceholderAPIHook placeholderAPIHook;
 
-  public EconomyPlatform(AbstractEconomyPlugin plugin, BasicConfig config, Locale defaultLocale, CurrencyHolder currencyConfig, PriceConfig priceConfig) {
+  public EconomyPlatform(AbstractEconomyPlugin plugin, DatabaseConfig config, Locale defaultLocale, CurrencyHolder currencyConfig, PriceConfig priceConfig) {
     this.plugin = plugin;
     this.config = config;
     this.defaultLocale = defaultLocale;
@@ -56,7 +56,7 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
   public EconomyPlatform(AbstractEconomyPlugin plugin) {
     this.plugin = plugin;
-    this.config = new Config(plugin);
+    this.config = new DatabaseConfigImpl(plugin);
     this.defaultLocale = new MessagesConfig(plugin);
     this.currencyConfig = new CurrencyConfig(this);
     this.priceConfig = new PriceConfigImpl(plugin);
@@ -77,10 +77,8 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   }
 
   private void loadHooks() {
-    if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
-      vaultHook = new VaultHook(this);
-    if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
-      placeholderAPIHook = new PlaceholderAPIHook(this);
+    if (Bukkit.getPluginManager().isPluginEnabled("Vault")) vaultHook = new VaultHook(this);
+    if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) placeholderAPIHook = new PlaceholderAPIHook(this);
   }
 
   @Override

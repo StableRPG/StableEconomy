@@ -30,10 +30,7 @@ public final class VaultHook implements Economy, Closeable {
       return;
     }
 
-    providers.stream()
-      .map(RegisteredServiceProvider::getProvider)
-      .filter(provider -> provider.getName().toLowerCase().contains("essentials"))
-      .forEach(Bukkit.getServicesManager()::unregister);
+    providers.stream().map(RegisteredServiceProvider::getProvider).filter(provider -> provider.getName().toLowerCase().contains("essentials")).forEach(Bukkit.getServicesManager()::unregister);
   }
 
   @Override
@@ -48,6 +45,11 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public boolean hasBankSupport() {
+    return false;
+  }
+
+  @Override
   public int fractionalDigits() {
     return 2;
   }
@@ -58,23 +60,13 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
-  public String currencyNameSingular() {
-    return currency.getSingularDisplayName();
-  }
-
-  @Override
   public String currencyNamePlural() {
     return currency.getPluralDisplayName();
   }
 
   @Override
-  public boolean hasAccount(OfflinePlayer player) {
-    return platform.getAccount(player) != null;
-  }
-
-  @Override
-  public boolean hasAccount(OfflinePlayer player, String worldName) {
-    return hasAccount(player);
+  public String currencyNameSingular() {
+    return currency.getSingularDisplayName();
   }
 
   @Override
@@ -84,18 +76,18 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public boolean hasAccount(OfflinePlayer player) {
+    return platform.getAccount(player) != null;
+  }
+
+  @Override
   public boolean hasAccount(String player, String worldName) {
     return hasAccount(player);
   }
 
   @Override
-  public double getBalance(OfflinePlayer player) {
-    return currency.getBalance(player);
-  }
-
-  @Override
-  public double getBalance(OfflinePlayer player, String world) {
-    return getBalance(player);
+  public boolean hasAccount(OfflinePlayer player, String worldName) {
+    return hasAccount(player);
   }
 
   @Override
@@ -105,18 +97,18 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public double getBalance(OfflinePlayer player) {
+    return currency.getBalance(player);
+  }
+
+  @Override
   public double getBalance(String player, String world) {
     return getBalance(player);
   }
 
   @Override
-  public boolean has(OfflinePlayer player, double amount) {
-    return getBalance(player) >= amount;
-  }
-
-  @Override
-  public boolean has(OfflinePlayer player, String worldName, double amount) {
-    return has(player, amount);
+  public double getBalance(OfflinePlayer player, String world) {
+    return getBalance(player);
   }
 
   @Override
@@ -126,27 +118,18 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public boolean has(OfflinePlayer player, double amount) {
+    return getBalance(player) >= amount;
+  }
+
+  @Override
   public boolean has(String player, String worldName, double amount) {
     return has(player, amount);
   }
 
   @Override
-  public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-    if (player == null)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
-    if (amount < 0)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw a negative amount.");
-    if (!hasAccount(player))
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    if (!has(player, amount))
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-    currency.subtractBalance(player, amount);
-    return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
-  }
-
-  @Override
-  public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
-    return withdrawPlayer(player, amount);
+  public boolean has(OfflinePlayer player, String worldName, double amount) {
+    return has(player, amount);
   }
 
   @Override
@@ -165,25 +148,27 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
+    if (player == null)
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
+    if (amount < 0)
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw a negative amount.");
+    if (!hasAccount(player))
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
+    if (!has(player, amount))
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
+    currency.subtractBalance(player, amount);
+    return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
+  }
+
+  @Override
   public EconomyResponse withdrawPlayer(String player, String worldName, double amount) {
     return withdrawPlayer(player, amount);
   }
 
   @Override
-  public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-    if (player == null)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
-    if (amount < 0)
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
-    if (!hasAccount(player))
-      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-    currency.addBalance(player, amount);
-    return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
-  }
-
-  @Override
-  public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
-    return depositPlayer(player, amount);
+  public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
+    return withdrawPlayer(player, amount);
   }
 
   @Override
@@ -200,34 +185,25 @@ public final class VaultHook implements Economy, Closeable {
   }
 
   @Override
+  public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
+    if (player == null)
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
+    if (amount < 0)
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
+    if (!hasAccount(player))
+      return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
+    currency.addBalance(player, amount);
+    return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
+  }
+
+  @Override
   public EconomyResponse depositPlayer(String player, String worldName, double amount) {
     return depositPlayer(player, amount);
   }
 
   @Override
-  public boolean createPlayerAccount(OfflinePlayer player) {
-    return hasAccount(player);
-  }
-
-  @Override
-  public boolean createPlayerAccount(OfflinePlayer player, String worldName) {
-    return createPlayerAccount(player);
-  }
-
-  @Override
-  public boolean createPlayerAccount(String player) {
-    platform.getLogger().warning("Creating an account by name is not recommended. Please use the UUID of the player instead.");
-    return hasAccount(player);
-  }
-
-  @Override
-  public boolean createPlayerAccount(String player, String worldName) {
-    return createPlayerAccount(player);
-  }
-
-  @Override
-  public boolean hasBankSupport() {
-    return false;
+  public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
+    return depositPlayer(player, amount);
   }
 
   @Override
@@ -288,6 +264,27 @@ public final class VaultHook implements Economy, Closeable {
   @Override
   public List<String> getBanks() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public boolean createPlayerAccount(String player) {
+    platform.getLogger().warning("Creating an account by name is not recommended. Please use the UUID of the player instead.");
+    return hasAccount(player);
+  }
+
+  @Override
+  public boolean createPlayerAccount(OfflinePlayer player) {
+    return hasAccount(player);
+  }
+
+  @Override
+  public boolean createPlayerAccount(String player, String worldName) {
+    return createPlayerAccount(player);
+  }
+
+  @Override
+  public boolean createPlayerAccount(OfflinePlayer player, String worldName) {
+    return createPlayerAccount(player);
   }
 
   @Override

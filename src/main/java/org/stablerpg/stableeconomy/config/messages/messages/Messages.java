@@ -17,14 +17,13 @@ import java.util.Set;
 
 public final class Messages {
 
+  private static final String DEFAULT_MESSAGE = "<red>Undefined message</red>";
+  private static final String DEFAULT_SOUND = "minecraft:block.note_block.pling";
+  private static final EmptyMessage EMPTY_MESSAGE = new EmptyMessage();
+
   private Messages() {
     throw new UnsupportedOperationException();
   }
-
-  private static final String DEFAULT_MESSAGE = "<red>Undefined message</red>";
-  private static final String DEFAULT_SOUND = "minecraft:block.note_block.pling";
-
-  private static final EmptyMessage EMPTY_MESSAGE = new EmptyMessage();
 
   public static @NotNull AbstractMessage<?> fromYaml(@NotNull ConfigurationSection section) {
     String type = section.getString("type", "empty");
@@ -33,15 +32,11 @@ public final class Messages {
       case "group" -> {
         ConfigurationSection messagesSection = section.getConfigurationSection("messages");
 
-        if (messagesSection == null)
-          yield Messages.group();
+        if (messagesSection == null) yield Messages.group();
 
         Set<String> messagePaths = messagesSection.getKeys(false);
 
-        List<? extends AbstractMessage<?>> messages = messagePaths.stream()
-          .map(messagesSection::getConfigurationSection).filter(Objects::nonNull)
-          .map(Messages::fromYaml)
-          .toList();
+        List<? extends AbstractMessage<?>> messages = messagePaths.stream().map(messagesSection::getConfigurationSection).filter(Objects::nonNull).map(Messages::fromYaml).toList();
 
         yield Messages.group(messages);
       }
@@ -68,11 +63,7 @@ public final class Messages {
         long stay = section.getLong("stay", 70);
         long fadeOut = section.getLong("fade-out", 20);
 
-        Title.Times times = Title.Times.times(
-          Ticks.duration(fadeIn),
-          Ticks.duration(stay),
-          Ticks.duration(fadeOut)
-        );
+        Title.Times times = Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut));
 
         yield Messages.title(title, subtitle, times);
       }
@@ -125,16 +116,16 @@ public final class Messages {
     return title(title.title(), title.subtitle(), title.times());
   }
 
-  public static TitleMessage title(Component title) {
-    return title(MiniMessage.miniMessage().serialize(title));
-  }
-
-  public static TitleMessage title(Component title, Component subtitle) {
-    return title(MiniMessage.miniMessage().serialize(title), MiniMessage.miniMessage().serialize(subtitle));
-  }
-
   public static TitleMessage title(Component title, Component subtitle, Title.Times times) {
     return title(MiniMessage.miniMessage().serialize(title), MiniMessage.miniMessage().serialize(subtitle), times);
+  }
+
+  public static TitleMessage title(String title, String subtitle, Title.Times times) {
+    return new TitleMessage(title, subtitle, times);
+  }
+
+  public static TitleMessage title(Component title) {
+    return title(MiniMessage.miniMessage().serialize(title));
   }
 
   public static TitleMessage title(String title) {
@@ -145,8 +136,8 @@ public final class Messages {
     return title(title, subtitle, Title.DEFAULT_TIMES);
   }
 
-  public static TitleMessage title(String title, String subtitle, Title.Times times) {
-    return new TitleMessage(title, subtitle, times);
+  public static TitleMessage title(Component title, Component subtitle) {
+    return title(MiniMessage.miniMessage().serialize(title), MiniMessage.miniMessage().serialize(subtitle));
   }
 
   public static SoundMessage sound(String sound) {
@@ -157,16 +148,16 @@ public final class Messages {
     return sound(sound, source, 1.0f, 1.0f);
   }
 
-  public static SoundMessage sound(String sound, float volume, float pitch) {
-    return sound(sound, Sound.Source.MASTER, volume, pitch);
-  }
-
   public static SoundMessage sound(@Subst("minecraft:block.note_block.pling") String sound, Sound.Source source, float volume, float pitch) {
     return sound(Sound.sound(Key.key(sound), source, volume, pitch));
   }
 
   public static SoundMessage sound(Sound sound) {
     return new SoundMessage(sound.name(), sound.source(), sound.volume(), sound.pitch());
+  }
+
+  public static SoundMessage sound(String sound, float volume, float pitch) {
+    return sound(sound, Sound.Source.MASTER, volume, pitch);
   }
 
 }

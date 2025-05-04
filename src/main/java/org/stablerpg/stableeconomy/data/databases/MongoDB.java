@@ -34,11 +34,7 @@ public final class MongoDB extends Database {
 
     DatabaseInfo databaseInfo = getConfig().getDatabaseInfo();
 
-    MongoClientSettings settings = MongoClientSettings.builder()
-      .applyConnectionString(new ConnectionString("mongodb://%s/%s".formatted(databaseInfo.getUrl(), databaseInfo.getName())))
-      .uuidRepresentation(UuidRepresentation.STANDARD)
-      .credential(MongoCredential.createCredential(databaseInfo.getUsername(), databaseInfo.getName(), databaseInfo.getPassword().toCharArray()))
-      .build();
+    MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(new ConnectionString("mongodb://%s/%s".formatted(databaseInfo.getUrl(), databaseInfo.getName()))).uuidRepresentation(UuidRepresentation.STANDARD).credential(MongoCredential.createCredential(databaseInfo.getUsername(), databaseInfo.getName(), databaseInfo.getPassword().toCharArray())).build();
 
     client = MongoClients.create(settings);
     accounts = client.getDatabase(databaseInfo.getName()).getCollection("accounts");
@@ -72,21 +68,15 @@ public final class MongoDB extends Database {
     for (PlayerAccount account : entries) {
       Document document = new Document("uniqueId", account.getUniqueId());
 
-      if (account.isDirty())
-        document.append("username", account.getUsername());
+      if (account.isDirty()) document.append("username", account.getUsername());
 
       Map<String, Double> balances = new HashMap<>();
       for (BalanceEntry balanceEntry : account.getBalanceEntries())
-        if (balanceEntry.isDirty())
-          balances.put(balanceEntry.getCurrency(), balanceEntry.getBalance());
+        if (balanceEntry.isDirty()) balances.put(balanceEntry.getCurrency(), balanceEntry.getBalance());
 
       document.append("balances", new Document(balances));
 
-      writeModels.add(new UpdateOneModel<>(
-        new Document("uniqueId", account.getUniqueId()),
-        new Document("$set", document),
-        new UpdateOptions().upsert(true)
-      ));
+      writeModels.add(new UpdateOneModel<>(new Document("uniqueId", account.getUniqueId()), new Document("$set", document), new UpdateOptions().upsert(true)));
     }
 
     accounts.bulkWrite(writeModels, new BulkWriteOptions().ordered(false));

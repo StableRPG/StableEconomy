@@ -18,15 +18,19 @@ public final class EmptyMessage extends AbstractMessage<Void> {
   }
 
   @Override
-  void send(@NotNull Audience targets, @NotNull Void message) {}
+  void send(@NotNull Audience targets, @NotNull Void message) {
+  }
 
   @Override
-  public void send(@NotNull Audience target, TagResolver... resolvers) {}
+  public void send(@NotNull Audience target, TagResolver... resolvers) {
+  }
 
   @Override
-  public void send(@NotNull Collection<? extends @NotNull Audience> targets, TagResolver... resolvers) {}
+  public void send(@NotNull Collection<? extends @NotNull Audience> targets, TagResolver... resolvers) {
+  }
 
   @Override
-  public void send() {}
+  public void send() {
+  }
 
 }

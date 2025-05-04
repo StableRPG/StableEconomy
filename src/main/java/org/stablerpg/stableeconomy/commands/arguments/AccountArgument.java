@@ -16,22 +16,18 @@ public class AccountArgument extends CustomArgument<PlayerAccount, OfflinePlayer
   }
 
   public AccountArgument(String nodeName, Currency currency) {
-    super(
-      new OfflinePlayerArgument(nodeName),
-      info -> {
-        OfflinePlayer target = info.currentInput();
+    super(new OfflinePlayerArgument(nodeName), info -> {
+      OfflinePlayer target = info.currentInput();
 
-        if (target == null)
-          throw CustomArgumentException.fromString("Player not found");
+      if (target == null) throw CustomArgumentException.fromString("Player not found");
 
-        PlayerAccount account = currency.getPlatform().getAccount(target);
+      PlayerAccount account = currency.getPlatform().getAccount(target);
 
-        if (account == null)
-          throw CustomArgumentException.fromString("Account not found for player: " + target.getName());
+      if (account == null)
+        throw CustomArgumentException.fromString("Account not found for player: " + target.getName());
 
-        return account;
-      }
-    );
+      return account;
+    });
     replaceSuggestions(ArgumentSuggestions.strings(ignored -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)));
   }
 
