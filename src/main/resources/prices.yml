@@ -1,18 +1,26 @@
 prices:
   # Basic Prices
-  OAK_LOG:
-    buy: 10
-    sell: 5
+  STICK:
+    buy: 5
+    sell: 2
 
   # Grouped Prices
+  ROCKS:
+    materials: [ "STONE", "COBBLESTONE", "GRANITE", "DIORITE", "ANDESITE", "BLACKSTONE" ]
+    buy: 3
+    sell: 1
+
+  # Advanced Prices
+  LOGS:
+    material: "(.*)_(LOG|WOOD)"
+    buy: 10
+    sell: 5
   SAPLING: # This can be whatever
     material: "(.*)_SAPLING"
     buy: 15
     sell: 7
-
-  # Advanced Prices
   EXCALIBUR: # This can be whatever
-    name: "Excalibur"
+    name: "(.*)Excalibur"
     material: "GOLDEN_SWORD"
     buy: 1000
     sell: 500

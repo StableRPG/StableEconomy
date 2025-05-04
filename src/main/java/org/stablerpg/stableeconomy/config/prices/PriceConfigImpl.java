@@ -12,6 +12,8 @@ import org.stablerpg.stableeconomy.prices.GroupedPricedItems;
 import org.stablerpg.stableeconomy.prices.PriceProviderImpl;
 import org.stablerpg.stableeconomy.prices.PricedItem;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -63,28 +65,33 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig {
     }
   }
 
+  @SuppressWarnings("DataFlowIssue")
   private PricedItem deserialize(@NotNull ConfigurationSection section) {
     Set<String> keys = section.getKeys(false);
     if (keys.contains("buy") && keys.contains("sell")) {
       double buyPrice = section.getDouble("buy");
       double sellPrice = section.getDouble("sell");
+
       if (keys.contains("material")) {
+        Pattern name = null;
+        if (keys.contains("name")) name = Pattern.compile(section.getString("name"));
         Pattern material = Pattern.compile(section.getString("material"));
-        if (keys.contains("name")) {
-          Pattern name = Pattern.compile(section.getString("name"));
-          return new AdvancedPricedItem(name, material, buyPrice, sellPrice);
-        } else {
-          return new GroupedPricedItems(material, buyPrice, sellPrice);
-        }
-      } else {
-        String rawMaterial = section.getName().toUpperCase();
-        Material material = Material.matchMaterial(rawMaterial);
-        if (material == null) {
-          getPlugin().getLogger().warning("Invalid material specified: " + rawMaterial);
-          return null;
-        }
-        return new BasicPricedItem(material, buyPrice, sellPrice);
+        return new AdvancedPricedItem(name, material, buyPrice, sellPrice);
       }
+
+      if (keys.contains("materials")) {
+        List<String> rawMaterials = section.getStringList("materials");
+        Material[] materials = rawMaterials.stream().map(Material::matchMaterial).filter(Objects::nonNull).toArray(Material[]::new);
+        return new GroupedPricedItems(materials, buyPrice, sellPrice);
+      }
+
+      String rawMaterial = section.getName().toUpperCase();
+      Material material = Material.matchMaterial(rawMaterial);
+      if (material == null) {
+        getPlugin().getLogger().warning("Invalid material specified: " + rawMaterial);
+        return null;
+      }
+      return new BasicPricedItem(material, buyPrice, sellPrice);
     }
     return null;
   }
