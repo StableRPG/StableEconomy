@@ -8,10 +8,11 @@ import org.stablerpg.stableeconomy.config.messages.messages.AbstractMessage;
 import org.stablerpg.stableeconomy.config.messages.messages.Messages;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class MessagesConfig extends AbstractConfig implements Locale {
 
-  private HashMap<MessageType, AbstractMessage<?>> messages;
+  private Map<MessageType, AbstractMessage<?>> messages;
 
   public MessagesConfig(@NotNull AbstractEconomyPlugin plugin) {
     super(plugin, "messages.yml");

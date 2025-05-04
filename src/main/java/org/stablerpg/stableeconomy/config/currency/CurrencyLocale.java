@@ -11,24 +11,25 @@ import org.stablerpg.stableeconomy.config.messages.messages.Messages;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public final class CurrencyLocale implements Locale {
 
   private final EconomyPlatform platform;
   private final File localeFile;
-  private final HashMap<MessageType, AbstractMessage<?>> messages = new HashMap<>();
-  private CurrencyLocale(EconomyPlatform platform, File localeFile) {
+
+  private Map<MessageType, AbstractMessage<?>> messages;
+
+  public CurrencyLocale(EconomyPlatform platform, File localeFile) {
     this.platform = platform;
     this.localeFile = localeFile;
   }
 
-  public static CurrencyLocale of(EconomyPlatform plugin, File localeFile) {
-    return new CurrencyLocale(plugin, localeFile);
-  }
-
   public void load() {
     YamlConfiguration config = YamlConfiguration.loadConfiguration(localeFile);
+
+    messages = new HashMap<>();
     for (MessageType type : MessageType.values()) {
       if (config.isString(type.getKey())) {
         messages.put(type, Messages.chat(config.getString(type.getKey())));
@@ -45,7 +46,8 @@ public final class CurrencyLocale implements Locale {
   }
 
   public @NotNull AbstractMessage<?> getMessage(@NotNull MessageType type) {
-    if (!messages.containsKey(type)) return platform.getDefaultLocale().getMessage(type);
+    if (!messages.containsKey(type))
+      return platform.getDefaultLocale().getMessage(type);
     return messages.get(type);
   }
 

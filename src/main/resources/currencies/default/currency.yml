@@ -1,0 +1,28 @@
+id: default
+
+display-name:
+  singular: Dollar
+  plural: Dollars
+
+starting-balance: 1000
+
+view-command:
+  name: balance
+  aliases: [bal]
+
+transfer-command:
+  name: pay
+
+leaderboard-command:
+  name: balancetop
+  aliases: [baltop]
+  page-length: 10
+  update-interval: 300 # In seconds
+
+admin-command:
+  name: economy
+  aliases: [eco]
+  permission: stableeconomy.default.admin
+
+formatter: COOL
+format-string: "$<amount>"

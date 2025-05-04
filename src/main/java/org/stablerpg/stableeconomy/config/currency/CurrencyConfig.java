@@ -1,11 +1,8 @@
 package org.stablerpg.stableeconomy.config.currency;
 
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.currency.Currency;
-import org.stablerpg.stableeconomy.currency.formatting.Formatters;
 
 import java.io.File;
 import java.util.Collection;
@@ -33,14 +30,14 @@ public final class CurrencyConfig implements CurrencyHolder {
     currencies.clear();
 
     if (!currencyDir.exists() || !currencyDir.isDirectory()) {
-      setupDefaultCurrency(platform, null);
-      return;
+      platform.getPlugin().saveResource("currencies/default/currency.yml", false);
+      platform.getPlugin().saveResource("currencies/default/locale.yml", false);
     }
 
     File[] currencyDirs = currencyDir.listFiles(File::isDirectory);
 
     if (currencyDirs == null) {
-      setupDefaultCurrency(platform, null);
+      platform.getLogger().warning("No currency directories found in " + currencyDir.getAbsolutePath() + ". Please ensure the directory exists and contains currency files.");
       return;
     }
 
@@ -48,25 +45,20 @@ public final class CurrencyConfig implements CurrencyHolder {
       File currencyFile = new File(currencyDir, "currency.yml");
       File localeFile = new File(currencyDir, "locale.yml");
 
-      Currency.Builder currencyBuilder = new Currency.Builder(currencyDir.getName().toLowerCase(), platform).usingYaml(YamlConfiguration.loadConfiguration(currencyFile));
+      Currency.Builder currencyBuilder = new Currency.Builder(currencyDir.getName(), platform)
+        .usingYaml(currencyFile);
 
-      if (localeFile.exists()) currencyBuilder.withLocale(CurrencyLocale.of(platform, localeFile));
+      if (localeFile.exists()) {
+        CurrencyLocale currencyLocale = new CurrencyLocale(platform, localeFile);
+        currencyLocale.load();
+        currencyBuilder.withLocale(currencyLocale);
+      }
 
       Currency currency = currencyBuilder.build();
-      if (currency.isDefaultCurrency()) setupDefaultCurrency(platform, currency);
+      if (currency.isDefaultCurrency())
+        defaultCurrency = currency;
       currencies.put(currency.getId(), currency);
     }
-
-    if (defaultCurrency == null) setupDefaultCurrency(platform, null);
-  }
-
-  private void setupDefaultCurrency(@NotNull EconomyPlatform platform, @Nullable Currency currency) {
-    if (currency == null) {
-      currency = new Currency.Builder("default", platform).withLocale(platform.getDefaultLocale()).withDisplayName("Dollar", "Dollars").withFormattingString("$<amount>").withFormatter(Formatters.COOL).withViewCommandName("balance").withViewCommandAliases("bal").withTransferCommandName("pay").withLeaderboardCommandName("balancetop").withLeaderboardCommandAliases("baltop").withAdminCommandName("economy").withAdminCommandAliases("eco").withAdminCommandPermission("economy.admin").build();
-      currencies.put("default", currency);
-    }
-
-    defaultCurrency = currency;
   }
 
   @Override

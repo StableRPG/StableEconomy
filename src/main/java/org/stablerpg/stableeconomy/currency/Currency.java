@@ -26,6 +26,7 @@ import org.stablerpg.stableeconomy.currency.formatting.CurrencyFormatter;
 import org.stablerpg.stableeconomy.currency.formatting.Formatters;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,14 +61,14 @@ public class Currency {
   private @Nullable List<PlayerAccount> leaderboard;
   private long lastLeaderboardUpdate = 0;
 
-  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull Formatters formatter, @NotNull String formatString, @NotNull CurrencyCommand viewCommand, @NotNull CurrencyCommand transferCommand, @NotNull CurrencyCommand leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull CurrencyCommand adminCommand) {
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull CurrencyCommand viewCommand, @NotNull CurrencyCommand transferCommand, @NotNull CurrencyCommand leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull CurrencyCommand adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
     this.singularDisplayName = singularDisplayName;
     this.pluralDisplayName = pluralDisplayName;
     this.startingBalance = startingBalance;
-    this.formatter = CurrencyFormatter.of(formatter, formatString);
+    this.formatter = formatter;
 
     if (viewCommand.canBeCreated()) {
       this.viewCommand = new CommandTree(viewCommand.name()).withAliases(viewCommand.aliases());
@@ -251,7 +252,6 @@ public class Currency {
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
 
-
     locale.sendParsedMessage(sender, MessageType.VIEW_OTHER, "player", target.getUsername(), "balance", getBalanceFormatted(target));
   }
 
@@ -374,17 +374,22 @@ public class Currency {
 
     public Builder(@NotNull String currency, @NotNull EconomyPlatform platform) {
       Preconditions.checkNotNull(currency, "Currency name cannot be null");
-      this.currency = currency;
+      this.currency = currency.toLowerCase();
       this.platform = platform;
       this.locale = platform.getDefaultLocale();
     }
 
+    public Builder usingYaml(@NotNull File file) {
+      return usingYaml(YamlConfiguration.loadConfiguration(file));
+    }
+
     public Builder usingYaml(@NotNull YamlConfiguration config) {
-      String capitalCurrency = currency.replaceFirst("^\\w", String.valueOf(Character.toUpperCase(currency.charAt(0))));
-      singularDisplayName = config.getString("singular-display-name", capitalCurrency);
-      pluralDisplayName = config.getString("plural-display-name", singularDisplayName + "s");
+      String capitalCurrency = currency.substring(0, 1).toUpperCase() + currency.substring(1);
+      singularDisplayName = config.getString("display-name.singular", capitalCurrency);
+      pluralDisplayName = config.getString("display-name.plural", singularDisplayName + "s");
       startingBalance = config.getDouble("starting-balance", 0.0);
-      if (config.contains("view-command")) viewCommand.usingYaml(config.getConfigurationSection("view-command"));
+      if (config.contains("view-command"))
+        viewCommand.usingYaml(config.getConfigurationSection("view-command"));
       if (config.contains("transfer-command"))
         transferCommand.usingYaml(config.getConfigurationSection("transfer-command"));
       if (config.contains("leaderboard-command")) {
@@ -395,7 +400,8 @@ public class Currency {
           leaderboardUpdateInterval = section.getLong("update-interval", 300);
         }
       }
-      if (config.contains("admin-command")) adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
+      if (config.contains("admin-command"))
+        adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
       formatter = Formatters.fromString(config.getString("formatter", "cool"));
       formatString = config.getString("format-string", "");
       return this;
@@ -507,7 +513,8 @@ public class Currency {
     }
 
     public Currency build() {
-      return new Currency(currency, platform, locale, singularDisplayName, pluralDisplayName, startingBalance, formatter, formatString, viewCommand, transferCommand, leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval, adminCommand);
+      CurrencyFormatter formatter = CurrencyFormatter.of(this.formatter, formatString);
+      return new Currency(currency, platform, locale, singularDisplayName, pluralDisplayName, startingBalance, formatter, viewCommand, transferCommand, leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval, adminCommand);
     }
 
   }
