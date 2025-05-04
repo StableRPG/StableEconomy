@@ -1,10 +1,11 @@
 package org.stablerpg.stableeconomy.config.prices;
 
-import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.stablerpg.stableeconomy.AbstractEconomyPlugin;
+import org.stablerpg.stableeconomy.api.PriceProvider;
 import org.stablerpg.stableeconomy.config.AbstractConfig;
 import org.stablerpg.stableeconomy.prices.AdvancedPricedItem;
 import org.stablerpg.stableeconomy.prices.BasicPricedItem;
@@ -17,9 +18,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class PriceConfigImpl extends AbstractConfig implements PriceConfig {
+public class PriceConfigImpl extends AbstractConfig implements PriceConfig, PriceProvider {
 
-  @Getter
   private final PriceProviderImpl priceProvider;
 
   public PriceConfigImpl(@NotNull AbstractEconomyPlugin plugin) {
@@ -94,6 +94,20 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig {
       return new BasicPricedItem(material, buyPrice, sellPrice);
     }
     return null;
+  }
+
+  public @NotNull PriceProvider getPriceProvider() {
+    return this;
+  }
+
+  @Override
+  public double getSellPrice(ItemStack itemStack) {
+    return priceProvider.getSellPrice(itemStack);
+  }
+
+  @Override
+  public double getBuyPrice(ItemStack itemStack) {
+    return priceProvider.getBuyPrice(itemStack);
   }
 
 }
