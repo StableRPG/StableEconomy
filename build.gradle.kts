@@ -35,7 +35,7 @@ dependencies {
     compileOnly("com.h2database:h2:2.3.232")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.3")
     compileOnly("org.postgresql:postgresql:42.7.5")
-    compileOnly("org.mongodb:mongodb-driver-sync:5.4.0")
+    compileOnly("org.mongodb:mongodb-driver-sync:5.5.0")
 }
 
 tasks {
