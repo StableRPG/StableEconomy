@@ -22,7 +22,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
 
-    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.0")
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.0.1")
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("me.clip:placeholderapi:2.11.6")
