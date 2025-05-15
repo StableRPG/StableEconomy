@@ -5,7 +5,7 @@ plugins {
     id("java")
     id("com.gradleup.shadow") version "9.0.0-beta13"
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
-    id("xyz.jpenilla.resource-factory-paper-convention") version "1.2.1"
+    id("xyz.jpenilla.resource-factory-paper-convention") version "1.3.0"
 }
 
 setGroup("org.stablerpg.stableeconomy")
