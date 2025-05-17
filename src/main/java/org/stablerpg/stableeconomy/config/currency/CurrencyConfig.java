@@ -25,6 +25,7 @@ public final class CurrencyConfig implements CurrencyHolder {
     this.currencyDir = new File(platform.getPlugin().getDataFolder(), "currencies");
   }
 
+  @Override
   public void load() {
     defaultCurrency = null;
     currencies.clear();
@@ -59,21 +60,14 @@ public final class CurrencyConfig implements CurrencyHolder {
         defaultCurrency = currency;
       currencies.put(currency.getId(), currency);
     }
+
+    for (Currency currency : currencies.values())
+      currency.register();
   }
 
   @Override
   public @NotNull Logger getLogger() {
     return platform.getLogger();
-  }
-
-  @Override
-  public void registerCurrencies() {
-    currencies.values().forEach(Currency::register);
-  }
-
-  @Override
-  public void unregisterCurrencies() {
-    currencies.values().forEach(Currency::unregister);
   }
 
   @Override
@@ -89,6 +83,13 @@ public final class CurrencyConfig implements CurrencyHolder {
   @Override
   public Optional<Currency> getCurrency(@NotNull String id) {
     return Optional.ofNullable(currencies.get(id));
+  }
+
+  @Override
+  public void close() {
+    for (Currency currency : currencies.values())
+      currency.unregister();
+    currencies.clear();
   }
 
 }

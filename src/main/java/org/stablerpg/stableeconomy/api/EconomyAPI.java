@@ -3,6 +3,7 @@ package org.stablerpg.stableeconomy.api;
 import org.bukkit.OfflinePlayer;
 import org.stablerpg.stableeconomy.StableEconomy;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
+import org.stablerpg.stableeconomy.shop.AbstractShopManager;
 
 import java.util.List;
 import java.util.UUID;
@@ -156,5 +157,9 @@ public interface EconomyAPI {
   List<PlayerAccount> getLeaderboard(String currency);
 
   PriceProvider getPriceProvider();
+
+  default AbstractShopManager getShopManager() {
+    return null;
+  }
 
 }

@@ -1,0 +1,137 @@
+category:
+  title: "<aqua>Miscellaneous Shop</aqua> <gray>(Page 1)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: GOLDEN_SWORD
+        amount: 1
+        display-name: "<gold>Excalibur</gold>"
+        lore:
+          - "<gray>Legendary sword of kings.</gray>"
+      display-name: "<gold>Excalibur</gold> <yellow>(The Legendary Sword)</yellow>"
+      lore:
+        - "<gray>Legendary sword of kings.</gray>"
+        - "<gray>Pulled by Lancelot himself.</gray>"
+    11:
+      item:
+        material: DIAMOND_PICKAXE
+        amount: 1
+      display-name: "<aqua>Diamond Pickaxe</aqua>"
+      lore:
+        - "<gray>Premium mining tool.</gray>"
+    12:
+      item:
+        material: FISHING_ROD
+        amount: 1
+      display-name: "<green>Fishing Rod</green>"
+      lore:
+        - "<gray>Catch fish and treasure.</gray>"
+    13:
+      item:
+        material: SHIELD
+        amount: 1
+      display-name: "<white>Shield</white>"
+      lore:
+        - "<gray>Block incoming attacks.</gray>"
+    14:
+      item:
+        material: BOW
+        amount: 1
+      display-name: "<yellow>Bow</yellow>"
+      lore:
+        - "<gray>Ranged weapon.</gray>"
+    15:
+      item:
+        material: ARROW
+        amount: 32
+      display-name: "<gray>Arrow</gray>"
+      lore:
+        - "<gray>Ammunition for bows and crossbows.</gray>"
+    16:
+      item:
+        material: CROSSBOW
+        amount: 1
+      display-name: "<yellow>Crossbow</yellow>"
+      lore:
+        - "<gray>Powerful ranged weapon.</gray>"
+    19:
+      item:
+        material: SADDLE
+        amount: 1
+      display-name: "<brown>Saddle</brown>"
+      lore:
+        - "<gray>Ride horses and other animals.</gray>"
+    20:
+      item:
+        material: LEAD
+        amount: 2
+      display-name: "<white>Lead</white>"
+      lore:
+        - "<gray>Control and guide animals.</gray>"
+    21:
+      item:
+        material: NAME_TAG
+        amount: 1
+      display-name: "<yellow>Name Tag</yellow>"
+      lore:
+        - "<gray>Name mobs to prevent despawning.</gray>"
+    22:
+      item:
+        material: COMPASS
+        amount: 1
+      display-name: "<yellow>Compass</yellow>"
+      lore:
+        - "<gray>Points to world spawn.</gray>"
+    23:
+      item:
+        material: CLOCK
+        amount: 1
+      display-name: "<yellow>Clock</yellow>"
+      lore:
+        - "<gray>Displays current time of day.</gray>"
+    24:
+      item:
+        material: SPYGLASS
+        amount: 1
+      display-name: "<yellow>Spyglass</yellow>"
+      lore:
+        - "<gray>See distant objects up close.</gray>"
+    25:
+      item:
+        material: ENDER_PEARL
+        amount: 4
+      display-name: "<aqua>Ender Pearl</aqua>"
+      lore:
+        - "<gray>Teleport short distances.</gray>"
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    41:
+      material: ARROW
+      display-name: "<yellow>Next Page</yellow>"
+      lore:
+        - "<gray>Go to next page.</gray>"
+      action: OPEN_CATEGORY
+      category: miscellaneous-2
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

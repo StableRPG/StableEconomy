@@ -14,7 +14,6 @@ import org.stablerpg.stableeconomy.prices.PriceProviderImpl;
 import org.stablerpg.stableeconomy.prices.PricedItem;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -65,34 +64,64 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig, Pric
     }
   }
 
+  @Override
+  public void close() {
+    priceProvider.reset();
+  }
+
   @SuppressWarnings("DataFlowIssue")
   private PricedItem deserialize(@NotNull ConfigurationSection section) {
     Set<String> keys = section.getKeys(false);
-    if (keys.contains("buy") && keys.contains("sell")) {
-      double buyPrice = section.getDouble("buy");
-      double sellPrice = section.getDouble("sell");
+
+    if (keys.contains("buy-price") && keys.contains("sell-value")) {
+      double buyPrice = section.getDouble("buy-price", -1);
+      double sellValue = section.getDouble("sell-value", -1);
+
+      if (buyPrice == -1) {
+        getPlugin().getLogger().warning("No buy price specified for priced item: " + section.getName());
+        return null;
+      }
+
+      if (sellValue == -1) {
+        getPlugin().getLogger().warning("No value specified for priced item: " + section.getName());
+        return null;
+      }
 
       if (keys.contains("material")) {
-        Pattern name = null;
-        if (keys.contains("name")) name = Pattern.compile(section.getString("name"));
         Pattern material = Pattern.compile(section.getString("material"));
-        return new AdvancedPricedItem(name, material, buyPrice, sellPrice);
+        Pattern name = null;
+        if (keys.contains("name")) name = Pattern.compile(section.getString("display-name"));
+        return new AdvancedPricedItem(material, name, buyPrice, sellValue);
       }
 
       if (keys.contains("materials")) {
         List<String> rawMaterials = section.getStringList("materials");
-        Material[] materials = rawMaterials.stream().map(Material::matchMaterial).filter(Objects::nonNull).toArray(Material[]::new);
-        return new GroupedPricedItems(materials, buyPrice, sellPrice);
+        Material[] materials = new Material[rawMaterials.size()];
+
+        int i = 0;
+        for (String rawMaterial : rawMaterials) {
+          Material material = Material.matchMaterial(rawMaterial);
+          if (material == null) {
+            getPlugin().getLogger().warning("Invalid material specified for %s: %s".formatted(section.getName(), rawMaterial));
+            return null;
+          }
+          materials[i++] = material;
+        }
+
+        return new GroupedPricedItems(materials, buyPrice, sellValue);
       }
 
       String rawMaterial = section.getName().toUpperCase();
       Material material = Material.matchMaterial(rawMaterial);
       if (material == null) {
-        getPlugin().getLogger().warning("Invalid material specified: " + rawMaterial);
+        getPlugin().getLogger().warning("Invalid material specified for %s: %s".formatted(section.getName(), rawMaterial));
         return null;
       }
-      return new BasicPricedItem(material, buyPrice, sellPrice);
+      return new BasicPricedItem(material, buyPrice, sellValue);
     }
+
+    getPlugin().getLogger().warning("Invalid priced item section: " + section.getName());
+
     return null;
   }
 
@@ -101,13 +130,13 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig, Pric
   }
 
   @Override
-  public double getSellPrice(ItemStack itemStack) {
-    return priceProvider.getSellPrice(itemStack);
+  public double getBuyPrice(ItemStack itemStack) {
+    return priceProvider.getBuyPrice(itemStack);
   }
 
   @Override
-  public double getBuyPrice(ItemStack itemStack) {
-    return priceProvider.getBuyPrice(itemStack);
+  public double getSellValue(ItemStack itemStack) {
+    return priceProvider.getSellValue(itemStack);
   }
 
 }

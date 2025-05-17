@@ -11,15 +11,15 @@ public final class StableEconomy extends AbstractEconomyPlugin {
   }
 
   @Override
-  public void onDisable() {
-    closeEconomyPlatform();
-    CommandAPI.onDisable();
-  }
-
-  @Override
   public void onEnable() {
     CommandAPI.onEnable();
     initEconomyPlatform();
+  }
+
+  @Override
+  public void onDisable() {
+    closeEconomyPlatform();
+    CommandAPI.onDisable();
   }
 
 }

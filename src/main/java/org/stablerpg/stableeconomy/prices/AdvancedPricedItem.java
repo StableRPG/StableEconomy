@@ -1,7 +1,5 @@
 package org.stablerpg.stableeconomy.prices;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
@@ -10,16 +8,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
-@AllArgsConstructor
-public class AdvancedPricedItem implements PricedItem {
+public class AdvancedPricedItem extends PricedItem {
 
-  private final @Nullable Pattern name;
   private final @NotNull Pattern material;
+  private final @Nullable Pattern name;
 
-  @Getter
-  private final double buyPrice;
-  @Getter
-  private final double sellPrice;
+  public AdvancedPricedItem(@NotNull Pattern material, @Nullable Pattern name, double buyPrice, double sellValue) {
+    super(buyPrice, sellValue);
+    this.material = material;
+    this.name = name;
+  }
 
   @Override
   public boolean test(@NotNull ItemStack item) {

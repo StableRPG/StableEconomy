@@ -1,0 +1,133 @@
+category:
+  title: "<green>Blocks Shop</green> <gray>(Page 1)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: OAK_LOG
+        amount: 16
+      display-name: "<green>Oak Log</green>"
+      lore:
+        - "<gray>Basic necessity of Minecraft.</gray>"
+    11:
+      item:
+        material: STONE
+        amount: 32
+      display-name: "<green>Stone</green>"
+      lore:
+        - "<gray>Solid building material.</gray>"
+    12:
+      item:
+        material: COBBLESTONE
+        amount: 32
+      display-name: "<green>Cobblestone</green>"
+      lore:
+        - "<gray>Rough and ready building block.</gray>"
+    13:
+      item:
+        material: DIRT
+        amount: 16
+      display-name: "<green>Dirt</green>"
+      lore:
+        - "<gray>Basic terrain block.</gray>"
+    14:
+      item:
+        material: SAND
+        amount: 16
+      display-name: "<green>Sand</green>"
+      lore:
+        - "<gray>Desert-themed building material.</gray>"
+    15:
+      item:
+        material: GLASS
+        amount: 16
+      display-name: "<green>Glass</green>"
+      lore:
+        - "<gray>Transparent building material.</gray>"
+    16:
+      item:
+        material: OBSIDIAN
+        amount: 4
+      display-name: "<purple>Obsidian</purple>"
+      lore:
+        - "<gray>Extremely hard volcanic rock.</gray>"
+    19:
+      item:
+        material: BRICKS
+        amount: 16
+      display-name: "<red>Bricks</red>"
+      lore:
+        - "<gray>Perfect for rustic buildings.</gray>"
+    20:
+      item:
+        material: STONE_BRICKS
+        amount: 16
+      display-name: "<green>Stone Bricks</green>"
+      lore:
+        - "<gray>Refined stone building block.</gray>"
+    21:
+      item:
+        material: NETHERRACK
+        amount: 16
+      display-name: "<red>Netherrack</red>"
+      lore:
+        - "<gray>Common nether material.</gray>"
+    22:
+      item:
+        material: END_STONE
+        amount: 16
+      display-name: "<yellow>End Stone</yellow>"
+      lore:
+        - "<gray>Mysterious block from The End.</gray>"
+    23:
+      item:
+        material: PRISMARINE
+        amount: 16
+      display-name: "<aqua>Prismarine</aqua>"
+      lore:
+        - "<gray>Ocean monument material.</gray>"
+    24:
+      item:
+        material: QUARTZ_BLOCK
+        amount: 16
+      display-name: "<white>Quartz Block</white>"
+      lore:
+        - "<gray>Elegant white building block.</gray>"
+    25:
+      item:
+        material: PURPUR_BLOCK
+        amount: 16
+      display-name: "<light_purple>Purpur Block</light_purple>"
+      lore:
+        - "<gray>End city building material.</gray>"
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    41:
+      material: ARROW
+      display-name: "<yellow>Next Page</yellow>"
+      lore:
+        - "<gray>Go to next page.</gray>"
+      action: OPEN_CATEGORY
+      category: blocks-2
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

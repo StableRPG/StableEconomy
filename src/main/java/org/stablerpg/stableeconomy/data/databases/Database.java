@@ -155,9 +155,9 @@ public abstract class Database implements Closeable {
     }
     scheduler = null;
 
-    entries.clear();
-    entriesByUUID.clear();
-    entriesByUsername.clear();
+    entries = null;
+    entriesByUUID = null;
+    entriesByUsername = null;
   }
 
 }

@@ -1,0 +1,98 @@
+category:
+  title: "<green>Blocks Shop</green> <gray>(Page 2)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: TERRACOTTA
+        amount: 16
+      display-name: "<brown>Terracotta</brown>"
+      lore:
+        - "<gray>Clay-based building block.</gray>"
+    11:
+      item:
+        material: CONCRETE
+        amount: 16
+      display-name: "<white>Concrete</white>"
+      lore:
+        - "<gray>Solid color building block.</gray>"
+    12:
+      item:
+        material: DEEPSLATE
+        amount: 16
+      display-name: "<dark_gray>Deepslate</dark_gray>"
+      lore:
+        - "<gray>Dense deep underground stone.</gray>"
+    13:
+      item:
+        material: AMETHYST_BLOCK
+        amount: 4
+      display-name: "<light_purple>Amethyst Block</light_purple>"
+      lore:
+        - "<gray>Crystalline decorative block.</gray>"
+    14:
+      item:
+        material: TUFF
+        amount: 16
+      display-name: "<gray>Tuff</gray>"
+      lore:
+        - "<gray>Volcanic rock formation.</gray>"
+    15:
+      item:
+        material: CALCITE
+        amount: 16
+      display-name: "<white>Calcite</white>"
+      lore:
+        - "<gray>Sedimentary mineral deposit.</gray>"
+    16:
+      item:
+        material: BLACKSTONE
+        amount: 16
+      display-name: "<dark_gray>Blackstone</dark_gray>"
+      lore:
+        - "<gray>Nether variant of cobblestone.</gray>"
+    19:
+      item:
+        material: BASALT
+        amount: 16
+      display-name: "<dark_gray>Basalt</dark_gray>"
+      lore:
+        - "<gray>Volcanic pillar stone.</gray>"
+    20:
+      item:
+        material: CRIMSON_NYLIUM
+        amount: 16
+      display-name: "<dark_red>Crimson Nylium</dark_red>"
+      lore:
+        - "<gray>Nether surface block.</gray>"
+    21:
+      item:
+        material: WARPED_NYLIUM
+        amount: 16
+      display-name: "<dark_aqua>Warped Nylium</dark_aqua>"
+      lore:
+        - "<gray>Nether surface block.</gray>"
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to previous page.</gray>"
+      action: OPEN_CATEGORY
+      category: blocks-1
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

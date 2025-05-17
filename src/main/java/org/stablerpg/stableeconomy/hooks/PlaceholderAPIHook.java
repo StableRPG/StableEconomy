@@ -68,11 +68,11 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
         int position;
         String display;
         if (args[1].startsWith("#")) {
-          currency = platform.getCurrencyConfig().getDefaultCurrency();
+          currency = platform.getCurrencyHolder().getDefaultCurrency();
           position = Integer.parseInt(args[1].substring(1)) - 1;
           display = args[2];
         } else {
-          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          Optional<Currency> optionalCurrency = platform.getCurrencyHolder().getCurrency(args[1]);
           if (optionalCurrency.isEmpty()) yield null;
           currency = optionalCurrency.get();
           position = Integer.parseInt(args[2].substring(1)) - 1;
@@ -92,9 +92,9 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
       case "balance" -> {
         if (args.length == 1) {
           if (player == null) yield null;
-          yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(player);
+          yield platform.getCurrencyHolder().getDefaultCurrency().getBalanceFormatted(player);
         } else if (args.length == 2) {
-          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          Optional<Currency> optionalCurrency = platform.getCurrencyHolder().getCurrency(args[1]);
           if (optionalCurrency.isPresent()) yield optionalCurrency.get().getBalanceFormatted(player);
           else {
             PlayerAccount account;
@@ -107,7 +107,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
               account = platform.getAccount(username);
               if (account == null) yield "No Account Found";
             }
-            yield platform.getCurrencyConfig().getDefaultCurrency().getBalanceFormatted(account);
+            yield platform.getCurrencyHolder().getDefaultCurrency().getBalanceFormatted(account);
           }
         } else if (args.length == 3) {
           PlayerAccount account;
@@ -120,7 +120,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
             account = platform.getAccount(username);
             if (account == null) yield "No Account Found";
           }
-          Optional<Currency> optionalCurrency = platform.getCurrencyConfig().getCurrency(args[1]);
+          Optional<Currency> optionalCurrency = platform.getCurrencyHolder().getCurrency(args[1]);
           if (optionalCurrency.isEmpty()) yield null;
           yield optionalCurrency.get().getBalanceFormatted(account);
         }

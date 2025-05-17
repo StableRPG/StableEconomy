@@ -1,20 +1,17 @@
 package org.stablerpg.stableeconomy.prices;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class GroupedPricedItems implements PricedItem {
+public class GroupedPricedItems extends PricedItem {
 
   private final @NotNull Material[] materials;
 
-  @Getter
-  private final double buyPrice;
-  @Getter
-  private final double sellPrice;
+  public GroupedPricedItems(@NotNull Material[] materials, double buyPrice, double sellValue) {
+    super(buyPrice, sellValue);
+    this.materials = materials;
+  }
 
   @Override
   public boolean test(@NotNull ItemStack item) {

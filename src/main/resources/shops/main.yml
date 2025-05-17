@@ -1,0 +1,35 @@
+category:
+  title: "<green>Main Shop</green>"
+  rows: 3
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+  items:    
+    11:
+      material: GRASS_BLOCK
+      display-name: "<green>Blocks</green>"
+      lore:
+        - "<gray>Various building blocks.</gray>"
+      action: OPEN_CATEGORY
+      category: blocks-1
+    13:
+      material: FLOWER_POT
+      display-name: "<yellow>Decorations</yellow>"
+      lore:
+        - "<gray>Decorate your builds.</gray>"
+      action: OPEN_CATEGORY
+      category: decorations-1
+    15:
+      material: COMPASS
+      display-name: "<aqua>Miscellaneous</aqua>"
+      lore:
+        - "<gray>Various useful items.</gray>"
+      action: OPEN_CATEGORY
+      category: miscellaneous-1
+    22:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

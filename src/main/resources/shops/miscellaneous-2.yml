@@ -1,0 +1,112 @@
+category:
+  title: "<aqua>Miscellaneous Shop</aqua> <gray>(Page 2)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: BUCKET
+        amount: 1
+      display-name: "<gray>Bucket</gray>"
+      lore:
+        - "<gray>Carry liquids and certain mobs.</gray>"
+    11:
+      item:
+        material: WATER_BUCKET
+        amount: 1
+      display-name: "<blue>Water Bucket</blue>"
+      lore:
+        - "<gray>Portable water source.</gray>"
+    12:
+      item:
+        material: LAVA_BUCKET
+        amount: 1
+      display-name: "<gold>Lava Bucket</gold>"
+      lore:
+        - "<gray>Portable lava source.</gray>"
+    13:
+      item:
+        material: SHEARS
+        amount: 1
+      display-name: "<white>Shears</white>"
+      lore:
+        - "<gray>Cut leaves, wool, and sheep.</gray>"
+    14:
+      item:
+        material: FLINT_AND_STEEL
+        amount: 1
+      display-name: "<gray>Flint and Steel</gray>"
+      lore:
+        - "<gray>Create fire and light portals.</gray>"
+    15:
+      item:
+        material: TRIDENT
+        amount: 1
+      display-name: "<aqua>Trident</aqua>"
+      lore:
+        - "<gray>Powerful melee and ranged weapon.</gray>"
+    16:
+      item:
+        material: ENCHANTED_BOOK
+        amount: 1
+      display-name: "<aqua>Enchanted Book</aqua> <yellow>(Random)</yellow>"
+      lore:
+        - "<gray>Contains a random enchantment.</gray>"
+    19:
+      item:
+        material: GOLDEN_APPLE
+        amount: 3
+      display-name: "<gold>Golden Apple</gold>"
+      lore:
+        - "<gray>Provides regeneration and absorption.</gray>"
+    20:
+      item:
+        material: EXPERIENCE_BOTTLE
+        amount: 16
+      display-name: "<green>Bottle o' Enchanting</green>"
+      lore:
+        - "<gray>Releases experience when thrown.</gray>"
+    21:
+      item:
+        material: TOTEM_OF_UNDYING
+        amount: 1
+      display-name: "<gold>Totem of Undying</gold>"
+      lore:
+        - "<gray>Prevents death once when held.</gray>"
+    22:
+      item:
+        material: ELYTRA
+        amount: 1
+      display-name: "<light_purple>Elytra</light_purple>"
+      lore:
+        - "<gray>Glide through the air.</gray>"
+    23:
+      item:
+        material: FIREWORK_ROCKET
+        amount: 32
+      display-name: "<red>Firework Rocket</red>"
+      lore:
+        - "<gray>Boost your elytra flight.</gray>"
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to previous page.</gray>"
+      action: OPEN_CATEGORY
+      category: miscellaneous-1
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

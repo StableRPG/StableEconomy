@@ -46,7 +46,7 @@ public final class PlayerAccount implements Dirtyable {
   }
 
   public @NotNull BalanceEntry getBalanceEntry(@NotNull String currencyId) {
-    return balanceEntries.computeIfAbsent(currencyId, id -> platform.getCurrencyConfig().getCurrency(currencyId).map(BalanceEntry::new).orElse(new BalanceEntry(currencyId)));
+    return balanceEntries.computeIfAbsent(currencyId, id -> platform.getCurrencyHolder().getCurrency(currencyId).map(BalanceEntry::new).orElse(new BalanceEntry(currencyId)));
   }
 
   public void setBalance(@NotNull String currency, double balance) {

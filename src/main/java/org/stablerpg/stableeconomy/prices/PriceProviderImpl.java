@@ -35,10 +35,17 @@ public class PriceProviderImpl implements PriceProvider {
   }
 
   @Override
-  public double getSellPrice(ItemStack itemStack) {
+  public double getBuyPrice(ItemStack itemStack) {
     PricedItem pricedItem = getPricedItem(itemStack);
-    if (pricedItem != null) return pricedItem.getSellPrice() * itemStack.getAmount();
-    return 0;
+    if (pricedItem != null) return pricedItem.getBuyPrice() * itemStack.getAmount();
+    return -1;
+  }
+
+  @Override
+  public double getSellValue(ItemStack itemStack) {
+    PricedItem pricedItem = getPricedItem(itemStack);
+    if (pricedItem != null) return pricedItem.getSellValue() * itemStack.getAmount();
+    return -1;
   }
 
   private PricedItem getPricedItem(ItemStack itemStack) {
@@ -49,13 +56,6 @@ public class PriceProviderImpl implements PriceProvider {
     for (AdvancedPricedItem item : advanced)
       if (item.test(itemStack)) return item;
     return null;
-  }
-
-  @Override
-  public double getBuyPrice(ItemStack itemStack) {
-    PricedItem pricedItem = getPricedItem(itemStack);
-    if (pricedItem != null) return pricedItem.getBuyPrice() * itemStack.getAmount();
-    return 0;
   }
 
 }

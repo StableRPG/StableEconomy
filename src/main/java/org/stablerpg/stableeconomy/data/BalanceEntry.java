@@ -28,13 +28,17 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
 
   public void addBalance(double balance) {
     unsavedBalance += balance;
-  }  public double getBalance() {
+  }
+
+  public double getBalance() {
     return savedBalance + unsavedBalance;
   }
 
   public void subtractBalance(double balance) {
     unsavedBalance -= balance;
-  }  public void setBalance(double balance) {
+  }
+
+  public void setBalance(double balance) {
     unsavedBalance += balance - getBalance();
   }
 

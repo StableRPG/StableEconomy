@@ -1,0 +1,112 @@
+category:
+  title: "<yellow>Decorations Shop</yellow> <gray>(Page 2)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: OAK_SIGN
+        amount: 4
+      display-name: "<yellow>Oak Sign</yellow>"
+      lore:
+        - "<gray>Write and display messages.</gray>"
+    11:
+      item:
+        material: CHAIN
+        amount: 8
+      display-name: "<gray>Chain</gray>"
+      lore:
+        - "<gray>Decorative hanging element.</gray>"
+    12:
+      item:
+        material: FLOWER_BANNER_PATTERN
+        amount: 1
+      display-name: "<yellow>Flower Banner Pattern</yellow>"
+      lore:
+        - "<gray>Design for customizing banners.</gray>"
+    13:
+      item:
+        material: RED_CARPET
+        amount: 4
+      display-name: "<red>Red Carpet</red>"
+      lore:
+        - "<gray>Floor decoration.</gray>"
+    14:
+      item:
+        material: GLASS_PANE
+        amount: 16
+      display-name: "<white>Glass Pane</white>"
+      lore:
+        - "<gray>Thin transparent divider.</gray>"
+    15:
+      item:
+        material: BELL
+        amount: 1
+      display-name: "<yellow>Bell</yellow>"
+      lore:
+        - "<gray>Ring to alert villagers.</gray>"
+    16:
+      item:
+        material: CANDLE
+        amount: 4
+      display-name: "<yellow>Candle</yellow>"
+      lore:
+        - "<gray>Dimmable light source.</gray>"
+    19:
+      item:
+        material: RED_BANNER
+        amount: 1
+      display-name: "<red>Red Banner</red>"
+      lore:
+        - "<gray>Customizable flag.</gray>"
+    20:
+      item:
+        material: BREWING_STAND
+        amount: 1
+      display-name: "<yellow>Brewing Stand</yellow>"
+      lore:
+        - "<gray>Create magical potions.</gray>"
+    21:
+      item:
+        material: LECTERN
+        amount: 1
+      display-name: "<yellow>Lectern</yellow>"
+      lore:
+        - "<gray>Display and read books.</gray>"
+    22:
+      item:
+        material: JUKEBOX
+        amount: 1
+      display-name: "<brown>Jukebox</brown>"
+      lore:
+        - "<gray>Play music discs.</gray>"
+    23:
+      item:
+        material: NOTE_BLOCK
+        amount: 1
+      display-name: "<yellow>Note Block</yellow>"
+      lore:
+        - "<gray>Create musical tones.</gray>"
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to previous page.</gray>"
+      action: OPEN_CATEGORY
+      category: decorations-1
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY

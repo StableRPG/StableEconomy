@@ -120,8 +120,8 @@ public class Currency {
     if (viewCommand != null) CommandAPI.unregister(viewCommand.getName());
     if (transferCommand != null) CommandAPI.unregister(transferCommand.getName());
     if (leaderboardCommand != null) CommandAPI.unregister(leaderboardCommand.getName());
-    if (leaderboard != null) leaderboard = null;
     if (adminCommand != null) CommandAPI.unregister(adminCommand.getName());
+    leaderboard = null;
   }
 
   public PlayerAccount getLeaderboardEntry(int position) {

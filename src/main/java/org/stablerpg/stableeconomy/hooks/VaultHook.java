@@ -21,7 +21,7 @@ public final class VaultHook implements Economy, Closeable {
 
   public VaultHook(EconomyPlatform platform) {
     this.platform = platform;
-    this.currency = platform.getCurrencyConfig().getDefaultCurrency();
+    this.currency = platform.getCurrencyHolder().getDefaultCurrency();
     Bukkit.getServicesManager().register(Economy.class, this, platform.getPlugin(), ServicePriority.Highest);
     Collection<RegisteredServiceProvider<Economy>> providers = Bukkit.getServicesManager().getRegistrations(Economy.class);
 

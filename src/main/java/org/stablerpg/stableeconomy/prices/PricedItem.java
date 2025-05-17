@@ -1,15 +1,19 @@
 package org.stablerpg.stableeconomy.prices;
 
+import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Predicate;
 
-public interface PricedItem extends Predicate<ItemStack> {
+@Getter
+public abstract class PricedItem implements Predicate<ItemStack> {
 
-  boolean test(ItemStack item);
+  private final double buyPrice;
+  private final double sellValue;
 
-  double getBuyPrice();
-
-  double getSellPrice();
+  public PricedItem(double buyPrice, double sellValue) {
+    this.buyPrice = buyPrice;
+    this.sellValue = sellValue;
+  }
 
 }

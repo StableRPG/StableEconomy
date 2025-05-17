@@ -1,0 +1,133 @@
+category:
+  title: "<yellow>Decorations Shop</yellow> <gray>(Page 1)</gray>"
+  rows: 6
+  background-item:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+  background-slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+  items:
+    10:
+      item:
+        material: FLOWER_POT
+        amount: 4
+      display-name: "<yellow>Flower Pot</yellow>"
+      lore:
+        - "<gray>Container for plants.</gray>"
+    11:
+      item:
+        material: LANTERN
+        amount: 4
+      display-name: "<yellow>Lantern</yellow>"
+      lore:
+        - "<gray>Elegant light source.</gray>"
+    12:
+      item:
+        material: SOUL_LANTERN
+        amount: 4
+      display-name: "<aqua>Soul Lantern</aqua>"
+      lore:
+        - "<gray>Spooky light source.</gray>"
+    13:
+      item:
+        material: TORCH
+        amount: 16
+      display-name: "<yellow>Torch</yellow>"
+      lore:
+        - "<gray>Basic light source.</gray>"
+    14:
+      item:
+        material: SOUL_TORCH
+        amount: 16
+      display-name: "<aqua>Soul Torch</aqua>"
+      lore:
+        - "<gray>Eerie light source.</gray>"
+    15:
+      item:
+        material: CAMPFIRE
+        amount: 2
+      display-name: "<gold>Campfire</gold>"
+      lore:
+        - "<gray>Cozy heat and light source.</gray>"
+    16:
+      item:
+        material: SOUL_CAMPFIRE
+        amount: 2
+      display-name: "<aqua>Soul Campfire</aqua>"
+      lore:
+        - "<gray>Spectral heat and light source.</gray>"
+    19:
+      item:
+        material: RED_BED
+        amount: 1
+      display-name: "<red>Red Bed</red>"
+      lore:
+        - "<gray>Place to rest and set spawn point.</gray>"
+    20:
+      item:
+        material: BOOKSHELF
+        amount: 4
+      display-name: "<yellow>Bookshelf</yellow>"
+      lore:
+        - "<gray>Decorative storage for books.</gray>"
+    21:
+      item:
+        material: PAINTING
+        amount: 4
+      display-name: "<green>Painting</yellow>"
+      lore:
+        - "<gray>Wall decoration with random art.</gray>"
+    22:
+      item:
+        material: ARMOR_STAND
+        amount: 2
+      display-name: "<white>Armor Stand</white>"
+      lore:
+        - "<gray>Display your armor sets.</gray>"
+    23:
+      item:
+        material: ITEM_FRAME
+        amount: 4
+      display-name: "<yellow>Item Frame</yellow>"
+      lore:
+        - "<gray>Display your items on walls.</gray>"
+    24:
+      item:
+        material: GLOW_ITEM_FRAME
+        amount: 4
+      display-name: "<yellow>Glow Item Frame</yellow>"
+      lore:
+        - "<gray>Luminous display for your items.</gray>"
+    25:
+      item:
+        material: SCAFFOLDING
+        amount: 16
+      display-name: "<yellow>Scaffolding</yellow>"
+      lore:
+        - "<gray>Temporary building aid.</gray>"    
+    39:
+      material: ARROW
+      display-name: "<yellow>Previous Page</yellow>"
+      lore:
+        - "<gray>Go to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    41:
+      material: ARROW
+      display-name: "<yellow>Next Page</yellow>"
+      lore:
+        - "<gray>Go to next page.</gray>"
+      action: OPEN_CATEGORY
+      category: decorations-2
+    48:
+      material: COMPASS
+      display-name: "<green>Back to Main Menu</green>"
+      lore:
+        - "<gray>Return to main shop.</gray>"
+      action: OPEN_CATEGORY
+      category: main
+    49:
+      material: BARRIER
+      display-name: "<red>Close</red>"
+      lore:
+        - "<gray>Close the shop.</gray>"
+      action: CLOSE_INVENTORY
