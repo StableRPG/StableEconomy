@@ -66,6 +66,13 @@ public final class CurrencyConfig implements CurrencyHolder {
   }
 
   @Override
+  public void close() {
+    for (Currency currency : currencies.values())
+      currency.unregister();
+    currencies.clear();
+  }
+
+  @Override
   public @NotNull Logger getLogger() {
     return platform.getLogger();
   }
@@ -83,13 +90,6 @@ public final class CurrencyConfig implements CurrencyHolder {
   @Override
   public Optional<Currency> getCurrency(@NotNull String id) {
     return Optional.ofNullable(currencies.get(id));
-  }
-
-  @Override
-  public void close() {
-    for (Currency currency : currencies.values())
-      currency.unregister();
-    currencies.clear();
   }
 
 }

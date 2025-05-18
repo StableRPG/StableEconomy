@@ -15,7 +15,6 @@ import org.stablerpg.stableeconomy.shop.backend.TransactableItem;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
-import org.stablerpg.stableeconomy.shop.exceptions.SellException;
 
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class ShopCategoryView {
             } else if (context.guiClick().equals(GuiClick.RIGHT) || context.guiClick().equals(GuiClick.SHIFT_RIGHT)) {
               try {
                 transactableItem.sell(clicker);
-              } catch (SellException e) {
+              } catch (NotEnoughSpaceException e) {
                 clicker.sendRichMessage("<red>You don't have the item to sell!</red>");
               }
             }

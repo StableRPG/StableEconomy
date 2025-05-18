@@ -18,8 +18,9 @@ public final class MessagesConfig extends AbstractConfig implements Locale {
     super(plugin, "messages.yml");
   }
 
+  @Override
   public void load() {
-    load0();
+    super.load();
 
     messages = new HashMap<>();
     for (MessageType type : MessageType.values()) {

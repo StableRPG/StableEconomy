@@ -11,7 +11,6 @@ import org.stablerpg.stableeconomy.api.EconomyAPI;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
-import org.stablerpg.stableeconomy.shop.exceptions.SellException;
 import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 
 import java.util.ArrayList;
@@ -72,14 +71,14 @@ public class TransactableItem implements Itemable {
       throw new BuyException("Failed to accurately detect available space in inventory");
   }
 
-  public void sell(Player player) throws SellException {
+  public void sell(Player player) throws NotEnoughSpaceException {
     ItemStack item = this.itemBuilder.build();
     item.setAmount(amount);
 
     double sellValue = this.sellValue * amount;
 
     if (!player.getInventory().containsAtLeast(item, amount))
-      throw new SellException("You don't have the item to sell");
+      throw new NotEnoughSpaceException();
 
     api.addBalance(player, sellValue);
     player.getInventory().removeItem(item);

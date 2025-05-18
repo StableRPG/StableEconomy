@@ -28,7 +28,7 @@ public class DatabaseConfigImpl extends AbstractConfig implements DatabaseConfig
 
   @Override
   public void load() {
-    load0();
+    super.load();
 
     YamlConfiguration config = getConfig();
 

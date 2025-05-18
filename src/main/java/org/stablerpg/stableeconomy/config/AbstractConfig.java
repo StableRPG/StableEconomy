@@ -18,11 +18,16 @@ public abstract class AbstractConfig implements BasicConfig {
   private final @NotNull File file;
   private final @NotNull YamlConfiguration config = new YamlConfiguration();
 
-  protected boolean automaticUpdate = true;
+  protected boolean automaticUpdate;
+
+  public AbstractConfig(@NotNull AbstractEconomyPlugin plugin, @NotNull String fileNamee, boolean automaticUpdate) {
+    this.plugin = plugin;
+    this.file = new File(plugin.getDataFolder(), fileNamee);
+    this.automaticUpdate = automaticUpdate;
+  }
 
   public AbstractConfig(@NotNull AbstractEconomyPlugin plugin, @NotNull String fileName) {
-    this.plugin = plugin;
-    this.file = new File(plugin.getDataFolder(), fileName);
+    this(plugin, fileName, true);
   }
 
   public @NotNull AbstractEconomyPlugin getPlugin() {
@@ -33,14 +38,12 @@ public abstract class AbstractConfig implements BasicConfig {
     return config;
   }
 
-  public abstract void load();
-
   @Override
   public @NotNull Logger getLogger() {
     return plugin.getLogger();
   }
 
-  protected void load0() {
+  public void load() {
     createFile(plugin);
     if (automaticUpdate) update(plugin);
     loadFile(plugin);
