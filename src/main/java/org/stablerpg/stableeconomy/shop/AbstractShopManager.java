@@ -21,30 +21,21 @@ public abstract class AbstractShopManager implements Closeable {
 
   @Getter
   private final EconomyPlatform platform;
-  @Getter
-  private ShopCategory mainCategory;
   private final Map<String, ShopCategory> categories = new HashMap<>();
 
   public abstract void load();
 
   public abstract void close();
 
-  public void setMainCategory(ShopCategory mainCategory) {
-    if (this.mainCategory != null)
-      throw new IllegalStateException("Main category already set!");
-    this.mainCategory = mainCategory;
-  }
-
   public ShopCategory getCategory(String id) {
     return categories.get(id);
   }
 
-  public void addCategory(ShopCategory category) {
-    categories.put(category.getId(), category);
+  public void addCategory(String id, ShopCategory category) {
+    categories.put(id, category);
   }
 
   protected void resetCategories() {
-    mainCategory = null;
     categories.clear();
   }
 

@@ -1,4 +1,4 @@
-package org.stablerpg.stableeconomy.shop.frontend;
+package org.stablerpg.stableeconomy.shop.gui;
 
 import org.stablerpg.stableeconomy.shop.backend.ItemBuilder;
 

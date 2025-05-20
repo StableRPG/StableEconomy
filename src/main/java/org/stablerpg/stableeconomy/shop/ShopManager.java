@@ -1,7 +1,5 @@
 package org.stablerpg.stableeconomy.shop;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandTree;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.EconomyPlatform;
@@ -9,7 +7,6 @@ import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotSellableException;
 import org.stablerpg.stableeconomy.shop.exceptions.NothingSellableException;
 import org.stablerpg.stableeconomy.shop.exceptions.SellAirException;
-import org.stablerpg.stableeconomy.shop.frontend.ShopCategoryView;
 
 public class ShopManager extends AbstractShopManager {
 
@@ -19,19 +16,10 @@ public class ShopManager extends AbstractShopManager {
 
   @Override
   public void load() {
-    CommandTree shopCommand = new CommandTree("shop")
-      .executesPlayer((player, args) -> {
-        if (getMainCategory() == null) {
-          throw CommandAPI.failWithString("Shop not found! Contact an administrator immediately.");
-        }
-        new ShopCategoryView(getMainCategory()).open(player);
-      });
-    shopCommand.register();
   }
 
   @Override
   public void close() {
-    CommandAPI.unregister("shop");
     resetCategories();
   }
 

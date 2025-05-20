@@ -4,8 +4,9 @@ import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml.Load
 plugins {
     id("java")
     id("com.gradleup.shadow") version "9.0.0-beta13"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("xyz.jpenilla.resource-factory-paper-convention") version "1.3.0"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 setGroup("org.stablerpg.stableeconomy")
@@ -79,5 +80,8 @@ tasks {
             server("Vault", Load.BEFORE, required = false, joinClasspath = true)
             server("PlaceholderAPI", Load.BEFORE, required = false, joinClasspath = true)
         }
+    }
+    runServer {
+        minecraftVersion("1.21.1")
     }
 }

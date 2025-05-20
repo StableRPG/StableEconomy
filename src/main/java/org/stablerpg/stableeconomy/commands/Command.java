@@ -3,7 +3,7 @@ package org.stablerpg.stableeconomy.commands;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
-public class CurrencyCommand {
+public class Command {
 
   private String name = "";
   private String[] aliases = new String[0];

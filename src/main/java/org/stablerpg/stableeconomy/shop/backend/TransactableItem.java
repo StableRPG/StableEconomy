@@ -4,9 +4,11 @@ import io.papermc.paper.entity.PlayerGiveResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.api.EconomyAPI;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
@@ -16,9 +18,40 @@ import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Getter
 public class TransactableItem implements Itemable {
+
+  public static TransactableItem of(EconomyPlatform platform, String categoryId, ConfigurationSection section) {
+    Logger logger = platform.getLogger();
+
+    ConfigurationSection itemSection = section.getConfigurationSection("item");
+
+    ItemBuilder itemBuilder = ItemBuilder.of(itemSection);
+    if (itemBuilder == null) {
+      logger.warning("Failed to load item builder for " + section.getName() + " in " + categoryId);
+      return null;
+    }
+    int amount = section.getInt("amount", itemBuilder.amount());
+    String displayName = section.getString("display-name");
+    List<String> description = section.getStringList("description");
+    double buyPrice = section.getDouble("buy-price", -1);
+    double sellValue = section.getDouble("sell-value", -1);
+    if (buyPrice == -1) {
+      double priceProviderBuyPrice = platform.getPriceProvider().getBuyPrice(itemBuilder.build());
+      if (priceProviderBuyPrice == -1)
+        logger.warning("Failed to locate buy price for " + section.getName() + " in " + categoryId);
+      buyPrice = priceProviderBuyPrice;
+    }
+    if (sellValue == -1) {
+      double priceProviderSellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
+      if (priceProviderSellValue == -1)
+        logger.warning("Failed to locate sell value for " + section.getName() + " in " + categoryId);
+      sellValue = priceProviderSellValue;
+    }
+    return new TransactableItem(platform, itemBuilder, amount, displayName, description, buyPrice, sellValue);
+  }
 
   private final EconomyAPI api;
   private final ItemBuilder itemBuilder;

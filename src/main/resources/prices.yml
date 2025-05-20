@@ -26,3 +26,9 @@ prices:
     display-name: "(.*)Excalibur(.*)"
     buy-price: 100
     sell-value: 50
+
+  # Default Pricing
+  DEFAULT:
+    material: ".*"
+    buy-price: 1
+    sell-value: 0.5

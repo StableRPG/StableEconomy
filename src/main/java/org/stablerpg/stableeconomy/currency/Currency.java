@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.EconomyPlatform;
-import org.stablerpg.stableeconomy.commands.CurrencyCommand;
+import org.stablerpg.stableeconomy.commands.Command;
 import org.stablerpg.stableeconomy.commands.arguments.AccountArgument;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessageType;
@@ -61,7 +61,7 @@ public class Currency {
   private @Nullable List<PlayerAccount> leaderboard;
   private long lastLeaderboardUpdate = 0;
 
-  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull CurrencyCommand viewCommand, @NotNull CurrencyCommand transferCommand, @NotNull CurrencyCommand leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull CurrencyCommand adminCommand) {
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale != null ? locale : platform.getDefaultLocale();
@@ -359,10 +359,10 @@ public class Currency {
 
     private final String currency;
     private final EconomyPlatform platform;
-    private final CurrencyCommand viewCommand = new CurrencyCommand();
-    private final CurrencyCommand transferCommand = new CurrencyCommand();
-    private final CurrencyCommand leaderboardCommand = new CurrencyCommand();
-    private final CurrencyCommand adminCommand = new CurrencyCommand();
+    private final Command viewCommand = new Command();
+    private final Command transferCommand = new Command();
+    private final Command leaderboardCommand = new Command();
+    private final Command adminCommand = new Command();
     private Locale locale;
     private String singularDisplayName;
     private String pluralDisplayName;

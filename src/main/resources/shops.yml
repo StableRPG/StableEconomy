@@ -1,0 +1,8 @@
+
+shop-commands:
+  shop:
+    category: "main"
+  #vipshop:
+  #  permission: "vipshop.use"
+  #  aliases: ["vips"]
+  #  category: "vip"

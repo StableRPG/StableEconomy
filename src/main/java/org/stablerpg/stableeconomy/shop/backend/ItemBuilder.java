@@ -1,15 +1,21 @@
 package org.stablerpg.stableeconomy.shop.backend;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -38,6 +44,19 @@ public final class ItemBuilder implements Itemable {
     if (!lore.isEmpty())
       builder.lore(lore.toArray(new String[0]));
 
+    Map<Enchantment, Integer> enchantments = new HashMap<>();
+    ConfigurationSection enchantmentsSection = section.getConfigurationSection("enchantments");
+    if (enchantmentsSection != null) {
+      for (String key : enchantmentsSection.getKeys(false)) {
+        Enchantment enchantment = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(NamespacedKey.minecraft(key));
+        if (enchantment != null) {
+          int level = enchantmentsSection.getInt(key);
+          enchantments.put(enchantment, level);
+        }
+      }
+    }
+    builder.enchantments(enchantments);
+
     List<String> flags = section.getStringList("flags");
     if (!flags.isEmpty()) {
       ItemFlag[] itemFlags = flags.stream()
@@ -53,6 +72,7 @@ public final class ItemBuilder implements Itemable {
   private int amount = 1;
   private Component displayName;
   private List<Component> lore;
+  private Map<Enchantment, Integer> enchantments;
   private ItemFlag[] itemFlags;
 
   private ItemBuilder(ItemBuilder builder) {
@@ -60,6 +80,7 @@ public final class ItemBuilder implements Itemable {
     this.amount = builder.amount;
     this.displayName = builder.displayName;
     this.lore = builder.lore;
+    this.enchantments = builder.enchantments;
     this.itemFlags = builder.itemFlags;
   }
 
@@ -115,6 +136,22 @@ public final class ItemBuilder implements Itemable {
     return this;
   }
 
+  public Map<Enchantment, Integer> enchantments() {
+    return enchantments;
+  }
+
+  public ItemBuilder enchantments(Map<Enchantment, Integer> enchantments) {
+    this.enchantments = enchantments;
+    return this;
+  }
+
+  public ItemBuilder enchantment(Enchantment enchantment, int level) {
+    if (enchantments == null)
+      enchantments = new HashMap<>();
+    enchantments.put(enchantment, level);
+    return this;
+  }
+
   public ItemFlag[] itemFlags() {
     return itemFlags;
   }
@@ -140,7 +177,7 @@ public final class ItemBuilder implements Itemable {
       if (itemFlags != null && itemFlags.length > 0)
         meta.addItemFlags(itemFlags);
     });
-
+    item.addUnsafeEnchantments(enchantments);
     return item;
   }
 

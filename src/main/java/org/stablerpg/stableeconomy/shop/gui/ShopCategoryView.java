@@ -1,4 +1,4 @@
-package org.stablerpg.stableeconomy.shop.frontend;
+package org.stablerpg.stableeconomy.shop.gui;
 
 import dev.triumphteam.gui.click.GuiClick;
 import dev.triumphteam.gui.element.GuiItem;
