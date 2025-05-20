@@ -7,30 +7,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
-
-import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 @Getter
 public class ShopItem implements Itemable {
 
-  public static ShopItem of(ShopManager manager, String categoryId, ConfigurationSection section) {
-    Logger logger = manager.getPlatform().getLogger();
+  public static ShopItem deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
+    ItemBuilder itemBuilder = ItemBuilder.deserialize(section);
 
-    ItemBuilder itemBuilder = ItemBuilder.of(section);
-    String rawActionType = section.getString("action");
-    if (rawActionType == null) {
-      logger.warning("Failed to locate action type for " + section.getName() + " in " + categoryId);
-      return null;
-    }
-    rawActionType = rawActionType.toUpperCase();
+    String rawActionType = section.getString("action", "NONE").toUpperCase();
     ShopItemAction action = ShopItemAction.valueOf(rawActionType);
-    String[] actionArgs = switch (action) {
-      case OPEN_CATEGORY -> new String[]{section.getString("category")};
-      default -> null;
+    String[] actionArgs;
+
+    actionArgs = switch (action) {
+      case OPEN_CATEGORY -> {
+        String category = section.getString("category");
+        if (category == null) {
+          throw new DeserializationException("Failed to locate category for action OPEN_CATEGORY in " + section.getName());
+        }
+        yield new String[]{category};
+      }
+      default -> new String[0];
     };
+
     return new ShopItem(manager, itemBuilder, action, actionArgs);
   }
 

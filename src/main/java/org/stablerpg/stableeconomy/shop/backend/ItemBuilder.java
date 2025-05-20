@@ -12,6 +12,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,16 +24,16 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public final class ItemBuilder implements Itemable {
 
-  public static ItemBuilder of(ConfigurationSection section) {
+  public static ItemBuilder deserialize(ConfigurationSection section) throws DeserializationException {
     ItemBuilder builder = new ItemBuilder();
 
     String materialName = section.getString("material");
-    if (materialName != null) {
-      Material material = Material.matchMaterial(materialName);
-      if (material == null)
-        return null;
-      builder.material(material);
-    }
+    if (materialName == null)
+      throw new DeserializationException("Material cannot be null");
+    Material material = Material.matchMaterial(materialName);
+    if (material == null)
+      throw new DeserializationException("Material '" + materialName + "' is not valid");
+    builder.material(material);
 
     builder.amount(section.getInt("amount", 1));
 

@@ -4,12 +4,13 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.stablerpg.stableeconomy.commands.Command;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.backend.ShopCategory;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
 public class ShopCommand {
 
-  public static ShopCommand of(ShopManager manager, ConfigurationSection section) {
+  public static ShopCommand deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
     Command command = new Command();
     command.name(section.getName());
     if (section.contains("aliases"))
@@ -17,7 +18,7 @@ public class ShopCommand {
     if (section.contains("permission"))
       command.permission(section.getString("permission"));
     if (!section.contains("category"))
-      return null;
+      throw new DeserializationException("Failed to locate category for command " + command.name());
     String categoryId = section.getString("category");
 
     return new ShopCommand(manager, command, categoryId);

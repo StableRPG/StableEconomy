@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.api.EconomyAPI;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
@@ -18,38 +19,26 @@ import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Getter
 public class TransactableItem implements Itemable {
 
-  public static TransactableItem of(EconomyPlatform platform, String categoryId, ConfigurationSection section) {
-    Logger logger = platform.getLogger();
-
+  public static TransactableItem deserialize(EconomyPlatform platform, ConfigurationSection section) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
 
-    ItemBuilder itemBuilder = ItemBuilder.of(itemSection);
-    if (itemBuilder == null) {
-      logger.warning("Failed to load item builder for " + section.getName() + " in " + categoryId);
-      return null;
-    }
+    ItemBuilder itemBuilder = ItemBuilder.deserialize(itemSection);
     int amount = section.getInt("amount", itemBuilder.amount());
     String displayName = section.getString("display-name");
     List<String> description = section.getStringList("description");
     double buyPrice = section.getDouble("buy-price", -1);
     double sellValue = section.getDouble("sell-value", -1);
     if (buyPrice == -1) {
-      double priceProviderBuyPrice = platform.getPriceProvider().getBuyPrice(itemBuilder.build());
-      if (priceProviderBuyPrice == -1)
-        logger.warning("Failed to locate buy price for " + section.getName() + " in " + categoryId);
-      buyPrice = priceProviderBuyPrice;
+      buyPrice = platform.getPriceProvider().getBuyPrice(itemBuilder.build());
+      if (buyPrice == -1)
+        throw new DeserializationException("Failed to locate buy price in " + section.getName());
     }
-    if (sellValue == -1) {
-      double priceProviderSellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
-      if (priceProviderSellValue == -1)
-        logger.warning("Failed to locate sell value for " + section.getName() + " in " + categoryId);
-      sellValue = priceProviderSellValue;
-    }
+    if (sellValue == -1)
+      sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
     return new TransactableItem(platform, itemBuilder, amount, displayName, description, buyPrice, sellValue);
   }
 

@@ -19,8 +19,12 @@ public final class StableEconomyLoader implements PluginLoader {
   public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
     MavenLibraryResolver resolver = new MavenLibraryResolver();
     resolver.addRepository(new RemoteRepository.Builder("maven", "default", "https://repo1.maven.org/maven2/").build());
-    LIBRARIES.stream().map(DefaultArtifact::new).map(artifact -> new Dependency(artifact, null)).forEach(resolver::addDependency);
+    LIBRARIES.stream().map(StableEconomyLoader::dependency).forEach(resolver::addDependency);
     classpathBuilder.addLibrary(resolver);
   }
 
+  private static Dependency dependency(String dependency) {
+    return new Dependency(new DefaultArtifact(dependency), null);
+
+  }
 }

@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.stablerpg.stableeconomy.EconomyPlatform;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopCommand;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.backend.ShopCategory;
@@ -58,9 +59,11 @@ public class ShopConfigImpl implements ShopConfig {
     }
     for (String commandName : commandsSection.getKeys(false)) {
       ConfigurationSection commandSection = commandsSection.getConfigurationSection(commandName);
-      ShopCommand command = ShopCommand.of(shopManager, commandSection);
-      if (command == null) {
-        platform.getLogger().warning("Failed to create command for " + commandName);
+      ShopCommand command;
+      try {
+        command = ShopCommand.deserialize(shopManager, commandSection);
+      } catch (DeserializationException e) {
+        platform.getLogger().warning("Failed to deserialize command " + commandName + ": " + e.getMessage());
         continue;
       }
       shopCommands.add(command);
@@ -81,8 +84,14 @@ public class ShopConfigImpl implements ShopConfig {
         continue;
       }
 
-      String id = shopFile.getName().replaceAll("\\.(yml|yaml)", "");
-      ShopCategory category = ShopCategory.of(shopManager, id, categorySection);
+      String id = shopFile.getName().replaceAll("\\.yml", "");
+      ShopCategory category;
+      try {
+        category = ShopCategory.deserialize(shopManager, categorySection);
+      } catch (DeserializationException e) {
+        platform.getLogger().warning("Failed to deserialize category " + id + ": " + e.getMessage());
+        continue;
+      }
       shopManager.addCategory(id, category);
     }
 
