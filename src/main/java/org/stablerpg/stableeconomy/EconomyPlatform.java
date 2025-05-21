@@ -13,12 +13,11 @@ import org.stablerpg.stableeconomy.config.currency.CurrencyConfig;
 import org.stablerpg.stableeconomy.config.currency.CurrencyHolder;
 import org.stablerpg.stableeconomy.config.database.DatabaseConfig;
 import org.stablerpg.stableeconomy.config.database.DatabaseConfigImpl;
-import org.stablerpg.stableeconomy.config.messages.Locale;
-import org.stablerpg.stableeconomy.config.messages.MessagesConfig;
 import org.stablerpg.stableeconomy.config.prices.PriceConfig;
 import org.stablerpg.stableeconomy.config.prices.PriceConfigImpl;
 import org.stablerpg.stableeconomy.config.shop.ShopConfig;
 import org.stablerpg.stableeconomy.config.shop.ShopConfigImpl;
+import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 import org.stablerpg.stableeconomy.data.databases.Database;
 import org.stablerpg.stableeconomy.hooks.PlaceholderAPIHook;
@@ -27,6 +26,7 @@ import org.stablerpg.stableeconomy.shop.ShopManager;
 
 import java.io.Closeable;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -37,8 +37,6 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
   @Getter
   private final DatabaseConfig config;
-  @Getter
-  private final Locale defaultLocale;
   @Getter
   private final CurrencyHolder currencyHolder;
   @Getter
@@ -51,10 +49,9 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   private VaultHook vaultHook;
   private PlaceholderAPIHook placeholderAPIHook;
 
-  public EconomyPlatform(AbstractEconomyPlugin plugin, DatabaseConfig config, Locale defaultLocale, CurrencyHolder currencyHolder, PriceConfig priceConfig, ShopConfig shopConfig) {
+  public EconomyPlatform(AbstractEconomyPlugin plugin, DatabaseConfig config, CurrencyHolder currencyHolder, PriceConfig priceConfig, ShopConfig shopConfig) {
     this.plugin = plugin;
     this.config = config;
-    this.defaultLocale = defaultLocale;
     this.currencyHolder = currencyHolder;
     this.priceConfig = priceConfig;
     this.shopConfig = shopConfig;
@@ -63,7 +60,6 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   public EconomyPlatform(AbstractEconomyPlugin plugin) {
     this.plugin = plugin;
     this.config = new DatabaseConfigImpl(plugin);
-    this.defaultLocale = new MessagesConfig(plugin);
     this.currencyHolder = new CurrencyConfig(this);
     this.priceConfig = new PriceConfigImpl(plugin);
     this.shopConfig = new ShopConfigImpl(this);
@@ -71,7 +67,6 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
 
   public void init() {
     config.load();
-    defaultLocale.load();
     currencyHolder.load();
     priceConfig.load();
     shopConfig.load();
@@ -179,6 +174,11 @@ public class EconomyPlatform implements EconomyAPI, Listener, Closeable {
   @Override
   public List<PlayerAccount> getLeaderboard(String currency) {
     return database.sortedByBalance(currency);
+  }
+
+  @Override
+  public Optional<Currency> getCurrency(String currency) {
+    return currencyHolder.getCurrency(currency);
   }
 
   @Override

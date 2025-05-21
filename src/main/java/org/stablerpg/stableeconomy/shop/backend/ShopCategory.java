@@ -6,19 +6,25 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
+import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryViewTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 public class ShopCategory {
 
-  private final ShopManager manager;
-
   public static ShopCategory deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
     EconomyPlatform platform = manager.getPlatform();
+
+    String rawCurrency = section.getString("currency", "default");
+    Optional<Currency> optionalCurrency = platform.getCurrency(rawCurrency);
+    if (optionalCurrency.isEmpty())
+      throw new DeserializationException("Failed to locate currency " + rawCurrency);
+    Currency currency = optionalCurrency.get();
 
     String rawTitle = section.getString("title");
     if (rawTitle == null)
@@ -38,7 +44,7 @@ public class ShopCategory {
       int slot = Integer.parseInt(itemSection.getName());
 
       if (itemSection.isConfigurationSection("item"))
-        category.addTransactableItem(slot, TransactableItem.deserialize(platform, itemSection));
+        category.addTransactableItem(slot, TransactableItem.deserialize(platform, currency, itemSection));
       else
         category.addShopItem(slot, ShopItem.deserialize(manager, itemSection));
     }
@@ -46,9 +52,11 @@ public class ShopCategory {
     return category;
   }
 
-  private final Component title;
+  private final ShopManager manager;
 
+  private final Component title;
   private final ShopCategoryViewTemplate context;
+
   private final Map<Integer, TransactableItem> transactableItems = new HashMap<>();
   private final Map<Integer, ShopItem> shopItems = new HashMap<>();
 

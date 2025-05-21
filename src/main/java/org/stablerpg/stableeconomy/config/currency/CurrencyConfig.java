@@ -1,7 +1,9 @@
 package org.stablerpg.stableeconomy.config.currency;
 
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.stablerpg.stableeconomy.EconomyPlatform;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.currency.Currency;
 
 import java.io.File;
@@ -46,16 +48,17 @@ public final class CurrencyConfig implements CurrencyHolder {
       File currencyFile = new File(currencyDir, "currency.yml");
       File localeFile = new File(currencyDir, "locale.yml");
 
-      Currency.Builder currencyBuilder = new Currency.Builder(currencyDir.getName(), platform)
-        .usingYaml(currencyFile);
+      YamlConfiguration currencyConfig = YamlConfiguration.loadConfiguration(currencyFile);
+      YamlConfiguration localeConfig = YamlConfiguration.loadConfiguration(localeFile);
 
-      if (localeFile.exists()) {
-        CurrencyLocale currencyLocale = new CurrencyLocale(platform, localeFile);
-        currencyLocale.load();
-        currencyBuilder.withLocale(currencyLocale);
+      Currency currency;
+      try {
+        currency = Currency.deserialize(platform, currencyConfig, localeConfig);
+      } catch (DeserializationException e) {
+        getLogger().warning("Failed to deserialize currency " + currencyFile.getName() + ": " + e.getMessage());
+        continue;
       }
 
-      Currency currency = currencyBuilder.build();
       if (currency.isDefaultCurrency())
         defaultCurrency = currency;
       currencies.put(currency.getId(), currency);

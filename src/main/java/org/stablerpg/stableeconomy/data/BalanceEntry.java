@@ -14,7 +14,8 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
   private double unsavedBalance = 0;
 
   public BalanceEntry(Currency currency) {
-    this(currency.getId(), currency.getStartingBalance());
+    this(currency.getId());
+    this.unsavedBalance = currency.getStartingBalance();
   }
 
   public BalanceEntry(String currency, double savedBalance) {
@@ -40,6 +41,10 @@ public final class BalanceEntry implements Comparable<BalanceEntry>, Dirtyable {
 
   public void setBalance(double balance) {
     unsavedBalance += balance - getBalance();
+  }
+
+  public boolean hasBalance(double amount) {
+    return getBalance() >= amount;
   }
 
   public void resetBalance() {

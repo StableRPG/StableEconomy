@@ -1,6 +1,5 @@
 package org.stablerpg.stableeconomy.currency;
 
-import com.google.common.base.Preconditions;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -13,25 +12,61 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.commands.Command;
 import org.stablerpg.stableeconomy.commands.arguments.AccountArgument;
+import org.stablerpg.stableeconomy.config.currency.CurrencyLocale;
+import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.config.messages.Locale;
 import org.stablerpg.stableeconomy.config.messages.MessageType;
 import org.stablerpg.stableeconomy.currency.formatting.CurrencyFormatter;
 import org.stablerpg.stableeconomy.currency.formatting.Formatters;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Currency {
+
+  public static Currency deserialize(EconomyPlatform platform, ConfigurationSection currencySection, ConfigurationSection localeSection) throws DeserializationException {
+    String id = currencySection.getString("id");
+    if (id == null || id.isEmpty())
+      throw new DeserializationException("Failed to locate currency id");
+
+    String capitalCurrency = id.substring(0, 1).toUpperCase() + id.substring(1);
+
+    String singularDisplayName = currencySection.getString("display-name.singular", capitalCurrency);
+    String pluralDisplayName = currencySection.getString("display-name.plural", singularDisplayName + "s");
+
+    double startingBalance = currencySection.getDouble("starting-balance", 0.0);
+
+    Command viewCommand = Command.deserialize(currencySection.getConfigurationSection("view-command"));
+
+    Command transferCommand = Command.deserialize(currencySection.getConfigurationSection("transfer-command"));
+
+    ConfigurationSection leaderboardSection = currencySection.getConfigurationSection("leaderboard-command");
+    Command leaderboardCommand = Command.deserialize(leaderboardSection);
+    int leaderboardPageLength = 10;
+    long leaderboardUpdateInterval = 300;
+    if (leaderboardSection != null) {
+      leaderboardPageLength = leaderboardSection.getInt("page-length", 10);
+      leaderboardUpdateInterval = leaderboardSection.getLong("update-interval", 300);
+    }
+
+    Command adminCommand = Command.deserialize(currencySection.getConfigurationSection("admin-command"));
+
+    Formatters formatterType = Formatters.fromString(currencySection.getString("formatter", "cool"));
+    String formatString = currencySection.getString("format-string", "<amount>");
+    CurrencyFormatter formatter = CurrencyFormatter.of(formatterType, formatString);
+
+    CurrencyLocale locale = CurrencyLocale.deserialize(localeSection);
+
+    return new Currency(id, platform, locale, singularDisplayName, pluralDisplayName, startingBalance, formatter, viewCommand, transferCommand, leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval, adminCommand);
+  }
 
   @Getter
   private final @NotNull String id;
@@ -61,10 +96,10 @@ public class Currency {
   private @Nullable List<PlayerAccount> leaderboard;
   private long lastLeaderboardUpdate = 0;
 
-  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @Nullable Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @NotNull Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
     this.id = id;
     this.platform = platform;
-    this.locale = locale != null ? locale : platform.getDefaultLocale();
+    this.locale = locale;
     this.singularDisplayName = singularDisplayName;
     this.pluralDisplayName = pluralDisplayName;
     this.startingBalance = startingBalance;
@@ -89,7 +124,7 @@ public class Currency {
       String updatePermission;
       if (adminCommand.hasPermission()) updatePermission = adminCommand.permission();
       else if (leaderboardCommand.hasPermission()) updatePermission = leaderboardCommand.permission() + ".update";
-      else updatePermission = "economy.leaderboard.update";
+      else updatePermission = "stableeconomy.leaderboard.update";
 
       this.leaderboardCommand.then(LiteralArgument.of("update").withPermission(updatePermission).executes(this::executeLeaderboardUpdate)).then(new IntegerArgument("page", 1).setOptional(true).executes(this::viewLeaderboard));
 
@@ -144,7 +179,7 @@ public class Currency {
   }
 
   public double getBalance(OfflinePlayer player) {
-    return platform.getBalance(player);
+    return platform.getBalance(player, id);
   }
 
   // Balance Actions
@@ -227,6 +262,22 @@ public class Currency {
 
   public void subtractBalance(PlayerAccount account, double amount) {
     account.subtractBalance(id, amount);
+  }
+
+  public boolean hasBalance(OfflinePlayer player, double amount) {
+    return platform.hasBalance(player, amount, id);
+  }
+
+  public boolean hasBalance(UUID uuid, double amount) {
+    return platform.hasBalance(uuid, amount, id);
+  }
+
+  public boolean hasBalance(String username, double amount) {
+    return platform.hasBalance(username, amount, id);
+  }
+
+  public boolean hasBalance(PlayerAccount account, double amount) {
+    return account.hasBalance(id, amount);
   }
 
   public void resetBalance(OfflinePlayer player) {
@@ -353,170 +404,6 @@ public class Currency {
     locale.sendParsedMessage(sender, MessageType.ADMIN_RESET, "player", target.getUsername(), "old-balance", getBalanceFormatted(target));
 
     resetBalance(target);
-  }
-
-  public static class Builder {
-
-    private final String currency;
-    private final EconomyPlatform platform;
-    private final Command viewCommand = new Command();
-    private final Command transferCommand = new Command();
-    private final Command leaderboardCommand = new Command();
-    private final Command adminCommand = new Command();
-    private Locale locale;
-    private String singularDisplayName;
-    private String pluralDisplayName;
-    private double startingBalance = 0.0;
-    private Formatters formatter = Formatters.COOL;
-    private String formatString = "";
-    private int leaderboardPageLength = 10;
-    private long leaderboardUpdateInterval = 300;
-
-    public Builder(@NotNull String currency, @NotNull EconomyPlatform platform) {
-      Preconditions.checkNotNull(currency, "Currency name cannot be null");
-      this.currency = currency.toLowerCase();
-      this.platform = platform;
-      this.locale = platform.getDefaultLocale();
-    }
-
-    public Builder usingYaml(@NotNull File file) {
-      return usingYaml(YamlConfiguration.loadConfiguration(file));
-    }
-
-    public Builder usingYaml(@NotNull YamlConfiguration config) {
-      String capitalCurrency = currency.substring(0, 1).toUpperCase() + currency.substring(1);
-      singularDisplayName = config.getString("display-name.singular", capitalCurrency);
-      pluralDisplayName = config.getString("display-name.plural", singularDisplayName + "s");
-      startingBalance = config.getDouble("starting-balance", 0.0);
-      if (config.contains("view-command"))
-        viewCommand.usingYaml(config.getConfigurationSection("view-command"));
-      if (config.contains("transfer-command"))
-        transferCommand.usingYaml(config.getConfigurationSection("transfer-command"));
-      if (config.contains("leaderboard-command")) {
-        ConfigurationSection section = config.getConfigurationSection("leaderboard-command");
-        leaderboardCommand.usingYaml(section);
-        if (section != null) {
-          leaderboardPageLength = section.getInt("page-length", 10);
-          leaderboardUpdateInterval = section.getLong("update-interval", 300);
-        }
-      }
-      if (config.contains("admin-command"))
-        adminCommand.usingYaml(config.getConfigurationSection("admin-command"));
-      formatter = Formatters.fromString(config.getString("formatter", "cool"));
-      formatString = config.getString("format-string", "");
-      return this;
-    }
-
-    public Builder withLocale(@NotNull Locale locale) {
-      this.locale = locale;
-      return this;
-    }
-
-    public Builder withDisplayName(@NotNull String singular, @NotNull String plural) {
-      return withSingularDisplayName(singular).withPluralDisplayName(plural);
-    }
-
-    public Builder withPluralDisplayName(@NotNull String plural) {
-      this.pluralDisplayName = plural;
-      return this;
-    }
-
-    public Builder withSingularDisplayName(@NotNull String singular) {
-      this.singularDisplayName = singular;
-      if (pluralDisplayName == null) pluralDisplayName = singular + "s";
-      return this;
-    }
-
-    public Builder withStartingBalance(double balance) {
-      this.startingBalance = balance;
-      return this;
-    }
-
-    public Builder withFormatter(@NotNull Formatters formatter) {
-      this.formatter = formatter;
-      return this;
-    }
-
-    public Builder withFormattingString(@NotNull String formatString) {
-      this.formatString = formatString;
-      return this;
-    }
-
-    public Builder withViewCommandName(@NotNull String name) {
-      viewCommand.name(name);
-      return this;
-    }
-
-    public Builder withViewCommandAliases(@NotNull String @NotNull ... aliases) {
-      viewCommand.aliases(aliases);
-      return this;
-    }
-
-    public Builder withViewCommandPermission(@NotNull String permission) {
-      viewCommand.permission(permission);
-      return this;
-    }
-
-    public Builder withTransferCommandName(@NotNull String name) {
-      transferCommand.name(name);
-      return this;
-    }
-
-    public Builder withTransferCommandAliases(@NotNull String @NotNull ... aliases) {
-      transferCommand.aliases(aliases);
-      return this;
-    }
-
-    public Builder withTransferCommandPermission(@NotNull String permission) {
-      transferCommand.permission(permission);
-      return this;
-    }
-
-    public Builder withLeaderboardCommandName(@NotNull String name) {
-      leaderboardCommand.name(name);
-      return this;
-    }
-
-    public Builder withLeaderboardCommandAliases(@NotNull String @NotNull ... aliases) {
-      leaderboardCommand.aliases(aliases);
-      return this;
-    }
-
-    public Builder withLeaderboardCommandPermission(@NotNull String permission) {
-      leaderboardCommand.permission(permission);
-      return this;
-    }
-
-    public Builder withLeaderboardPageLength(int length) {
-      this.leaderboardPageLength = length;
-      return this;
-    }
-
-    public Builder withLeaderboardUpdateInterval(long interval) {
-      this.leaderboardUpdateInterval = interval;
-      return this;
-    }
-
-    public Builder withAdminCommandName(@NotNull String name) {
-      adminCommand.name(name);
-      return this;
-    }
-
-    public Builder withAdminCommandAliases(@NotNull String @NotNull ... aliases) {
-      adminCommand.aliases(aliases);
-      return this;
-    }
-
-    public Builder withAdminCommandPermission(@NotNull String permission) {
-      adminCommand.permission(permission);
-      return this;
-    }
-
-    public Currency build() {
-      CurrencyFormatter formatter = CurrencyFormatter.of(this.formatter, formatString);
-      return new Currency(currency, platform, locale, singularDisplayName, pluralDisplayName, startingBalance, formatter, viewCommand, transferCommand, leaderboardCommand, leaderboardPageLength, leaderboardUpdateInterval, adminCommand);
-    }
-
   }
 
 }

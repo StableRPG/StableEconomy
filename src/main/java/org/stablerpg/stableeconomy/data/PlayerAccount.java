@@ -45,8 +45,12 @@ public final class PlayerAccount implements Dirtyable {
     return getBalanceEntry(currency).getBalance();
   }
 
-  public @NotNull BalanceEntry getBalanceEntry(@NotNull String currencyId) {
-    return balanceEntries.computeIfAbsent(currencyId, id -> platform.getCurrencyHolder().getCurrency(currencyId).map(BalanceEntry::new).orElse(new BalanceEntry(currencyId)));
+  public BalanceEntry getBalanceEntry(@NotNull String currencyId) {
+    if (balanceEntries.containsKey(currencyId))
+      return balanceEntries.get(currencyId);
+    BalanceEntry entry = platform.getCurrency(currencyId).map(BalanceEntry::new).orElseGet(() -> new BalanceEntry(currencyId));
+    balanceEntries.put(currencyId, entry);
+    return entry;
   }
 
   public void setBalance(@NotNull String currency, double balance) {
@@ -59,6 +63,10 @@ public final class PlayerAccount implements Dirtyable {
 
   public void subtractBalance(@NotNull String currency, double balance) {
     getBalanceEntry(currency).subtractBalance(balance);
+  }
+
+  public boolean hasBalance(@NotNull String currency, double balance) {
+    return getBalanceEntry(currency).hasBalance(balance);
   }
 
   public void resetBalance(@NotNull String currency) {

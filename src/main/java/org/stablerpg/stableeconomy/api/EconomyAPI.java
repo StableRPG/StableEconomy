@@ -2,10 +2,12 @@ package org.stablerpg.stableeconomy.api;
 
 import org.bukkit.OfflinePlayer;
 import org.stablerpg.stableeconomy.StableEconomy;
+import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
 import org.stablerpg.stableeconomy.shop.AbstractShopManager;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface EconomyAPI {
@@ -155,6 +157,8 @@ public interface EconomyAPI {
   void resetBalance(String username, String currency);
 
   List<PlayerAccount> getLeaderboard(String currency);
+
+  Optional<Currency> getCurrency(String currency);
 
   PriceProvider getPriceProvider();
 

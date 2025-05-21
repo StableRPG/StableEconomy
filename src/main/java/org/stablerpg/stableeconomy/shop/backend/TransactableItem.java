@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.EconomyPlatform;
-import org.stablerpg.stableeconomy.api.EconomyAPI;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
+import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 public class TransactableItem implements Itemable {
 
-  public static TransactableItem deserialize(EconomyPlatform platform, ConfigurationSection section) throws DeserializationException {
+  public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
 
     ItemBuilder itemBuilder = ItemBuilder.deserialize(itemSection);
@@ -39,10 +39,10 @@ public class TransactableItem implements Itemable {
     }
     if (sellValue == -1)
       sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
-    return new TransactableItem(platform, itemBuilder, amount, displayName, description, buyPrice, sellValue);
+    return new TransactableItem(currency, itemBuilder, amount, displayName, description, buyPrice, sellValue);
   }
 
-  private final EconomyAPI api;
+  private final Currency currency;
   private final ItemBuilder itemBuilder;
 
   private final int amount;
@@ -52,8 +52,8 @@ public class TransactableItem implements Itemable {
   private final double buyPrice;
   private final double sellValue;
 
-  public TransactableItem(EconomyAPI api, ItemBuilder itemBuilder, int amount, Component displayName, List<Component> description, double buyPrice, double sellValue) {
-    this.api = api;
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, Component displayName, List<Component> description, double buyPrice, double sellValue) {
+    this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
     this.displayName = displayName;
@@ -62,8 +62,8 @@ public class TransactableItem implements Itemable {
     this.sellValue = sellValue;
   }
 
-  public TransactableItem(EconomyAPI api, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, double buyPrice, double sellValue) {
-    this.api = api;
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, double buyPrice, double sellValue) {
+    this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
     this.displayName = MiniMessage.miniMessage().deserialize("<italic:false>" + displayName);
@@ -73,18 +73,18 @@ public class TransactableItem implements Itemable {
   }
 
   public void purchase(Player player) throws BuyException {
-    ItemStack item = this.itemBuilder.build();
+    ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
     double buyPrice = this.buyPrice * amount;
 
-    if (!api.hasBalance(player, buyPrice))
+    if (!currency.hasBalance(player, buyPrice))
       throw new CannotBuyException("Not enough money to buy item");
 
     if (!InventoryUtil.canFit(player, item))
       throw new NotEnoughSpaceException("Not enough space in inventory");
 
-    api.subtractBalance(player, buyPrice);
+    currency.subtractBalance(player, buyPrice);
     PlayerGiveResult result = player.give(List.of(item), false);
 
     if (!result.leftovers().isEmpty())
@@ -92,7 +92,7 @@ public class TransactableItem implements Itemable {
   }
 
   public void sell(Player player) throws NotEnoughSpaceException {
-    ItemStack item = this.itemBuilder.build();
+    ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
     double sellValue = this.sellValue * amount;
@@ -100,7 +100,7 @@ public class TransactableItem implements Itemable {
     if (!player.getInventory().containsAtLeast(item, amount))
       throw new NotEnoughSpaceException();
 
-    api.addBalance(player, sellValue);
+    currency.addBalance(player, sellValue);
     player.getInventory().removeItem(item);
   }
 
@@ -109,7 +109,10 @@ public class TransactableItem implements Itemable {
     return this.itemBuilder.copy(builder -> {
       List<Component> description = this.description != null ? new ArrayList<>(this.description) : new ArrayList<>();
       description.add(Component.empty());
-      description.add(MiniMessage.miniMessage().deserialize("<italic:false><gray>Price:</gray> <yellow>$" + buyPrice * amount + "</yellow>"));
+      if (buyPrice != -1)
+        description.add(MiniMessage.miniMessage().deserialize("<italic:false><gray>Price:</gray> <yellow>" + currency.format(buyPrice * amount) + "</yellow>"));
+      if (sellValue != -1)
+        description.add(MiniMessage.miniMessage().deserialize("<italic:false><gray>Sell Value:</gray> <yellow>" + currency.format(sellValue * amount) + "</yellow>"));
       builder.displayName(displayName).lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
     }).build();
   }
