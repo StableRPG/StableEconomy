@@ -21,7 +21,10 @@ public final class CurrencyLocale implements Locale {
         continue;
       }
       ConfigurationSection messageSection = section.getConfigurationSection(type.getKey());
-      if (messageSection != null) messages.put(type, Messages.fromYaml(messageSection));
+      if (messageSection != null)
+        messages.put(type, Messages.deserialize(messageSection));
+      else
+        throw new DeserializationException("Missing message for " + type.getKey());
     }
 
     return new CurrencyLocale(messages);

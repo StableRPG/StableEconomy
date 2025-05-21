@@ -25,7 +25,7 @@ public final class Messages {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull AbstractMessage<?> fromYaml(@NotNull ConfigurationSection section) {
+  public static @NotNull AbstractMessage<?> deserialize(@NotNull ConfigurationSection section) {
     String type = section.getString("type", "empty");
 
     return switch (type.toLowerCase()) {
@@ -36,7 +36,7 @@ public final class Messages {
 
         Set<String> messagePaths = messagesSection.getKeys(false);
 
-        List<? extends AbstractMessage<?>> messages = messagePaths.stream().map(messagesSection::getConfigurationSection).filter(Objects::nonNull).map(Messages::fromYaml).toList();
+        List<? extends AbstractMessage<?>> messages = messagePaths.stream().map(messagesSection::getConfigurationSection).filter(Objects::nonNull).map(Messages::deserialize).toList();
 
         yield Messages.group(messages);
       }
