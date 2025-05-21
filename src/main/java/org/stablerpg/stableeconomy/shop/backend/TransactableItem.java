@@ -81,9 +81,7 @@ public class TransactableItem implements Itemable {
     if (!api.hasBalance(player, buyPrice))
       throw new CannotBuyException("Not enough money to buy item");
 
-    int availableSpace = InventoryUtil.getFittableAmount(player, item, amount);
-
-    if (availableSpace < amount)
+    if (!InventoryUtil.canFit(player, item))
       throw new NotEnoughSpaceException("Not enough space in inventory");
 
     api.subtractBalance(player, buyPrice);
