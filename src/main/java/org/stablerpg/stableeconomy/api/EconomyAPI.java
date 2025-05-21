@@ -4,7 +4,7 @@ import org.bukkit.OfflinePlayer;
 import org.stablerpg.stableeconomy.StableEconomy;
 import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
-import org.stablerpg.stableeconomy.shop.AbstractShopManager;
+import org.stablerpg.stableeconomy.shop.ShopManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -162,8 +162,6 @@ public interface EconomyAPI {
 
   PriceProvider getPriceProvider();
 
-  default AbstractShopManager getShopManager() {
-    return null;
-  }
+  ShopManager getShopManager();
 
 }

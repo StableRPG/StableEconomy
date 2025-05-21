@@ -9,6 +9,7 @@ import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopCommand;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.backend.ShopCategory;
+import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 
 import java.io.File;
 import java.util.Collection;
@@ -52,6 +53,9 @@ public class ShopConfigImpl implements ShopConfig {
     }
 
     YamlConfiguration config = YamlConfiguration.loadConfiguration(shopConfig);
+
+    ItemFormatter defaultLoreTemplate = ItemFormatter.deserialize(config);
+
     ConfigurationSection commandsSection = config.getConfigurationSection("shop-commands");
     if (commandsSection == null) {
       platform.getLogger().warning("Failed to locate shop-commands section");
@@ -87,7 +91,7 @@ public class ShopConfigImpl implements ShopConfig {
       String id = shopFile.getName().replaceAll("\\.yml", "");
       ShopCategory category;
       try {
-        category = ShopCategory.deserialize(shopManager, categorySection);
+        category = ShopCategory.deserialize(shopManager, categorySection, defaultLoreTemplate);
       } catch (DeserializationException e) {
         platform.getLogger().warning("Failed to deserialize category " + id + ": " + e.getMessage());
         continue;

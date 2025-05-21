@@ -1,4 +1,4 @@
-package org.stablerpg.stableeconomy.shop.backend;
+package org.stablerpg.stableeconomy.shop.gui;
 
 import org.bukkit.inventory.ItemStack;
 

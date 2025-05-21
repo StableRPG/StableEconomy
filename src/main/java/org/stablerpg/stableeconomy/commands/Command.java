@@ -14,9 +14,9 @@ public class Command {
     String name = section.getString("name");
     if (name == null || name.isEmpty())
       throw new DeserializationException("Failed to locate name for command " + section.getName());
-    command.name(section.getString("name"));
-    command.aliases(section.getStringList("aliases").toArray(new String[0]));
-    command.permission(section.getString("permission", ""));
+    command.name = name;
+    command.aliases = section.getStringList("aliases").toArray(new String[0]);
+    command.permission = section.getString("permission", "");
     return command;
   }
 

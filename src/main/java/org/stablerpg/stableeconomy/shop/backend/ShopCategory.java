@@ -8,6 +8,7 @@ import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.ShopManager;
+import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryViewTemplate;
 
 import java.util.HashMap;
@@ -17,7 +18,7 @@ import java.util.Optional;
 @Getter
 public class ShopCategory {
 
-  public static ShopCategory deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
+  public static ShopCategory deserialize(ShopManager manager, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
     EconomyPlatform platform = manager.getPlatform();
 
     String rawCurrency = section.getString("currency", "default");
@@ -32,6 +33,9 @@ public class ShopCategory {
     Component title = MiniMessage.miniMessage().deserialize(rawTitle);
 
     ShopCategoryViewTemplate template = ShopCategoryViewTemplate.deserialize(section);
+
+    itemFormatter = ItemFormatter.deserialize(section, itemFormatter);
+
     ShopCategory category = new ShopCategory(manager, title, template);
 
     ConfigurationSection itemsSection = section.getConfigurationSection("items");
@@ -44,7 +48,7 @@ public class ShopCategory {
       int slot = Integer.parseInt(itemSection.getName());
 
       if (itemSection.isConfigurationSection("item"))
-        category.addTransactableItem(slot, TransactableItem.deserialize(platform, currency, itemSection));
+        category.addTransactableItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter));
       else
         category.addShopItem(slot, ShopItem.deserialize(manager, itemSection));
     }

@@ -14,6 +14,8 @@ import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
+import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
+import org.stablerpg.stableeconomy.shop.gui.Itemable;
 import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 
 import java.util.ArrayList;
@@ -23,13 +25,14 @@ import java.util.List;
 @Getter
 public class TransactableItem implements Itemable {
 
-  public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section) throws DeserializationException {
+  public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
 
     ItemBuilder itemBuilder = ItemBuilder.deserialize(itemSection);
     int amount = section.getInt("amount", itemBuilder.amount());
     String displayName = section.getString("display-name");
     List<String> description = section.getStringList("description");
+    itemFormatter = ItemFormatter.deserialize(section, itemFormatter);
     double buyPrice = section.getDouble("buy-price", -1);
     double sellValue = section.getDouble("sell-value", -1);
     if (buyPrice == -1) {
@@ -39,7 +42,7 @@ public class TransactableItem implements Itemable {
     }
     if (sellValue == -1)
       sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
-    return new TransactableItem(currency, itemBuilder, amount, displayName, description, buyPrice, sellValue);
+    return new TransactableItem(currency, itemBuilder, amount, displayName, description, itemFormatter, buyPrice, sellValue);
   }
 
   private final Currency currency;
@@ -48,26 +51,29 @@ public class TransactableItem implements Itemable {
   private final int amount;
   private final Component displayName;
   private final List<Component> description;
+  private final ItemFormatter itemFormatter;
 
   private final double buyPrice;
   private final double sellValue;
 
-  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, Component displayName, List<Component> description, double buyPrice, double sellValue) {
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, Component displayName, List<Component> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
     this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
     this.displayName = displayName;
     this.description = Collections.unmodifiableList(description);
+    this.itemFormatter = itemFormatter;
     this.buyPrice = buyPrice;
     this.sellValue = sellValue;
   }
 
-  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, double buyPrice, double sellValue) {
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
     this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
-    this.displayName = MiniMessage.miniMessage().deserialize("<italic:false>" + displayName);
-    this.description = description.stream().map(line -> "<italic:false>" + displayName).map(MiniMessage.miniMessage()::deserialize).toList();
+    this.displayName = MiniMessage.miniMessage().deserialize(itemFormatter.formatName(displayName));
+    this.description = description.stream().map(itemFormatter::formatLore).map(MiniMessage.miniMessage()::deserialize).toList();
+    this.itemFormatter = itemFormatter;
     this.buyPrice = buyPrice;
     this.sellValue = sellValue;
   }
@@ -108,11 +114,12 @@ public class TransactableItem implements Itemable {
   public ItemStack build() {
     return this.itemBuilder.copy(builder -> {
       List<Component> description = this.description != null ? new ArrayList<>(this.description) : new ArrayList<>();
-      description.add(Component.empty());
+      if (buyPrice != -1 || sellValue != -1)
+        description.add(Component.empty());
       if (buyPrice != -1)
-        description.add(MiniMessage.miniMessage().deserialize("<italic:false><gray>Price:</gray> <yellow>" + currency.format(buyPrice * amount) + "</yellow>"));
+        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatBuyPriceLore(currency.format(buyPrice * amount))));
       if (sellValue != -1)
-        description.add(MiniMessage.miniMessage().deserialize("<italic:false><gray>Sell Value:</gray> <yellow>" + currency.format(sellValue * amount) + "</yellow>"));
+        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatSellValueLore(currency.format(sellValue * amount))));
       builder.displayName(displayName).lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
     }).build();
   }

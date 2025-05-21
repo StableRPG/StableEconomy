@@ -1,3 +1,7 @@
+name-format: "<italic:false><gray><name>"
+lore-format: "<italic:false><gray><lore>"
+buy-price-lore: "<italic:false><gray>Price:</gray> <yellow><amount></yellow>"
+sell-value-lore: "<italic:false><gray>Sell Value:</gray> <yellow><amount></yellow>"
 
 shop-commands:
   shop:

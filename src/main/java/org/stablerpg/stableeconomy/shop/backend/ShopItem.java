@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopManager;
+import org.stablerpg.stableeconomy.shop.gui.Itemable;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
 @RequiredArgsConstructor

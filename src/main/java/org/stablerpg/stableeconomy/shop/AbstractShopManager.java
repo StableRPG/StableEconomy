@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractShopManager implements Closeable {
+abstract class AbstractShopManager implements Closeable {
 
   @Getter
   private final EconomyPlatform platform;
