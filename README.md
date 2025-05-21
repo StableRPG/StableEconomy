@@ -36,4 +36,4 @@ See the [LICENSE](LICENSE) file for full terms and conditions.
 
 ## TODO
 
-- [ ] Design an intuitive configuration for multi-shop support with configurable currency usage
+- [ ] Add support for priority-based pricing (from first to last) instead of going in order (basic, grouped, advanced)
