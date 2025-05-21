@@ -82,7 +82,7 @@ public class TransactableItem implements Itemable {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
-    double buyPrice = this.buyPrice * amount;
+    double buyPrice = this.buyPrice;
 
     if (!currency.hasBalance(player, buyPrice))
       throw new CannotBuyException("Not enough money to buy item");
@@ -101,7 +101,7 @@ public class TransactableItem implements Itemable {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
-    double sellValue = this.sellValue * amount;
+    double sellValue = this.sellValue;
 
     if (!player.getInventory().containsAtLeast(item, amount))
       throw new NotEnoughSpaceException();
@@ -117,9 +117,9 @@ public class TransactableItem implements Itemable {
       if (buyPrice != -1 || sellValue != -1)
         description.add(Component.empty());
       if (buyPrice != -1)
-        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatBuyPriceLore(currency.format(buyPrice * amount))));
+        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatBuyPriceLore(currency.format(buyPrice))));
       if (sellValue != -1)
-        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatSellValueLore(currency.format(sellValue * amount))));
+        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatSellValueLore(currency.format(sellValue))));
       builder.displayName(displayName).lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
     }).build();
   }
