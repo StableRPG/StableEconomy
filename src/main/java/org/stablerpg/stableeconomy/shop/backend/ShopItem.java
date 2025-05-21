@@ -50,13 +50,13 @@ public class ShopItem implements Itemable {
 
     if (action == ShopItemAction.OPEN_CATEGORY) {
       if (actionArgs == null || actionArgs.length == 0) {
-        manager.getPlatform().getLogger().info("Shop category ID not specified");
+        manager.getPlatform().getLogger().warning("Shop category ID not specified");
         return;
       }
 
       ShopCategory category = manager.getCategory(actionArgs[0]);
       if (category == null) {
-        manager.getPlatform().getLogger().info("Shop category " + actionArgs[0] + " not found");
+        manager.getPlatform().getLogger().warning("Shop category " + actionArgs[0] + " not found");
         return;
       }
 
