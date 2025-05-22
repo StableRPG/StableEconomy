@@ -19,7 +19,6 @@
 Configuration files are in `src/main/resources` and will be generated in your server’s `plugins/StableEconomy` folder:
 
 - `database.yml` – Database settings (type, credentials)
-- `messages.yml` – All chat and console messages
 - `prices.yml` – Default item prices
 - `shops.yml` – Global shop configuration
 - `shops/` – Folder for individual shop category files
