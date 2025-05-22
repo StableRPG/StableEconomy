@@ -1,5 +1,6 @@
 package org.stablerpg.stableeconomy.shop.backend;
 
+import dev.triumphteam.gui.click.ClickContext;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,12 +10,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopManager;
-import org.stablerpg.stableeconomy.shop.gui.Itemable;
+import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
 @RequiredArgsConstructor
 @Getter
-public class ShopItem implements Itemable {
+public class ShopItem implements AbstractGuiItem {
 
   public static ShopItem deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
     ItemBuilder itemBuilder = ItemBuilder.deserialize(section);
@@ -44,7 +45,7 @@ public class ShopItem implements Itemable {
   private final @NotNull ShopItemAction action;
   private final @Nullable String[] actionArgs;
 
-  public void execute(Player player) {
+  public void execute(Player player, ClickContext context) {
     if (action == ShopItemAction.NONE)
       return;
 

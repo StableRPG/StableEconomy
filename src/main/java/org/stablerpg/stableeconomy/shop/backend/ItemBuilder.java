@@ -13,7 +13,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
-import org.stablerpg.stableeconomy.shop.gui.Itemable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public final class ItemBuilder implements Itemable {
+public final class ItemBuilder {
 
   public static ItemBuilder deserialize(ConfigurationSection section) throws DeserializationException {
     ItemBuilder builder = new ItemBuilder();
@@ -169,7 +168,6 @@ public final class ItemBuilder implements Itemable {
     return copy;
   }
 
-  @Override
   public ItemStack build() {
     ItemStack item = ItemStack.of(material, amount);
     item.editMeta(meta -> {

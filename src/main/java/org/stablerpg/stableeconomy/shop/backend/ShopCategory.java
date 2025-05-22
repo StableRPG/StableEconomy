@@ -8,6 +8,7 @@ import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.ShopManager;
+import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryViewTemplate;
 
@@ -48,9 +49,9 @@ public class ShopCategory {
       int slot = Integer.parseInt(itemSection.getName());
 
       if (itemSection.isConfigurationSection("item"))
-        category.addTransactableItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter));
+        category.addGuiItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter));
       else
-        category.addShopItem(slot, ShopItem.deserialize(manager, itemSection));
+        category.addGuiItem(slot, ShopItem.deserialize(manager, itemSection));
     }
 
     return category;
@@ -61,8 +62,7 @@ public class ShopCategory {
   private final Component title;
   private final ShopCategoryViewTemplate context;
 
-  private final Map<Integer, TransactableItem> transactableItems = new HashMap<>();
-  private final Map<Integer, ShopItem> shopItems = new HashMap<>();
+  private final Map<Integer, AbstractGuiItem> items = new HashMap<>();
 
   public ShopCategory(ShopManager manager, Component title, ShopCategoryViewTemplate context) {
     this.manager = manager;
@@ -70,12 +70,8 @@ public class ShopCategory {
     this.context = context;
   }
 
-  public void addTransactableItem(Integer slot, TransactableItem item) {
-    transactableItems.put(slot, item);
-  }
-
-  public void addShopItem(Integer slot, ShopItem item) {
-    shopItems.put(slot, item);
+  public void addGuiItem(Integer slot, AbstractGuiItem item) {
+    items.put(slot, item);
   }
 
 }

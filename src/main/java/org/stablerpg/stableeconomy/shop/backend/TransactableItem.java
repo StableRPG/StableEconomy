@@ -1,5 +1,7 @@
 package org.stablerpg.stableeconomy.shop.backend;
 
+import dev.triumphteam.gui.click.ClickContext;
+import dev.triumphteam.gui.click.GuiClick;
 import io.papermc.paper.entity.PlayerGiveResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -14,8 +16,9 @@ import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
 import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
+import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughToSellException;
+import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
-import org.stablerpg.stableeconomy.shop.gui.Itemable;
 import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-public class TransactableItem implements Itemable {
+public class TransactableItem implements AbstractGuiItem {
 
   public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
@@ -78,6 +81,31 @@ public class TransactableItem implements Itemable {
     this.sellValue = sellValue;
   }
 
+  @Override
+  public void execute(Player player, ClickContext context) {
+    GuiClick clickType = context.guiClick();
+    switch (clickType) {
+      case LEFT, SHIFT_LEFT -> {
+        try {
+          purchase(player);
+        } catch (CannotBuyException e) {
+          player.sendRichMessage("<red>Not enough money to buy item!</red>");
+        } catch (NotEnoughSpaceException e) {
+          player.sendRichMessage("<red>Not enough space in inventory!</red>");
+        } catch (BuyException e) {
+          player.sendRichMessage("<red>Failed to accurately detect available space in inventory!</red>");
+        }
+      }
+      case RIGHT, SHIFT_RIGHT -> {
+        try {
+          sell(player);
+        } catch (NotEnoughToSellException e) {
+          player.sendRichMessage("<red>You don't have the item to sell!</red>");
+        }
+      }
+    }
+  }
+
   public void purchase(Player player) throws BuyException {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
@@ -97,14 +125,14 @@ public class TransactableItem implements Itemable {
       throw new BuyException("Failed to accurately detect available space in inventory");
   }
 
-  public void sell(Player player) throws NotEnoughSpaceException {
+  public void sell(Player player) throws NotEnoughToSellException {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
     double sellValue = this.sellValue;
 
     if (!player.getInventory().containsAtLeast(item, amount))
-      throw new NotEnoughSpaceException();
+      throw new NotEnoughToSellException();
 
     currency.addBalance(player, sellValue);
     player.getInventory().removeItem(item);

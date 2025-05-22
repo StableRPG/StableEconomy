@@ -85,17 +85,17 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
         else if (display.equals("balance")) yield currency.format(0);
 
         if (display.equals("username")) yield account.getUsername();
-        else if (display.equals("balance")) yield currency.getBalanceFormatted(account);
+        else if (display.equals("balance")) yield currency.getFormattedBalance(account);
 
         yield null;
       }
       case "balance" -> {
         if (args.length == 1) {
           if (player == null) yield null;
-          yield platform.getCurrencyHolder().getDefaultCurrency().getBalanceFormatted(player);
+          yield platform.getCurrencyHolder().getDefaultCurrency().getFormattedBalance(player);
         } else if (args.length == 2) {
           Optional<Currency> optionalCurrency = platform.getCurrencyHolder().getCurrency(args[1]);
-          if (optionalCurrency.isPresent()) yield optionalCurrency.get().getBalanceFormatted(player);
+          if (optionalCurrency.isPresent()) yield optionalCurrency.get().getFormattedBalance(player);
           else {
             PlayerAccount account;
             try {
@@ -107,7 +107,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
               account = platform.getAccount(username);
               if (account == null) yield "No Account Found";
             }
-            yield platform.getCurrencyHolder().getDefaultCurrency().getBalanceFormatted(account);
+            yield platform.getCurrencyHolder().getDefaultCurrency().getFormattedBalance(account);
           }
         } else if (args.length == 3) {
           PlayerAccount account;
@@ -122,7 +122,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeabl
           }
           Optional<Currency> optionalCurrency = platform.getCurrencyHolder().getCurrency(args[1]);
           if (optionalCurrency.isEmpty()) yield null;
-          yield optionalCurrency.get().getBalanceFormatted(account);
+          yield optionalCurrency.get().getFormattedBalance(account);
         }
 
         yield null;

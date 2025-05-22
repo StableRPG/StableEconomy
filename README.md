@@ -39,3 +39,5 @@ See the [LICENSE](LICENSE) file for full terms and conditions.
 - [ ] Implement better configuration error handling (providing the specific line the error takes place)
 - [ ] Implement NBT support for AdvancedPricedItems
 - [ ] Implement support for backups & restores
+- [ ] Implement customizable shop messages
+- [ ] Implement the ability to customize all plugin messages
