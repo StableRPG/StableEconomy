@@ -22,7 +22,7 @@ Configuration files are in `src/main/resources` and will be generated in your se
 - `prices.yml` – Default item prices
 - `shops.yml` – Global shop configuration
 - `shops/` – Folder for individual shop category files
-- `currencies/` – Folder for defining custom currencies (each subfolder includes `currency.yml` and optional `locale.yml`)
+- `currencies/` – Folder for defining custom currencies (each subfolder includes `currency.yml` and `locale.yml`)
 
 ## Contributing
 
