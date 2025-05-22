@@ -4,8 +4,6 @@ import dev.triumphteam.gui.click.ClickContext;
 import dev.triumphteam.gui.click.GuiClick;
 import io.papermc.paper.entity.PlayerGiveResult;
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -24,6 +22,7 @@ import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class TransactableItem implements AbstractGuiItem {
@@ -52,30 +51,19 @@ public class TransactableItem implements AbstractGuiItem {
   private final ItemBuilder itemBuilder;
 
   private final int amount;
-  private final Component displayName;
-  private final List<Component> description;
+  private final String displayName;
+  private final List<String> description;
   private final ItemFormatter itemFormatter;
 
   private final double buyPrice;
   private final double sellValue;
 
-  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, Component displayName, List<Component> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
     this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
     this.displayName = displayName;
     this.description = Collections.unmodifiableList(description);
-    this.itemFormatter = itemFormatter;
-    this.buyPrice = buyPrice;
-    this.sellValue = sellValue;
-  }
-
-  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
-    this.currency = currency;
-    this.itemBuilder = itemBuilder;
-    this.amount = amount;
-    this.displayName = MiniMessage.miniMessage().deserialize(itemFormatter.formatName(displayName));
-    this.description = description.stream().map(itemFormatter::formatLore).map(MiniMessage.miniMessage()::deserialize).toList();
     this.itemFormatter = itemFormatter;
     this.buyPrice = buyPrice;
     this.sellValue = sellValue;
@@ -141,14 +129,20 @@ public class TransactableItem implements AbstractGuiItem {
   @Override
   public ItemStack build() {
     return this.itemBuilder.copy(builder -> {
-      List<Component> description = this.description != null ? new ArrayList<>(this.description) : new ArrayList<>();
+      if (displayName != null)
+        builder.displayName(itemFormatter.formatName(displayName));
+      List<String> description;
+      if (this.description != null)
+        description = this.description.stream().map(itemFormatter::formatLore).collect(Collectors.toList());
+      else
+        description = new ArrayList<>();
       if (buyPrice != -1 || sellValue != -1)
-        description.add(Component.empty());
+        description.add(" ");
       if (buyPrice != -1)
-        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatBuyPriceLore(currency.format(buyPrice))));
+        description.add(itemFormatter.formatBuyPriceLore(currency.format(buyPrice)));
       if (sellValue != -1)
-        description.add(MiniMessage.miniMessage().deserialize(itemFormatter.formatSellValueLore(currency.format(sellValue))));
-      builder.displayName(displayName).lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
+        description.add(itemFormatter.formatSellValueLore(currency.format(sellValue)));
+      builder.lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
     }).build();
   }
 

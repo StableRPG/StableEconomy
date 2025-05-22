@@ -57,7 +57,7 @@ public class ShopCategory {
       if (itemSection.isConfigurationSection("item"))
         category.addGuiItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter));
       else
-        category.addGuiItem(slot, ShopItem.deserialize(manager, itemSection));
+        category.addGuiItem(slot, ShopItem.deserialize(manager, itemSection, itemFormatter));
     }
 
     return category;

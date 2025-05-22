@@ -11,14 +11,16 @@ import org.jetbrains.annotations.Nullable;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
+import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
 @RequiredArgsConstructor
 @Getter
 public class ShopItem implements AbstractGuiItem {
 
-  public static ShopItem deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
+  public static ShopItem deserialize(ShopManager manager, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
     ItemBuilder itemBuilder = ItemBuilder.deserialize(section);
+    itemFormatter = ItemFormatter.deserialize(section, itemFormatter);
 
     String rawActionType = section.getString("action", "NONE").toUpperCase();
     ShopItemAction action = ShopItemAction.valueOf(rawActionType);
@@ -35,12 +37,13 @@ public class ShopItem implements AbstractGuiItem {
       default -> new String[0];
     };
 
-    return new ShopItem(manager, itemBuilder, action, actionArgs);
+    return new ShopItem(manager, itemBuilder, itemFormatter, action, actionArgs);
   }
 
   private final ShopManager manager;
 
   private final ItemBuilder itemBuilder;
+  private final ItemFormatter itemFormatter;
 
   private final @NotNull ShopItemAction action;
   private final @Nullable String[] actionArgs;
@@ -70,6 +73,9 @@ public class ShopItem implements AbstractGuiItem {
 
   @Override
   public ItemStack build() {
-    return itemBuilder.build();
+    return itemBuilder.copy(builder -> {
+      builder.displayName(itemFormatter.formatName(builder.displayName()));
+      builder.lore(builder.lore().stream().map(itemFormatter::formatLore).toList());
+    }).build();
   }
 }

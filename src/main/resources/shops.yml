@@ -1,5 +1,5 @@
-name-format: "<italic:false><gray><name>"
-lore-format: "<italic:false><gray><lore>"
+name-format: "<italic:false><gray><name></gray>"
+lore-format: "<italic:false><gray><lore></gray>"
 buy-price-lore: "<italic:false><gray>Price:</gray> <yellow><amount></yellow>"
 sell-value-lore: "<italic:false><gray>Sell Value:</gray> <yellow><amount></yellow>"
 

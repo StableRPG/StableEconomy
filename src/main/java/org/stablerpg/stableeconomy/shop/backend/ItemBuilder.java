@@ -14,11 +14,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,8 +71,8 @@ public final class ItemBuilder {
 
   private Material material;
   private int amount = 1;
-  private Component displayName;
-  private List<Component> lore;
+  private String displayName;
+  private List<String> lore;
   private Map<Enchantment, Integer> enchantments;
   private ItemFlag[] itemFlags;
 
@@ -103,37 +103,36 @@ public final class ItemBuilder {
     return this;
   }
 
-  public Component displayName() {
+  public String displayName() {
     return displayName;
   }
 
   public ItemBuilder displayName(String displayName) {
-    return displayName(MiniMessage.miniMessage().deserialize("<italic:false>" + displayName));
-  }
-
-  public ItemBuilder displayName(Component displayName) {
     this.displayName = displayName;
     return this;
   }
 
-  public List<Component> lore() {
+  public ItemBuilder displayName(Component displayName) {
+    return displayName(MiniMessage.miniMessage().serialize(displayName));
+  }
+
+  public List<String> lore() {
     return lore;
   }
 
-  public ItemBuilder lore(List<Component> lore) {
+  public ItemBuilder lore(List<String> lore) {
     this.lore = lore;
     return this;
   }
 
   public ItemBuilder lore(String... lore) {
-    this.lore = Stream.of(lore)
-      .map(MiniMessage.miniMessage()::deserialize)
-      .toList();
-    return this;
+    return lore(Arrays.asList(lore));
   }
 
   public ItemBuilder lore(Component... lore) {
-    this.lore = List.of(lore);
+    this.lore = Arrays.stream(lore)
+      .map(MiniMessage.miniMessage()::serialize)
+      .toList();
     return this;
   }
 
@@ -171,9 +170,10 @@ public final class ItemBuilder {
   public ItemStack build() {
     ItemStack item = ItemStack.of(material, amount);
     item.editMeta(meta -> {
-      meta.displayName(displayName);
+      if (displayName != null)
+        meta.displayName(MiniMessage.miniMessage().deserialize(displayName));
       if (lore != null)
-        meta.lore(lore);
+        meta.lore(lore.stream().map(MiniMessage.miniMessage()::deserialize).toList());
       if (itemFlags != null && itemFlags.length > 0)
         meta.addItemFlags(itemFlags);
     });
