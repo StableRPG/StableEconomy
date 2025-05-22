@@ -26,7 +26,7 @@ Configuration files are in `src/main/resources` and will be generated in your se
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository, make your changes, and open a pull request. Ensure code follows the existing style and includes tests where appropriate.
+Contributions are welcome! Please fork the repository, make your changes, and open a pull request. Ensure code follows the existing style
 
 ## License
 
@@ -41,3 +41,4 @@ See the [LICENSE](LICENSE) file for full terms and conditions.
 - [ ] Implement support for backups & restores
 - [ ] Implement customizable shop messages
 - [ ] Implement the ability to customize all plugin messages
+- [ ] Implement a configurable sell command with the ability for selling specific items, all items, hand, and within a gui
