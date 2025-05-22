@@ -40,7 +40,7 @@ public class ShopConfigImpl implements ShopConfig {
       platform.getPlugin().saveResource("shops.yml", false);
     if (!shopDir.exists()) {
       if (!shopDir.mkdir()) {
-        platform.getLogger().warning("Failed to create shops directory");
+        getLogger().warning("Failed to create shops directory");
         return;
       }
       platform.getPlugin().saveResource("shops/main.yml", false);
@@ -58,7 +58,7 @@ public class ShopConfigImpl implements ShopConfig {
 
     ConfigurationSection commandsSection = config.getConfigurationSection("shop-commands");
     if (commandsSection == null) {
-      platform.getLogger().warning("Failed to locate shop-commands section");
+      getLogger().warning("Failed to locate shop-commands section");
       return;
     }
     for (String commandName : commandsSection.getKeys(false)) {
@@ -67,7 +67,7 @@ public class ShopConfigImpl implements ShopConfig {
       try {
         command = ShopCommand.deserialize(shopManager, commandSection);
       } catch (DeserializationException e) {
-        platform.getLogger().warning("Failed to deserialize command " + commandName + ": " + e.getMessage());
+        getLogger().warning("Failed to deserialize command \"%s\": %s".formatted(commandName, e.getMessage()));
         continue;
       }
       shopCommands.add(command);
@@ -76,7 +76,7 @@ public class ShopConfigImpl implements ShopConfig {
     File[] shopFiles = shopDir.listFiles(file -> file.getName().endsWith(".yml"));
 
     if (shopFiles == null) {
-      platform.getLogger().warning("Failed to load shops directory");
+      getLogger().warning("Failed to load shops directory");
       return;
     }
 
@@ -84,7 +84,7 @@ public class ShopConfigImpl implements ShopConfig {
       YamlConfiguration categoryConfig = YamlConfiguration.loadConfiguration(shopFile);
       ConfigurationSection categorySection = categoryConfig.getConfigurationSection("category");
       if (categorySection == null) {
-        platform.getLogger().warning("Failed to locate category section for " + shopFile.getName());
+        getLogger().warning("Failed to locate category section for " + shopFile.getName());
         continue;
       }
 
@@ -93,7 +93,7 @@ public class ShopConfigImpl implements ShopConfig {
       try {
         category = ShopCategory.deserialize(shopManager, categorySection, defaultLoreTemplate);
       } catch (DeserializationException e) {
-        platform.getLogger().warning("Failed to deserialize category " + id + ": " + e.getMessage());
+        getLogger().warning("Failed to deserialize category \"%s\": %s".formatted(id, e.getMessage()));
         continue;
       }
       shopManager.addCategory(id, category);
@@ -106,16 +106,16 @@ public class ShopConfigImpl implements ShopConfig {
   }
 
   @Override
-  public @NotNull Logger getLogger() {
-    return platform.getLogger();
-  }
-
-  @Override
   public void close() {
     for (ShopCommand command : shopCommands)
       command.unregister();
     shopCommands.clear();
     shopManager.close();
+  }
+
+  @Override
+  public @NotNull Logger getLogger() {
+    return platform.getLogger();
   }
 
 }

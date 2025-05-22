@@ -13,16 +13,13 @@ public class ShopCommand {
   public static ShopCommand deserialize(ShopManager manager, ConfigurationSection section) throws DeserializationException {
     Command command = new Command();
 
-    if (section == null)
-      throw new DeserializationException("Failed to locate command section");
-
     command.name(section.getName());
     if (section.contains("aliases"))
       command.aliases(section.getStringList("aliases").toArray(new String[0]));
     if (section.contains("permission"))
       command.permission(section.getString("permission"));
     if (!section.contains("category"))
-      throw new DeserializationException("Failed to locate category for command \"" + command.name() + "\"");
+      throw new DeserializationException("Failed to locate category");
     String categoryId = section.getString("category");
 
     return new ShopCommand(manager, command, categoryId);

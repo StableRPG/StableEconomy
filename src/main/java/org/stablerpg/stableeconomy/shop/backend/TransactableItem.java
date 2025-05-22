@@ -39,7 +39,7 @@ public class TransactableItem implements AbstractGuiItem {
     if (buyPrice == -1) {
       buyPrice = platform.getPriceProvider().getBuyPrice(itemBuilder.build());
       if (buyPrice == -1)
-        throw new DeserializationException("Failed to locate buy price in " + section.getName());
+        throw new DeserializationException("Failed to locate buy price for \"%s\"".formatted(section.getName()));
     }
     if (sellValue == -1)
       sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());

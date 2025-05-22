@@ -27,14 +27,26 @@ public record ItemFormatter(@NotNull String nameFormat, @NotNull String loreForm
   }
 
   public static ItemFormatter deserialize(ConfigurationSection section) {
-    String nameFormat = section.getString("name-format", "<italic:false><gray><name>")
-      .replace("<name>", "%s");
-    String loreFormat = section.getString("lore-format", "<italic:false><gray><lore>")
-      .replace("<lore>", "%s");
-    String buyPriceLore = section.getString("buy-price-lore", "<italic:false><gray>Price:</gray> <yellow><amount></yellow>")
-      .replace("<amount>", "%s");
-    String sellValueLore = section.getString("sell-value-lore", "<italic:false><gray>Sell Value:</gray> <yellow><amount></yellow>")
-      .replaceAll("<amount>", "%s");
+    String nameFormat = section.getString("name-format");
+    if (nameFormat == null)
+      throw new IllegalArgumentException("Failed to locate name-format");
+
+    String loreFormat = section.getString("lore-format");
+    if (loreFormat == null)
+      throw new IllegalArgumentException("Failed to locate lore-format");
+
+    String buyPriceLore = section.getString("buy-price-lore");
+    if (buyPriceLore == null)
+      throw new IllegalArgumentException("Failed to locate buy-price-lore");
+
+    String sellValueLore = section.getString("sell-value-lore");
+    if (sellValueLore == null)
+      throw new IllegalArgumentException("Failed to locate sell-value-lore");
+
+    nameFormat = nameFormat.replace("<name>", "%s");
+    loreFormat = loreFormat.replace("<lore>", "%s");
+    buyPriceLore = buyPriceLore.replace("<amount>", "%s");
+    sellValueLore = sellValueLore.replaceAll("<amount>", "%s");
 
     boolean supportsPlaceholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 

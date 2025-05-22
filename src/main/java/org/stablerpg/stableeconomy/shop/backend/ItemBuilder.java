@@ -33,7 +33,7 @@ public final class ItemBuilder {
       throw new DeserializationException("Material cannot be null");
     Material material = Material.matchMaterial(materialName);
     if (material == null)
-      throw new DeserializationException("Material '" + materialName + "' is not valid");
+      throw new DeserializationException("Material \"%s\" is not valid".formatted(materialName));
     builder.material(material);
 
     builder.amount(section.getInt("amount", 1));

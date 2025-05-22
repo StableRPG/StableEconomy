@@ -32,7 +32,7 @@ public class ShopItem implements AbstractGuiItem {
       case OPEN_CATEGORY -> {
         String category = section.getString("category");
         if (category == null) {
-          throw new DeserializationException("Failed to locate category for action OPEN_CATEGORY in " + section.getName());
+          throw new DeserializationException("Failed to locate category for action OPEN_CATEGORY for \"%s\"".formatted(section.getName()));
         }
         yield new String[]{category};
       }

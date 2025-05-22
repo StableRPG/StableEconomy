@@ -24,7 +24,7 @@ public class ShopCategory {
     String rawCurrency = section.getString("currency", "default");
     Optional<Currency> optionalCurrency = platform.getCurrency(rawCurrency);
     if (optionalCurrency.isEmpty())
-      throw new DeserializationException("Failed to locate currency " + rawCurrency);
+      throw new DeserializationException("Failed to locate currency \"%s\"".formatted(rawCurrency));
     Currency currency = optionalCurrency.get();
 
     String rawTitle = section.getString("title");
