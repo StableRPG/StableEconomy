@@ -43,6 +43,7 @@ public abstract class AbstractConfig implements BasicConfig {
     return plugin.getLogger();
   }
 
+  @Override
   public void load() {
     createFile(plugin);
     if (automaticUpdate) update(plugin);

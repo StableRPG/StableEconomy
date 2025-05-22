@@ -9,11 +9,11 @@ public interface BasicConfig extends Closeable {
 
   void load();
 
-  @NotNull Logger getLogger();
-
   @Override
   default void close() {
 
   }
+
+  @NotNull Logger getLogger();
 
 }

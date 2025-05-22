@@ -17,13 +17,13 @@ public class ShopCategoryView {
   private final @NotNull ShopCategory category;
 
   public void open(Player player) {
-    Gui gui = Gui.of(category.getContext().rows())
+    Gui gui = Gui.of(category.getRows())
       .title(category.getTitle())
       .statelessComponent(container -> {
-        ItemStack backgroundItem = category.getContext().background().build();
+        ItemStack backgroundItem = category.getBackground().build();
         backgroundItem.editMeta(meta -> meta.displayName(Component.space()));
         dev.triumphteam.gui.element.GuiItem<Player, ItemStack> background = ItemBuilder.from(backgroundItem).asGuiItem();
-        for (int slot : category.getContext().backgroundSlots())
+        for (int slot : category.getBackgroundSlots())
           container.setItem(slot, background);
 
         for (Map.Entry<Integer, AbstractGuiItem> entry : category.getItems().entrySet()) {

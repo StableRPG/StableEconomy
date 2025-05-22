@@ -10,7 +10,6 @@ import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
-import org.stablerpg.stableeconomy.shop.gui.ShopCategoryViewTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +32,18 @@ public class ShopCategory {
       throw new DeserializationException("Failed to locate title");
     Component title = MiniMessage.miniMessage().deserialize(rawTitle);
 
-    ShopCategoryViewTemplate template = ShopCategoryViewTemplate.deserialize(section);
+    int rows = section.getInt("rows", 3);
+
+    ConfigurationSection backgroundItemSection = section.getConfigurationSection("background-item");
+    if (backgroundItemSection == null)
+      throw new DeserializationException("Failed to locate background item section");
+    ItemBuilder backgroundItem = ItemBuilder.deserialize(backgroundItemSection);
+
+    int[] backgroundSlots = section.getIntegerList("background-slots").stream().mapToInt(Integer::intValue).toArray();
 
     itemFormatter = ItemFormatter.deserialize(section, itemFormatter);
 
-    ShopCategory category = new ShopCategory(manager, title, template);
+    ShopCategory category = new ShopCategory(manager, title, rows, backgroundItem, backgroundSlots);
 
     ConfigurationSection itemsSection = section.getConfigurationSection("items");
     if (itemsSection == null)
@@ -60,14 +66,18 @@ public class ShopCategory {
   private final ShopManager manager;
 
   private final Component title;
-  private final ShopCategoryViewTemplate context;
+  private final int rows;
+  private final ItemBuilder background;
+  private final int[] backgroundSlots;
 
   private final Map<Integer, AbstractGuiItem> items = new HashMap<>();
 
-  public ShopCategory(ShopManager manager, Component title, ShopCategoryViewTemplate context) {
+  public ShopCategory(ShopManager manager, Component title, int rows, ItemBuilder background, int[] backgroundSlots) {
     this.manager = manager;
     this.title = title;
-    this.context = context;
+    this.rows = rows;
+    this.background = background;
+    this.backgroundSlots = backgroundSlots;
   }
 
   public void addGuiItem(Integer slot, AbstractGuiItem item) {
