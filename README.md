@@ -4,9 +4,9 @@
 
 ## Features
 
-- Multiple currencies support
-- Configurable shops
+- Multi-currency support
 - Configurable economy commands for balance, payment, leaderboard, and administration
+- Configurable shops
 - Customizable messages
 
 ## Requirements
