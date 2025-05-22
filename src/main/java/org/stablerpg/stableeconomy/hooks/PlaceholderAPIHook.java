@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @SuppressWarnings("UnstableApiUsage")
-public class PlaceholderAPIHook extends PlaceholderExpansion implements Closeable {
+public final class PlaceholderAPIHook extends PlaceholderExpansion implements Closeable {
 
   private final EconomyPlatform platform;
 
