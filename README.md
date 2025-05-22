@@ -36,4 +36,7 @@ See the [LICENSE](LICENSE) file for full terms and conditions.
 
 ## TODO
 
-- [ ] Add support for priority-based pricing (from first to last) instead of going in order (basic, grouped, advanced)
+- [ ] Implement a reload command for configurations
+- [ ] Implement better configuration error handling (providing the specific line the error takes place)
+- [ ] Implement NBT support for AdvancedPricedItems
+- [ ] Implement support for backups & restores

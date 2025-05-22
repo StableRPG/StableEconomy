@@ -33,6 +33,7 @@ public abstract class Database implements Closeable {
   protected Map<String, PlayerAccount> entriesByUsername;
   private ScheduledExecutorService scheduler;
   private ScheduledFuture<?> autoSaveTask;
+
   protected Database(@NotNull EconomyPlatform platform) {
     this.platform = platform;
     scheduler = Executors.newSingleThreadScheduledExecutor();

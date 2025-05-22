@@ -15,7 +15,7 @@ category:
         - "<gray>Clay-based building block.</gray>"
     11:
       item:
-        material: CONCRETE
+        material: WHITE_CONCRETE
         amount: 16
       display-name: "<white>Concrete</white>"
       lore:

@@ -4,34 +4,23 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.stablerpg.stableeconomy.api.PriceProvider;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PriceProviderImpl implements PriceProvider {
 
-  private final Set<BasicPricedItem> basic;
-  private final Set<GroupedPricedItems> grouped;
-  private final Set<AdvancedPricedItem> advanced;
+  private final List<PricedItem> pricedItems;
 
   public PriceProviderImpl() {
-    this.basic = new HashSet<>();
-    this.grouped = new HashSet<>();
-    this.advanced = new HashSet<>();
+    this.pricedItems = new ArrayList<>();
   }
 
   public void add(@NotNull PricedItem pricedItem) {
-    switch (pricedItem) {
-      case BasicPricedItem basicPricedItem -> basic.add(basicPricedItem);
-      case GroupedPricedItems groupedPricedItems -> grouped.add(groupedPricedItems);
-      case AdvancedPricedItem advancedPricedItem -> advanced.add(advancedPricedItem);
-      default -> throw new IllegalArgumentException("Unknown PricedItem type: " + pricedItem.getClass().getName());
-    }
+    pricedItems.add(pricedItem);
   }
 
   public void reset() {
-    basic.clear();
-    grouped.clear();
-    advanced.clear();
+    pricedItems.clear();
   }
 
   @Override
@@ -49,12 +38,9 @@ public class PriceProviderImpl implements PriceProvider {
   }
 
   private PricedItem getPricedItem(ItemStack itemStack) {
-    for (BasicPricedItem item : basic)
-      if (item.test(itemStack)) return item;
-    for (GroupedPricedItems item : grouped)
-      if (item.test(itemStack)) return item;
-    for (AdvancedPricedItem item : advanced)
-      if (item.test(itemStack)) return item;
+    for (PricedItem item : pricedItems)
+      if (item.test(itemStack))
+        return item;
     return null;
   }
 

@@ -178,11 +178,11 @@ public class Currency {
     leaderboard = platform.getLeaderboard(id);
   }
 
+  // Balance Actions
+
   public double getBalance(OfflinePlayer player) {
     return platform.getBalance(player, id);
   }
-
-  // Balance Actions
 
   public String getBalanceFormatted(OfflinePlayer player) {
     return format(getBalance(player));
