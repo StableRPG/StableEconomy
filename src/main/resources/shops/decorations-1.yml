@@ -73,7 +73,7 @@ category:
       item:
         material: PAINTING
         amount: 4
-      display-name: "<green>Painting</yellow>"
+      display-name: "<yellow>Painting</yellow>"
       lore:
         - "<gray>Wall decoration with random art.</gray>"
     22:

@@ -10,7 +10,7 @@ category:
       item:
         material: TERRACOTTA
         amount: 16
-      display-name: "<brown>Terracotta</brown>"
+      display-name: "<gray>Terracotta</gray>"
       lore:
         - "<gray>Clay-based building block.</gray>"
     11:

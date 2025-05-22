@@ -80,7 +80,7 @@ category:
       item:
         material: JUKEBOX
         amount: 1
-      display-name: "<brown>Jukebox</brown>"
+      display-name: "<gray>Jukebox</gray>"
       lore:
         - "<gray>Play music discs.</gray>"
     23:

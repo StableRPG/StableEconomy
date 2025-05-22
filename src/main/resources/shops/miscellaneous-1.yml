@@ -63,7 +63,7 @@ category:
       item:
         material: SADDLE
         amount: 1
-      display-name: "<brown>Saddle</brown>"
+      display-name: "<gray>Saddle</gray>"
       lore:
         - "<gray>Ride horses and other animals.</gray>"
     20:

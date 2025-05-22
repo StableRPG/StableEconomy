@@ -52,7 +52,7 @@ category:
       item:
         material: OBSIDIAN
         amount: 4
-      display-name: "<purple>Obsidian</purple>"
+      display-name: "<dark_purple>Obsidian</dark_purple>"
       lore:
         - "<gray>Extremely hard volcanic rock.</gray>"
     19:
