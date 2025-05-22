@@ -22,7 +22,6 @@ import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class TransactableItem implements AbstractGuiItem {
@@ -127,14 +126,17 @@ public class TransactableItem implements AbstractGuiItem {
   }
 
   @Override
-  public ItemStack build() {
+  public ItemStack build(Player player) {
     return this.itemBuilder.copy(builder -> {
-      if (displayName != null)
+      if (displayName != null) {
+        String displayName = itemFormatter.format(this.displayName, itemFormatter::formatName, player);
         builder.displayName(itemFormatter.formatName(displayName));
+      }
       List<String> description;
-      if (this.description != null)
-        description = this.description.stream().map(itemFormatter::formatLore).collect(Collectors.toList());
-      else
+      if (this.description != null) {
+        description = new ArrayList<>(this.description);
+        description = itemFormatter.format(description, itemFormatter::formatLore, player);
+      } else
         description = new ArrayList<>();
       if (buyPrice != -1 || sellValue != -1)
         description.add(" ");

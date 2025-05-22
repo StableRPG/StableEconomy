@@ -28,7 +28,7 @@ public class ShopCategoryView {
 
         for (Map.Entry<Integer, AbstractGuiItem> entry : category.getItems().entrySet()) {
           final AbstractGuiItem item = entry.getValue();
-          container.setItem(entry.getKey(), ItemBuilder.from(item.build()).asGuiItem(item::execute));
+          container.setItem(entry.getKey(), ItemBuilder.from(item.build(player)).asGuiItem(item::execute));
         }
       }).build();
 

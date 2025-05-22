@@ -14,6 +14,8 @@ import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Getter
 public class ShopItem implements AbstractGuiItem {
@@ -72,10 +74,18 @@ public class ShopItem implements AbstractGuiItem {
   }
 
   @Override
-  public ItemStack build() {
+  public ItemStack build(Player player) {
     return itemBuilder.copy(builder -> {
-      builder.displayName(itemFormatter.formatName(builder.displayName()));
-      builder.lore(builder.lore().stream().map(itemFormatter::formatLore).toList());
+      String displayName = builder.displayName();
+      if (displayName != null) {
+        displayName = itemFormatter.format(displayName, itemFormatter::formatName, player);
+        builder.displayName(displayName);
+      }
+      List<String> lore = builder.lore();
+      if (lore != null) {
+        lore = itemFormatter.format(lore, itemFormatter::formatLore, player);
+        builder.lore(lore);
+      }
     }).build();
   }
 }

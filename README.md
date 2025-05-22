@@ -41,4 +41,3 @@ See the [LICENSE](LICENSE) file for full terms and conditions.
 - [ ] Implement support for backups & restores
 - [ ] Implement customizable shop messages
 - [ ] Implement the ability to customize all plugin messages
-- [ ] Implement placeholder support within item name/lore in the shop

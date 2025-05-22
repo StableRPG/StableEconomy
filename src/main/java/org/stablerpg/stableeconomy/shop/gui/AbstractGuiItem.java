@@ -8,6 +8,6 @@ public interface AbstractGuiItem {
 
   void execute(Player player, ClickContext context);
 
-  ItemStack build();
+  ItemStack build(Player player);
 
 }
