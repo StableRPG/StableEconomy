@@ -10,11 +10,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
+import org.stablerpg.stableeconomy.config.shop.ShopLocale;
+import org.stablerpg.stableeconomy.config.shop.ShopMessageType;
 import org.stablerpg.stableeconomy.currency.Currency;
-import org.stablerpg.stableeconomy.shop.exceptions.BuyException;
-import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
-import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughSpaceException;
-import org.stablerpg.stableeconomy.shop.exceptions.NotEnoughToSellException;
 import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 import org.stablerpg.stableeconomy.shop.util.InventoryUtil;
@@ -26,7 +24,7 @@ import java.util.List;
 @Getter
 public class TransactableItem implements AbstractGuiItem {
 
-  public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
+  public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section, ItemFormatter itemFormatter, ShopLocale locale) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
 
     ItemBuilder itemBuilder = ItemBuilder.deserialize(itemSection);
@@ -43,7 +41,7 @@ public class TransactableItem implements AbstractGuiItem {
     }
     if (sellValue == -1)
       sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
-    return new TransactableItem(currency, itemBuilder, amount, displayName, description, itemFormatter, buyPrice, sellValue);
+    return new TransactableItem(currency, itemBuilder, amount, displayName, description, itemFormatter, buyPrice, sellValue, locale);
   }
 
   private final Currency currency;
@@ -57,7 +55,9 @@ public class TransactableItem implements AbstractGuiItem {
   private final double buyPrice;
   private final double sellValue;
 
-  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue) {
+  private final ShopLocale locale;
+
+  public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue, ShopLocale locale) {
     this.currency = currency;
     this.itemBuilder = itemBuilder;
     this.amount = amount;
@@ -66,63 +66,58 @@ public class TransactableItem implements AbstractGuiItem {
     this.itemFormatter = itemFormatter;
     this.buyPrice = buyPrice;
     this.sellValue = sellValue;
+    this.locale = locale;
   }
 
   @Override
   public void execute(Player player, ClickContext context) {
     GuiClick clickType = context.guiClick();
     switch (clickType) {
-      case LEFT, SHIFT_LEFT -> {
-        try {
-          purchase(player);
-        } catch (CannotBuyException e) {
-          player.sendRichMessage("<red>Not enough money to buy item!</red>");
-        } catch (NotEnoughSpaceException e) {
-          player.sendRichMessage("<red>Not enough space in inventory!</red>");
-        } catch (BuyException e) {
-          player.sendRichMessage("<red>Failed to accurately detect available space in inventory!</red>");
-        }
-      }
-      case RIGHT, SHIFT_RIGHT -> {
-        try {
-          sell(player);
-        } catch (NotEnoughToSellException e) {
-          player.sendRichMessage("<red>You don't have the item to sell!</red>");
-        }
-      }
+      case LEFT, SHIFT_LEFT -> purchase(player);
+      case RIGHT, SHIFT_RIGHT -> sell(player);
     }
   }
 
-  public void purchase(Player player) throws BuyException {
+  public void purchase(Player player) {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
     double buyPrice = this.buyPrice;
 
-    if (!currency.hasBalance(player, buyPrice))
-      throw new CannotBuyException("Not enough money to buy item");
+    if (!currency.hasBalance(player, buyPrice)) {
+      locale.sendParsedMessage(player, ShopMessageType.INSUFFICIENT_BALANCE, "required-balance", currency.format(buyPrice), "balance", currency.format(currency.getBalance(player)), "amount", String.valueOf(amount), "item-name", displayName);
+      return;
+    }
 
-    if (!InventoryUtil.canFit(player, item))
-      throw new NotEnoughSpaceException("Not enough space in inventory");
+    if (!InventoryUtil.canFit(player, item)) {
+      locale.sendParsedMessage(player, ShopMessageType.NOT_ENOUGH_SPACE, "amount", String.valueOf(amount), "item-name", displayName);
+      return;
+    }
 
     currency.subtractBalance(player, buyPrice);
     PlayerGiveResult result = player.give(List.of(item), false);
 
     if (!result.leftovers().isEmpty())
-      throw new BuyException("Failed to accurately detect available space in inventory");
+      player.sendRichMessage("<red>Failed to accurately detect available space in inventory!</red>");
+
+    locale.sendParsedMessage(player, ShopMessageType.SUCCESSFULLY_PURCHASED, "payed-amount", currency.format(buyPrice), "amount", String.valueOf(amount), "item-name", displayName);
   }
 
-  public void sell(Player player) throws NotEnoughToSellException {
+  public void sell(Player player) {
     ItemStack item = itemBuilder.build();
     item.setAmount(amount);
 
     double sellValue = this.sellValue;
 
-    if (!player.getInventory().containsAtLeast(item, amount))
-      throw new NotEnoughToSellException();
+    if (!player.getInventory().containsAtLeast(item, amount)) {
+      locale.sendParsedMessage(player, ShopMessageType.NOT_ENOUGH_TO_SELL, "amount", String.valueOf(amount), "item-name", displayName);
+      return;
+    }
 
     currency.addBalance(player, sellValue);
     player.getInventory().removeItem(item);
+
+    locale.sendParsedMessage(player, ShopMessageType.SUCCESSFULLY_SOLD, "received-amount", currency.format(sellValue), "amount", String.valueOf(amount), "item-name", displayName);
   }
 
   @Override

@@ -1,93 +1,86 @@
 package org.stablerpg.stableeconomy.shop;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import lombok.Getter;
 import org.stablerpg.stableeconomy.EconomyPlatform;
-import org.stablerpg.stableeconomy.shop.exceptions.CannotBuyException;
-import org.stablerpg.stableeconomy.shop.exceptions.NotSellableException;
-import org.stablerpg.stableeconomy.shop.exceptions.NothingSellableException;
-import org.stablerpg.stableeconomy.shop.exceptions.SellAirException;
+import org.stablerpg.stableeconomy.config.shop.ShopLocale;
+import org.stablerpg.stableeconomy.shop.backend.ShopCategory;
 
-public class ShopManager extends AbstractShopManager {
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
+public class ShopManager {
+
+  @Getter
+  private final EconomyPlatform platform;
+
+  private final Collection<ShopCommand> commands = new HashSet<>();
+
+  private final Map<String, ShopLocale> locales = new HashMap<>();
+
+  private final Map<String, ShopCategory> categories = new HashMap<>();
 
   public ShopManager(EconomyPlatform platform) {
-    super(platform);
+    this.platform = platform;
   }
 
-  @Override
   public void load() {
+    for (ShopCommand command : commands)
+      command.register();
   }
 
-  @Override
   public void close() {
     resetCategories();
+    resetLocales();
+    resetCommands();
   }
 
-  @Override
-  public void sellHand(Player player) throws NotSellableException, SellAirException {
-    ItemStack item = player.getInventory().getItemInMainHand();
-
-    if (item.getType().isAir())
-      throw new SellAirException();
-
-    double value = getPlatform().getPriceProvider().getSellValue(item);
-
-    if (value == -1)
-      throw new NotSellableException();
-
-    player.getInventory().setItemInMainHand(null);
-    getPlatform().addBalance(player, value);
+  public Collection<ShopCommand> getCommands() {
+    return Collections.unmodifiableCollection(commands);
   }
 
-  @Override
-  public void sellItem(Player player, ItemStack item) throws NotSellableException, SellAirException, NothingSellableException {
-    if (item.getType().isAir())
-      throw new SellAirException();
-
-    if (getPlatform().getPriceProvider().getSellValue(item) == -1)
-      throw new NotSellableException();
-
-    double value = 0;
-
-    for (ItemStack stack : player.getInventory().getContents()) {
-      if (stack != null && stack.isSimilar(item)) {
-        player.getInventory().removeItem(stack);
-        value += getPlatform().getPriceProvider().getSellValue(stack);
-      }
-    }
-
-    if (value == 0)
-      throw new NothingSellableException();
-
-    getPlatform().addBalance(player, value);
+  public void addCommand(ShopCommand command) {
+    commands.add(command);
   }
 
-  @Override
-  public void sellInventory(Player player) throws NothingSellableException {
-    double totalValue = 0;
-
-    for (ItemStack item : player.getInventory().getContents()) {
-      if (item != null) {
-        totalValue += getPlatform().getPriceProvider().getSellValue(item);
-        player.getInventory().removeItem(item);
-      }
-    }
-
-    if (totalValue == 0)
-      throw new NothingSellableException();
-
-    getPlatform().addBalance(player, totalValue);
+  private void resetCommands() {
+    for (ShopCommand command : commands)
+      command.unregister();
+    commands.clear();
   }
 
-  @Override
-  public void buyItem(Player player, ItemStack item) throws CannotBuyException {
-    double price = getPlatform().getPriceProvider().getBuyPrice(item);
+  public Collection<ShopLocale> getLocales() {
+    return Collections.unmodifiableCollection(locales.values());
+  }
 
-    if (price == -1)
-      throw new CannotBuyException();
+  public ShopLocale getLocale(String id) {
+    return locales.get(id);
+  }
 
-    player.getInventory().addItem(item);
-    getPlatform().subtractBalance(player, price);
+  public void addLocale(String id, ShopLocale locale) {
+    locales.put(id, locale);
+  }
+
+  private void resetLocales() {
+    locales.clear();
+  }
+
+  public Collection<ShopCategory> getCategories() {
+    return Collections.unmodifiableCollection(categories.values());
+  }
+
+  public ShopCategory getCategory(String id) {
+    return categories.get(id);
+  }
+
+  public void addCategory(String id, ShopCategory category) {
+    categories.put(id, category);
+  }
+
+  private void resetCategories() {
+    categories.clear();
   }
 
 }

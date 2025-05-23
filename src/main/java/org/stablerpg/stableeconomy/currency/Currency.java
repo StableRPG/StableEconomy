@@ -19,9 +19,9 @@ import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.commands.Command;
 import org.stablerpg.stableeconomy.commands.arguments.AccountArgument;
 import org.stablerpg.stableeconomy.config.currency.CurrencyLocale;
+import org.stablerpg.stableeconomy.config.currency.CurrencyMessageType;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
-import org.stablerpg.stableeconomy.config.messages.Locale;
-import org.stablerpg.stableeconomy.config.messages.MessageType;
+import org.stablerpg.stableeconomy.config.messages.AbstractLocale;
 import org.stablerpg.stableeconomy.currency.formatting.CurrencyFormatter;
 import org.stablerpg.stableeconomy.currency.formatting.Formatters;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
@@ -73,7 +73,7 @@ public class Currency {
   @Getter
   private final @NotNull EconomyPlatform platform;
   @Getter
-  private final @NotNull Locale locale;
+  private final @NotNull AbstractLocale locale;
 
   @Getter
   private final String singularDisplayName;
@@ -96,7 +96,7 @@ public class Currency {
   private @Nullable List<PlayerAccount> leaderboard;
   private long lastLeaderboardUpdate = 0;
 
-  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @NotNull Locale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @NotNull AbstractLocale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale;
@@ -303,11 +303,11 @@ public class Currency {
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
 
-    locale.sendParsedMessage(sender, MessageType.VIEW_OTHER, "player", target.getUsername(), "balance", getFormattedBalance(target));
+    locale.sendParsedMessage(sender, CurrencyMessageType.VIEW_OTHER, "player", target.getUsername(), "balance", getFormattedBalance(target));
   }
 
   private void viewOwnBalance(Player player, CommandArguments args) {
-    locale.sendParsedMessage(player, MessageType.VIEW_OWN, "balance", getFormattedBalance(player));
+    locale.sendParsedMessage(player, CurrencyMessageType.VIEW_OWN, "balance", getFormattedBalance(player));
   }
 
   private void transferBalance(Player player, CommandArguments args) throws WrapperCommandSyntaxException {
@@ -323,11 +323,11 @@ public class Currency {
 
     if (getBalance(account) < amount) throw CommandAPI.failWithString("Insufficient funds");
 
-    locale.sendParsedMessage(player, MessageType.TRANSFER_SEND, "sender", player.getName(), "receiver", account.getUsername(), "amount", format(amount), "old-balance", getFormattedBalance(account), "new-balance", format(getBalance(account) - amount));
+    locale.sendParsedMessage(player, CurrencyMessageType.TRANSFER_SEND, "sender", player.getName(), "receiver", account.getUsername(), "amount", format(amount), "old-balance", getFormattedBalance(account), "new-balance", format(getBalance(account) - amount));
 
     Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
     if (targetPlayer != null)
-      locale.sendParsedMessage(targetPlayer, MessageType.TRANSFER_RECEIVE, "sender", player.getName(), "receiver", account.getUsername(), "amount", format(amount), "old-balance", getFormattedBalance(target), "new-balance", format(getBalance(target) + amount));
+      locale.sendParsedMessage(targetPlayer, CurrencyMessageType.TRANSFER_RECEIVE, "sender", player.getName(), "receiver", account.getUsername(), "amount", format(amount), "old-balance", getFormattedBalance(target), "new-balance", format(getBalance(target) + amount));
 
     subtractBalance(account, amount);
     addBalance(target, amount);
@@ -350,14 +350,14 @@ public class Currency {
     int start = (page - 1) * leaderboardPageLength;
     int end = Math.min(leaderboard.size(), start + leaderboardPageLength);
 
-    locale.sendParsedMessage(sender, MessageType.LEADERBOARD_TITLE, "currency", id, "page", String.valueOf(page), "max-page", String.valueOf(maxPage));
-    locale.sendParsedMessage(sender, MessageType.LEADERBOARD_SERVER_TOTAL, "server-total", format(leaderboard.stream().mapToDouble(account -> account.getBalance(id)).sum()));
+    locale.sendParsedMessage(sender, CurrencyMessageType.LEADERBOARD_TITLE, "currency", id, "page", String.valueOf(page), "max-page", String.valueOf(maxPage));
+    locale.sendParsedMessage(sender, CurrencyMessageType.LEADERBOARD_SERVER_TOTAL, "server-total", format(leaderboard.stream().mapToDouble(account -> account.getBalance(id)).sum()));
     for (int i = start; i < end; i++) {
       if (i >= leaderboard.size()) break;
       PlayerAccount account = leaderboard.get(i);
-      locale.sendParsedMessage(sender, MessageType.LEADERBOARD_BALANCE_VIEW, "position", String.valueOf(i + 1), "player", account.getUsername(), "balance", getFormattedBalance(account));
+      locale.sendParsedMessage(sender, CurrencyMessageType.LEADERBOARD_BALANCE_VIEW, "position", String.valueOf(i + 1), "player", account.getUsername(), "balance", getFormattedBalance(account));
     }
-    locale.sendParsedMessage(sender, MessageType.LEADERBOARD_NEXT_PAGE, "command", args.fullInput().split(" ")[0], "page", String.valueOf(page), "next-page", String.valueOf(page == maxPage ? page : page + 1), "max-page", String.valueOf(maxPage));
+    locale.sendParsedMessage(sender, CurrencyMessageType.LEADERBOARD_NEXT_PAGE, "command", args.fullInput().split(" ")[0], "page", String.valueOf(page), "next-page", String.valueOf(page == maxPage ? page : page + 1), "max-page", String.valueOf(maxPage));
   }
 
   private void setPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
@@ -367,7 +367,7 @@ public class Currency {
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
 
-    locale.sendParsedMessage(sender, MessageType.ADMIN_SET, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "new-balance", format(amount));
+    locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_SET, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "new-balance", format(amount));
 
     setBalance(target, amount);
   }
@@ -379,7 +379,7 @@ public class Currency {
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
 
-    locale.sendParsedMessage(sender, MessageType.ADMIN_ADD, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) + amount));
+    locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_ADD, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) + amount));
 
     addBalance(target, amount);
   }
@@ -391,7 +391,7 @@ public class Currency {
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
 
-    locale.sendParsedMessage(sender, MessageType.ADMIN_REMOVE, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) - amount));
+    locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_REMOVE, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) - amount));
 
     subtractBalance(target, amount);
   }
@@ -401,7 +401,7 @@ public class Currency {
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
 
-    locale.sendParsedMessage(sender, MessageType.ADMIN_RESET, "player", target.getUsername(), "old-balance", getFormattedBalance(target));
+    locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_RESET, "player", target.getUsername(), "old-balance", getFormattedBalance(target));
 
     resetBalance(target);
   }

@@ -1,8 +1,8 @@
-package org.stablerpg.stableeconomy.config.messages;
+package org.stablerpg.stableeconomy.config.currency;
 
 import lombok.Getter;
 
-public enum MessageType {
+public enum CurrencyMessageType {
 
   VIEW_OWN("view-command.own", "balance"),
   VIEW_OTHER("view-command.other", "player", "balance"),
@@ -24,7 +24,7 @@ public enum MessageType {
   private final String key;
   private final String[] requiredTags;
 
-  MessageType(String key, String... requiredTags) {
+  CurrencyMessageType(String key, String... requiredTags) {
     this.key = key;
     this.requiredTags = requiredTags;
   }

@@ -12,8 +12,6 @@ import org.stablerpg.stableeconomy.shop.backend.ShopCategory;
 import org.stablerpg.stableeconomy.shop.gui.ItemFormatter;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.logging.Logger;
 
 public class ShopConfigImpl implements ShopConfig {
@@ -21,16 +19,17 @@ public class ShopConfigImpl implements ShopConfig {
   private final @NotNull EconomyPlatform platform;
 
   private final @NotNull File shopConfig;
-  private final @NotNull File shopDir;
+  private final @NotNull File categoriesDir;
+  private final @NotNull File localesDir;
 
-  private final Collection<ShopCommand> shopCommands = new HashSet<>();
   @Getter
   private final ShopManager shopManager;
 
   public ShopConfigImpl(@NotNull EconomyPlatform platform) {
     this.platform = platform;
     this.shopConfig = new File(platform.getPlugin().getDataFolder(), "shops.yml");
-    this.shopDir = new File(platform.getPlugin().getDataFolder(), "shops");
+    this.categoriesDir = new File(platform.getPlugin().getDataFolder(), "shops/categories");
+    this.localesDir = new File(platform.getPlugin().getDataFolder(), "shops/locales");
     this.shopManager = new ShopManager(platform);
   }
 
@@ -38,42 +37,45 @@ public class ShopConfigImpl implements ShopConfig {
   public void load() {
     if (!shopConfig.exists())
       platform.getPlugin().saveResource("shops.yml", false);
-    if (!shopDir.exists()) {
-      if (!shopDir.mkdir()) {
-        getLogger().warning("Failed to create shops directory");
-        return;
+    if (!categoriesDir.exists()) {
+      platform.getPlugin().saveResource("shops/categories/main.yml", false);
+      platform.getPlugin().saveResource("shops/categories/blocks-1.yml", false);
+      platform.getPlugin().saveResource("shops/categories/blocks-2.yml", false);
+      platform.getPlugin().saveResource("shops/categories/decorations-1.yml", false);
+      platform.getPlugin().saveResource("shops/categories/decorations-2.yml", false);
+      platform.getPlugin().saveResource("shops/categories/miscellaneous-1.yml", false);
+      platform.getPlugin().saveResource("shops/categories/miscellaneous-2.yml", false);
+    }
+    if (!localesDir.exists()) {
+      platform.getPlugin().saveResource("shops/locales/default.yml", false);
+    }
+
+    File[] localeFiles = localesDir.listFiles(file -> file.getName().endsWith(".yml"));
+
+    if (localeFiles == null) {
+      getLogger().warning("Failed to load locales directory");
+      return;
+    }
+
+    for (File localeFile : localeFiles) {
+      YamlConfiguration localeConfig = YamlConfiguration.loadConfiguration(localeFile);
+
+      String id = localeFile.getName().replaceAll("\\.yml", "");
+      ShopLocale locale;
+      try {
+        locale = ShopLocale.deserialize(localeConfig);
+      } catch (DeserializationException e) {
+        getLogger().warning("Failed to deserialize locale \"%s\": %s".formatted(id, e.getMessage()));
+        continue;
       }
-      platform.getPlugin().saveResource("shops/main.yml", false);
-      platform.getPlugin().saveResource("shops/blocks-1.yml", false);
-      platform.getPlugin().saveResource("shops/blocks-2.yml", false);
-      platform.getPlugin().saveResource("shops/decorations-1.yml", false);
-      platform.getPlugin().saveResource("shops/decorations-2.yml", false);
-      platform.getPlugin().saveResource("shops/miscellaneous-1.yml", false);
-      platform.getPlugin().saveResource("shops/miscellaneous-2.yml", false);
+      shopManager.addLocale(id, locale);
     }
 
     YamlConfiguration config = YamlConfiguration.loadConfiguration(shopConfig);
 
     ItemFormatter defaultLoreTemplate = ItemFormatter.deserialize(config);
 
-    ConfigurationSection commandsSection = config.getConfigurationSection("shop-commands");
-    if (commandsSection == null) {
-      getLogger().warning("Failed to locate shop-commands section");
-      return;
-    }
-    for (String commandName : commandsSection.getKeys(false)) {
-      ConfigurationSection commandSection = commandsSection.getConfigurationSection(commandName);
-      ShopCommand command;
-      try {
-        command = ShopCommand.deserialize(shopManager, commandSection);
-      } catch (DeserializationException e) {
-        getLogger().warning("Failed to deserialize command \"%s\": %s".formatted(commandName, e.getMessage()));
-        continue;
-      }
-      shopCommands.add(command);
-    }
-
-    File[] shopFiles = shopDir.listFiles(file -> file.getName().endsWith(".yml"));
+    File[] shopFiles = categoriesDir.listFiles(file -> file.getName().endsWith(".yml"));
 
     if (shopFiles == null) {
       getLogger().warning("Failed to load shops directory");
@@ -99,17 +101,28 @@ public class ShopConfigImpl implements ShopConfig {
       shopManager.addCategory(id, category);
     }
 
-    shopManager.load();
+    ConfigurationSection commandsSection = config.getConfigurationSection("shop-commands");
+    if (commandsSection == null) {
+      getLogger().warning("Failed to locate shop-commands section");
+      return;
+    }
+    for (String commandName : commandsSection.getKeys(false)) {
+      ConfigurationSection commandSection = commandsSection.getConfigurationSection(commandName);
+      ShopCommand command;
+      try {
+        command = ShopCommand.deserialize(shopManager, commandSection);
+      } catch (DeserializationException e) {
+        getLogger().warning("Failed to deserialize command \"%s\": %s".formatted(commandName, e.getMessage()));
+        continue;
+      }
+      shopManager.addCommand(command);
+    }
 
-    for (ShopCommand command : shopCommands)
-      command.register();
+    shopManager.load();
   }
 
   @Override
   public void close() {
-    for (ShopCommand command : shopCommands)
-      command.unregister();
-    shopCommands.clear();
     shopManager.close();
   }
 

@@ -18,22 +18,24 @@ public class ShopCommand {
       command.aliases(section.getStringList("aliases").toArray(new String[0]));
     if (section.contains("permission"))
       command.permission(section.getString("permission"));
-    if (!section.contains("category"))
-      throw new DeserializationException("Failed to locate category");
-    String categoryId = section.getString("category");
 
-    return new ShopCommand(manager, command, categoryId);
+    String categoryId = section.getString("category");
+    if (categoryId == null)
+      throw new DeserializationException("Failed to locate category for command \"%s\"".formatted(section.getName()));
+    ShopCategory category = manager.getCategory(categoryId);
+
+    return new ShopCommand(manager, command, category);
   }
 
   private final ShopManager manager;
 
   private final Command command;
-  private final String categoryId;
+  private final ShopCategory category;
 
-  public ShopCommand(ShopManager manager, Command command, String categoryId) {
+  public ShopCommand(ShopManager manager, Command command, ShopCategory category) {
     this.manager = manager;
     this.command = command;
-    this.categoryId = categoryId;
+    this.category = category;
   }
 
   public void register() {
@@ -47,8 +49,6 @@ public class ShopCommand {
 
     if (this.command.hasPermission())
       command = command.withPermission(this.command.permission());
-
-    final ShopCategory category = manager.getCategory(categoryId);
 
     command.executesPlayer((player, args) -> {
         new ShopCategoryView(category).open(player);

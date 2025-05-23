@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.stablerpg.stableeconomy.EconomyPlatform;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
+import org.stablerpg.stableeconomy.config.shop.ShopLocale;
 import org.stablerpg.stableeconomy.currency.Currency;
 import org.stablerpg.stableeconomy.shop.ShopManager;
 import org.stablerpg.stableeconomy.shop.gui.AbstractGuiItem;
@@ -43,6 +44,13 @@ public class ShopCategory {
 
     itemFormatter = ItemFormatter.deserialize(section, itemFormatter);
 
+    String localeId = section.getString("locale");
+    if (localeId == null)
+      throw new DeserializationException("Failed to locate locale id");
+    ShopLocale locale = manager.getLocale(localeId);
+    if (locale == null)
+      throw new DeserializationException("Failed to locate locale \"%s\"".formatted(localeId));
+
     ShopCategory category = new ShopCategory(manager, title, rows, backgroundItem, backgroundSlots);
 
     ConfigurationSection itemsSection = section.getConfigurationSection("items");
@@ -55,7 +63,7 @@ public class ShopCategory {
       int slot = Integer.parseInt(itemSection.getName());
 
       if (itemSection.isConfigurationSection("item"))
-        category.addGuiItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter));
+        category.addGuiItem(slot, TransactableItem.deserialize(platform, currency, itemSection, itemFormatter, locale));
       else
         category.addGuiItem(slot, ShopItem.deserialize(manager, itemSection, itemFormatter));
     }

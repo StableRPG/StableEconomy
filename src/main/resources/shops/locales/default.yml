@@ -1,0 +1,8 @@
+buy:
+  successfully-purchased: "<green>You have successfully purchased </green><gray><amount>x</gray> <item-name> <green>for <payed-amount>.</green>"
+  insufficient-balance: "<red>You don't have enough money to buy this item.</red>"
+  not-enough-space: "<red>You don't have enough space in your inventory to buy this item.</red>"
+
+sell:
+  successfully-sold: "<green>You have successfully sold </green><gray><amount>x</gray> <item-name> <green>for <received-amount>.</green>"
+  not-enough-to-sell: "<red>You don't have enough of this item to sell.</red>"
