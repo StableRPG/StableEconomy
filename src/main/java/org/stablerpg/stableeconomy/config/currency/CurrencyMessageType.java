@@ -9,6 +9,7 @@ public enum CurrencyMessageType {
 
   TRANSFER_SEND("transfer-command.send", "sender", "receiver", "amount", "old-balance", "new-balance"),
   TRANSFER_RECEIVE("transfer-command.receive", "sender", "receiver", "amount", "old-balance", "new-balance"),
+  INSUFFICIENT_BALANCE("transfer-command.errors.insufficient-balance", "balance", "amount"),
 
   LEADERBOARD_TITLE("leaderboard-command.title", "currency", "page", "max-page"),
   LEADERBOARD_SERVER_TOTAL("leaderboard-command.server-total", "server-total"),

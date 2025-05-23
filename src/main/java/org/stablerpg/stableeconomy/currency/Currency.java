@@ -300,7 +300,8 @@ public class Currency {
   private void viewOtherBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please contact an administrator.");
 
     locale.sendParsedMessage(sender, CurrencyMessageType.VIEW_OTHER, "player", target.getUsername(), "balance", getFormattedBalance(target));
   }
@@ -313,14 +314,20 @@ public class Currency {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
     Double amount = args.getByClass("amount", Double.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
-    if (amount == null) throw CommandAPI.failWithString("Invalid amount");
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please contact an administrator.");
+    if (amount == null)
+      throw CommandAPI.failWithString("Failed to retrieve amount. Please contact an administrator.");
 
     PlayerAccount account = platform.getAccount(player);
 
-    if (account == null) throw CommandAPI.failWithString("You do not have an account");
+    if (account == null)
+      throw CommandAPI.failWithString("Failed to retrieve your account. Please contact an administrator.");
 
-    if (getBalance(account) < amount) throw CommandAPI.failWithString("Insufficient funds");
+    if (getBalance(account) < amount) {
+      locale.sendParsedMessage(player, CurrencyMessageType.INSUFFICIENT_BALANCE, "amount", format(amount), "balance", getFormattedBalance(account));
+      return;
+    }
 
     locale.sendParsedMessage(player, CurrencyMessageType.TRANSFER_SEND, "sender", player.getName(), "receiver", account.getUsername(), "amount", format(amount), "old-balance", getFormattedBalance(account), "new-balance", format(getBalance(account) - amount));
 
@@ -340,7 +347,7 @@ public class Currency {
     List<PlayerAccount> leaderboard = getLeaderboard();
 
     if (leaderboard == null)
-      throw CommandAPI.failWithString("There was an issue retrieving the leaderboard, contact an administrator immediately.");
+      throw CommandAPI.failWithString("Failed to retrieve the leaderboard. Please contact an administrator.");
 
     int page = (int) args.getOrDefault("page", 1);
 
@@ -363,8 +370,10 @@ public class Currency {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
     Double amount = args.getByClass("amount", Double.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
-    if (amount == null) throw CommandAPI.failWithString("Invalid amount");
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please create an issue at https://github.com/StableLabz/StableEconomy");
+    if (amount == null)
+      throw CommandAPI.failWithString("Failed to retrieve amount. Please create an issue at https://github.com/StableLabz/StableEconomy");
 
     locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_SET, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "new-balance", format(amount));
 
@@ -375,8 +384,10 @@ public class Currency {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
     Double amount = args.getByClass("amount", Double.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
-    if (amount == null) throw CommandAPI.failWithString("Invalid amount");
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please create an issue at https://github.com/StableLabz/StableEconomy");
+    if (amount == null)
+      throw CommandAPI.failWithString("Failed to retrieve amount. Please create an issue at https://github.com/StableLabz/StableEconomy");
 
     locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_ADD, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) + amount));
 
@@ -387,8 +398,11 @@ public class Currency {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
     Double amount = args.getByClass("amount", Double.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
-    if (amount == null) throw CommandAPI.failWithString("Invalid amount");
+
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please create an issue at https://github.com/StableLabz/StableEconomy");
+    if (amount == null)
+      throw CommandAPI.failWithString("Failed to retrieve amount. Please create an issue at https://github.com/StableLabz/StableEconomy");
 
     locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_REMOVE, "player", target.getUsername(), "old-balance", getFormattedBalance(target), "balance-change", format(amount), "new-balance", format(getBalance(target) - amount));
 
@@ -398,7 +412,8 @@ public class Currency {
   private void resetPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
     PlayerAccount target = args.getByClass("target", PlayerAccount.class);
 
-    if (target == null) throw CommandAPI.failWithString("Player not found");
+    if (target == null)
+      throw CommandAPI.failWithString("Failed to retrieve target. Please create an issue at https://github.com/StableLabz/StableEconomy");
 
     locale.sendParsedMessage(sender, CurrencyMessageType.ADMIN_RESET, "player", target.getUsername(), "old-balance", getFormattedBalance(target));
 

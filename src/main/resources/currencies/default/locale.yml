@@ -1,16 +1,18 @@
 view-command:
-  own: "<gray>Balance: <yellow><balance>"
-  other: "<gray><player>'s Balance: <yellow><balance>"
+  own: "<gray>Balance:</gray> <yellow><balance></yellow>"
+  other: "<gray><player>'s Balance:</gray> <yellow><balance></yellow"
 transfer-command:
-  send: "<gray>Sent <yellow><amount> <gray>to <yellow><receiver>"
-  receive: "<gray>Received <yellow><amount> <gray>from <yellow><sender>"
+  send: "<gray>Sent <yellow><amount></yellow> to <yellow><receiver></yellow></gray>"
+  receive: "<gray>Received <yellow><amount></yellow> from <yellow><sender></yellow></gray>"
+  errors:
+    insufficient-balance: "<red>Insufficient balance</red>"
 leaderboard-command:
-  title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><max-page> <gray><strikethrough>             •"
-  server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <server-total>"
-  balance-view: "<gray><position>. <player>, <yellow><balance>"
-  next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <next-page> to view the next page."
+  title: "<gray><b><st>•              </st> <gold>BalanceTop</gold> <st>            </st></b> <yellow><page><gray>/</gray><max-page></yellow> <gray><st>             •</st></b></gray>"
+  server-total: "<dark_gray>[<yellow><b>!</b></yellow>]</dark_gray> <gold><b>BalanceTop</b></gold> <gray>→ Server Total: <server-total></gray>"
+  balance-view: "<gray><position>. <player>,</gray> <yellow><balance></yellow>"
+  next-page: "<dark_gray>[<yellow><b>!</b></yellow>]</dark_gray> <gold><b>BalanceTop</b></gold> <gray>→ Use <command> <next-page> to view the next page.</gray>"
 admin-command:
-  set-balance: "<gray>Set <yellow><player>'s <gray>balance to <yellow><new-balance>"
-  give-balance: "<gray>Added <yellow><balance-change> <gray>to <yellow><player>'s <gray>balance"
-  take-balance: "<gray>Removed <yellow><balance-change> <gray>from <yellow><player>'s <gray>balance"
-  reset-balance: "<gray>Reset <yellow><player>'s <gray>balance"
+  set-balance: "<gray>Set <yellow><player>'s</yellow> balance to <yellow><new-balance></yellow></gray>"
+  give-balance: "<gray>Added <yellow><balance-change></yellow> to <yellow><player>'s</yellow> balance</gray>"
+  take-balance: "<gray>Removed <yellow><balance-change></yellow> from <yellow><player>'s</yellow> balance</gray>"
+  reset-balance: "<gray>Reset <yellow><player>'s</yellow> balance</gray>"

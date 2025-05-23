@@ -19,12 +19,13 @@ public class AccountArgument extends CustomArgument<PlayerAccount, OfflinePlayer
     super(new OfflinePlayerArgument(nodeName), info -> {
       OfflinePlayer target = info.currentInput();
 
-      if (target == null) throw CustomArgumentException.fromString("Player not found");
+      if (target == null)
+        throw CustomArgumentException.fromString("Player not found");
 
       PlayerAccount account = currency.getPlatform().getAccount(target);
 
       if (account == null)
-        throw CustomArgumentException.fromString("Account not found for player: " + target.getName());
+        throw CustomArgumentException.fromString("Account not found for \"%s\"".formatted(target.getName()));
 
       return account;
     });
