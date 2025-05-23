@@ -1,13 +1,10 @@
 package org.stablerpg.stableeconomy.shop.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class InventoryUtil {
 
   public static boolean canFit(@NotNull Player player, @NotNull ItemStack item) {
@@ -64,6 +61,10 @@ public final class InventoryUtil {
     }
 
     return amount;
+  }
+
+  private InventoryUtil () {
+    throw new UnsupportedOperationException("This class cannot be instantiated");
   }
 
 }
