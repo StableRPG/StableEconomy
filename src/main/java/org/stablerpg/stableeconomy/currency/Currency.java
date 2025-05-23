@@ -21,7 +21,6 @@ import org.stablerpg.stableeconomy.commands.arguments.AccountArgument;
 import org.stablerpg.stableeconomy.config.currency.CurrencyLocale;
 import org.stablerpg.stableeconomy.config.currency.CurrencyMessageType;
 import org.stablerpg.stableeconomy.config.exceptions.DeserializationException;
-import org.stablerpg.stableeconomy.config.messages.AbstractLocale;
 import org.stablerpg.stableeconomy.currency.formatting.CurrencyFormatter;
 import org.stablerpg.stableeconomy.currency.formatting.Formatters;
 import org.stablerpg.stableeconomy.data.PlayerAccount;
@@ -73,7 +72,7 @@ public class Currency {
   @Getter
   private final @NotNull EconomyPlatform platform;
   @Getter
-  private final @NotNull AbstractLocale locale;
+  private final @NotNull CurrencyLocale locale;
 
   @Getter
   private final String singularDisplayName;
@@ -96,7 +95,7 @@ public class Currency {
   private @Nullable List<PlayerAccount> leaderboard;
   private long lastLeaderboardUpdate = 0;
 
-  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @NotNull AbstractLocale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
+  private Currency(@NotNull String id, @NotNull EconomyPlatform platform, @NotNull CurrencyLocale locale, @NotNull String singularDisplayName, @NotNull String pluralDisplayName, double startingBalance, @NotNull CurrencyFormatter formatter, @NotNull Command viewCommand, @NotNull Command transferCommand, @NotNull Command leaderboardCommand, int leaderboardPageLength, long leaderboardUpdateInterval, @NotNull Command adminCommand) {
     this.id = id;
     this.platform = platform;
     this.locale = locale;
@@ -299,7 +298,7 @@ public class Currency {
   // Command Actions
 
   private void viewOtherBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
 
@@ -311,8 +310,8 @@ public class Currency {
   }
 
   private void transferBalance(Player player, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
-    Double amount = (Double) args.get("amount");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
+    Double amount = args.getByClass("amount", Double.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
@@ -361,8 +360,8 @@ public class Currency {
   }
 
   private void setPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
-    Double amount = (Double) args.get("amount");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
+    Double amount = args.getByClass("amount", Double.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
@@ -373,8 +372,8 @@ public class Currency {
   }
 
   private void addPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
-    Double amount = (Double) args.get("amount");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
+    Double amount = args.getByClass("amount", Double.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
@@ -385,8 +384,8 @@ public class Currency {
   }
 
   private void subtractPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
-    Double amount = (Double) args.get("amount");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
+    Double amount = args.getByClass("amount", Double.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
     if (amount == null) throw CommandAPI.failWithString("Invalid amount");
@@ -397,7 +396,7 @@ public class Currency {
   }
 
   private void resetPlayerBalance(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-    PlayerAccount target = (PlayerAccount) args.get("target");
+    PlayerAccount target = args.getByClass("target", PlayerAccount.class);
 
     if (target == null) throw CommandAPI.failWithString("Player not found");
 
