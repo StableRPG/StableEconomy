@@ -60,6 +60,7 @@ public class ShopCategory {
     for (String key : itemsSection.getKeys(false)) {
       ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
 
+      //noinspection DataFlowIssue
       int slot = Integer.parseInt(itemSection.getName());
 
       if (itemSection.isConfigurationSection("item"))

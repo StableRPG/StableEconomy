@@ -18,7 +18,7 @@ public abstract class AbstractConfig implements BasicConfig {
   private final @NotNull File file;
   private final @NotNull YamlConfiguration config = new YamlConfiguration();
 
-  protected boolean automaticUpdate;
+  protected final boolean automaticUpdate;
 
   public AbstractConfig(@NotNull AbstractEconomyPlugin plugin, @NotNull String fileNamee, boolean automaticUpdate) {
     this.plugin = plugin;

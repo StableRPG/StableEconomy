@@ -268,12 +268,13 @@ public final class VaultHook implements Economy, Closeable {
 
   @Override
   public boolean createPlayerAccount(String player) {
-    platform.getLogger().warning("Creating an account by name is not recommended. Please use the UUID of the player instead.");
+    platform.getLogger().warning("Creating an account with Vault is not supported. This is done automatically once a player joins the server.");
     return hasAccount(player);
   }
 
   @Override
   public boolean createPlayerAccount(OfflinePlayer player) {
+    platform.getLogger().warning("Creating an account with Vault is not supported. This is done automatically once a player joins the server.");
     return hasAccount(player);
   }
 

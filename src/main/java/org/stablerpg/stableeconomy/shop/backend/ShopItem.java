@@ -1,8 +1,6 @@
 package org.stablerpg.stableeconomy.shop.backend;
 
 import dev.triumphteam.gui.click.ClickContext;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,9 +14,8 @@ import org.stablerpg.stableeconomy.shop.gui.ShopCategoryView;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@Getter
-public class ShopItem implements AbstractGuiItem {
+public record ShopItem(ShopManager manager, ItemBuilder itemBuilder, ItemFormatter itemFormatter,
+                       @NotNull ShopItemAction action, @Nullable String[] actionArgs) implements AbstractGuiItem {
 
   public static ShopItem deserialize(ShopManager manager, ConfigurationSection section, ItemFormatter itemFormatter) throws DeserializationException {
     ItemBuilder itemBuilder = ItemBuilder.deserialize(section);
@@ -42,17 +39,8 @@ public class ShopItem implements AbstractGuiItem {
     return new ShopItem(manager, itemBuilder, itemFormatter, action, actionArgs);
   }
 
-  private final ShopManager manager;
-
-  private final ItemBuilder itemBuilder;
-  private final ItemFormatter itemFormatter;
-
-  private final @NotNull ShopItemAction action;
-  private final @Nullable String[] actionArgs;
-
   public void execute(Player player, ClickContext context) {
-    if (action == ShopItemAction.NONE)
-      return;
+    if (action == ShopItemAction.NONE) return;
 
     if (action == ShopItemAction.OPEN_CATEGORY) {
       if (actionArgs == null || actionArgs.length == 0) {
@@ -69,8 +57,7 @@ public class ShopItem implements AbstractGuiItem {
       new ShopCategoryView(category).open(player);
     }
 
-    if (action == ShopItemAction.CLOSE_INVENTORY)
-      player.closeInventory();
+    if (action == ShopItemAction.CLOSE_INVENTORY) player.closeInventory();
   }
 
   @Override

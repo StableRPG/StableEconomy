@@ -45,6 +45,7 @@ public class PriceConfigImpl extends AbstractConfig implements PriceConfig, Pric
 
       PricedItem pricedItem;
       try {
+        //noinspection DataFlowIssue
         pricedItem = PricedItem.deserialize(itemSection);
       } catch (DeserializationException e) {
         getLogger().warning("Failed to deserialize priced item \"%s\": %s".formatted(itemSection.getName(), e.getMessage()));

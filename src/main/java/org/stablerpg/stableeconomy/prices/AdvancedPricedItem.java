@@ -13,10 +13,19 @@ import java.util.regex.Pattern;
 public class AdvancedPricedItem extends PricedItem {
 
   public static AdvancedPricedItem deserialize(ConfigurationSection section, double buyPrice, double sellValue) throws DeserializationException {
-    Pattern material = Pattern.compile(section.getString("material"));
+    String rawMaterial = section.getString("material");
+
+    if (rawMaterial == null || rawMaterial.isEmpty())
+      throw new DeserializationException("Missing or empty 'material' field in section: " + section.getName());
+
+    Pattern material = Pattern.compile(rawMaterial);
+
+    String rawName = section.getString("display-name");
     Pattern name = null;
-    if (section.contains("display-name"))
-      name = Pattern.compile(section.getString("display-name"));
+
+    if (rawName != null && !rawName.isEmpty())
+      name = Pattern.compile(rawName);
+
     return new AdvancedPricedItem(material, name, buyPrice, sellValue);
   }
 

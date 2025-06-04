@@ -14,8 +14,6 @@ setVersion("1.0.0")
 
 repositories {
     mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.triumphteam.dev/snapshots")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
@@ -42,14 +40,22 @@ dependencies {
 }
 
 tasks {
-    val javaVersion = JavaLanguageVersion.of(21)
+    val javaLanguageVersion = JavaLanguageVersion.of(21)
+    val javaVersion = JavaVersion.VERSION_21
     java {
-        toolchain.languageVersion.set(javaVersion)
+        toolchain {
+            languageVersion.set(javaLanguageVersion)
+        }
+        targetCompatibility = javaVersion
+        sourceCompatibility = javaVersion
     }
     compileJava {
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
-        options.release.set(javaVersion.asInt())
+        targetCompatibility = javaLanguageVersion.toString()
+        sourceCompatibility = javaLanguageVersion.toString()
+        options.release.set(javaLanguageVersion.asInt())
+
+        options.encoding = Charsets.UTF_8.name()
+        options.compilerArgs.plusAssign("-Xlint:deprecation")
     }
     jar {
         enabled = false

@@ -110,6 +110,7 @@ public class ShopConfigImpl implements ShopConfig {
       ConfigurationSection commandSection = commandsSection.getConfigurationSection(commandName);
       ShopCommand command;
       try {
+        //noinspection DataFlowIssue
         command = ShopCommand.deserialize(shopManager, commandSection);
       } catch (DeserializationException e) {
         getLogger().warning("Failed to deserialize command \"%s\": %s".formatted(commandName, e.getMessage()));

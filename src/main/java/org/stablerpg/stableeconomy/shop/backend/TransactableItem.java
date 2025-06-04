@@ -3,7 +3,6 @@ package org.stablerpg.stableeconomy.shop.backend;
 import dev.triumphteam.gui.click.ClickContext;
 import dev.triumphteam.gui.click.GuiClick;
 import io.papermc.paper.entity.PlayerGiveResult;
-import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -21,11 +20,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Getter
-public class TransactableItem implements AbstractGuiItem {
+public record TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description,
+                               ItemFormatter itemFormatter, double buyPrice, double sellValue, ShopLocale locale) implements AbstractGuiItem {
 
   public static TransactableItem deserialize(EconomyPlatform platform, Currency currency, ConfigurationSection section, ItemFormatter itemFormatter, ShopLocale locale) throws DeserializationException {
     ConfigurationSection itemSection = section.getConfigurationSection("item");
+
+    if (itemSection == null)
+      throw new DeserializationException("Failed to locate item section in \"%s\"".formatted(section.getName()));
 
     ItemBuilder itemBuilder = ItemBuilder.deserialize(itemSection);
     int amount = section.getInt("amount", itemBuilder.amount());
@@ -39,23 +41,9 @@ public class TransactableItem implements AbstractGuiItem {
       if (buyPrice == -1)
         throw new DeserializationException("Failed to locate buy price for \"%s\"".formatted(section.getName()));
     }
-    if (sellValue == -1)
-      sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
+    if (sellValue == -1) sellValue = platform.getPriceProvider().getSellValue(itemBuilder.build());
     return new TransactableItem(currency, itemBuilder, amount, displayName, description, itemFormatter, buyPrice, sellValue, locale);
   }
-
-  private final Currency currency;
-  private final ItemBuilder itemBuilder;
-
-  private final int amount;
-  private final String displayName;
-  private final List<String> description;
-  private final ItemFormatter itemFormatter;
-
-  private final double buyPrice;
-  private final double sellValue;
-
-  private final ShopLocale locale;
 
   public TransactableItem(Currency currency, ItemBuilder itemBuilder, int amount, String displayName, List<String> description, ItemFormatter itemFormatter, double buyPrice, double sellValue, ShopLocale locale) {
     this.currency = currency;
@@ -131,14 +119,10 @@ public class TransactableItem implements AbstractGuiItem {
       if (this.description != null) {
         description = new ArrayList<>(this.description);
         description = itemFormatter.format(description, itemFormatter::formatLore, player);
-      } else
-        description = new ArrayList<>();
-      if (buyPrice != -1 || sellValue != -1)
-        description.add(" ");
-      if (buyPrice != -1)
-        description.add(itemFormatter.formatBuyPriceLore(currency.format(buyPrice)));
-      if (sellValue != -1)
-        description.add(itemFormatter.formatSellValueLore(currency.format(sellValue)));
+      } else description = new ArrayList<>();
+      if (buyPrice != -1 || sellValue != -1) description.add(" ");
+      if (buyPrice != -1) description.add(itemFormatter.formatBuyPriceLore(currency.format(buyPrice)));
+      if (sellValue != -1) description.add(itemFormatter.formatSellValueLore(currency.format(sellValue)));
       builder.lore(description).itemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE, ItemFlag.HIDE_UNBREAKABLE);
     }).build();
   }
